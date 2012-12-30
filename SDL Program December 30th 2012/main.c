@@ -47,21 +47,19 @@ int main( int argc, char* args[] )
 				//Quit the program
 				quit = true;
 			}
-			if( event.type == SDL_MOUSEBUTTONDOWN ){
-				if(event.button.button == 1){
-					// user clicked left mouse button.
-					x++;
-				}
-				else if(event.button.button == 2){ // middle click
-					y++;
-				}
-				else if(event.button.button == 3){
-					// user clicked right mouse button
-					x--;
-				}
+			if( event.type == SDL_MOUSEMOTION ){
+				x = event.button.x;
+				y = event.button.y;
 			}
     	} // end while(event)
-    }// end while(quit == false
+		//no more events to handle at the moment.
+		
+		apply_surface( x, y, image, screen );
+		// flip screen
+		SDL_Flip( screen );
+		SDL_FreeSurface( screen );
+    	
+    }// end while(quit == false)
     
     //Free the surface and quit SDL
     clean_up();

@@ -52,7 +52,7 @@ int main( int argc, char* args[] )
     	} // end while(event)
 		//no more events to handle at the moment.
 		
-		apply_surface( x, y, image, screen );
+		apply_surface( 640 - x, 480 - y, image, screen );
 		// flip screen
 		SDL_Flip( screen );
 		SDL_FreeSurface( screen );
@@ -60,17 +60,11 @@ int main( int argc, char* args[] )
 		SDL_Rect my_rect;
 		my_rect.x = 0;
 		my_rect.y = 0;
-		my_rect.w = 480;
-		my_rect.h = 640;
-		
-		SDL_Color colorBlack = { 0, 0, 0 };
-		
-		apply_surface( x += 10, y -= 10, image, screen );
-		// flip screen
-		SDL_Flip( screen );
-		SDL_FillRect( screen, &my_rect, &colorBlack );
+		my_rect.w = 640;
+		my_rect.h = 480;
+		SDL_FillRect( screen, &my_rect, 0xffffff );
 		SDL_FreeSurface( screen );
-    	
+
     }// end while(quit == false)
     
     //Free the surface and quit SDL

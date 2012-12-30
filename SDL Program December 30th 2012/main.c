@@ -32,8 +32,6 @@ int main( int argc, char* args[] )
     	return 3;
     }
 
-
-
     int x = 0, y = 0;
     //While the user hasn't quit
     while( quit == false )
@@ -57,6 +55,20 @@ int main( int argc, char* args[] )
 		apply_surface( x, y, image, screen );
 		// flip screen
 		SDL_Flip( screen );
+		SDL_FreeSurface( screen );
+
+		SDL_Rect my_rect;
+		my_rect.x = 0;
+		my_rect.y = 0;
+		my_rect.w = 480;
+		my_rect.h = 640;
+		
+		SDL_Color colorBlack = { 0, 0, 0 };
+		
+		apply_surface( x += 10, y -= 10, image, screen );
+		// flip screen
+		SDL_Flip( screen );
+		SDL_FillRect( screen, &my_rect, &colorBlack );
 		SDL_FreeSurface( screen );
     	
     }// end while(quit == false)

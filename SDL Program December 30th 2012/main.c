@@ -31,7 +31,10 @@ int main( int argc, char* args[] )
     {
     	return 3;
     }
-    
+
+
+
+    int x = 0, y = 0;
     //While the user hasn't quit
     while( quit == false )
     {
@@ -44,8 +47,21 @@ int main( int argc, char* args[] )
 				//Quit the program
 				quit = true;
 			}
-    	}
-    }
+			if( event.type == SDL_MOUSEBUTTONDOWN ){
+				if(event.button.button == 1){
+					// user clicked left mouse button.
+					x++;
+				}
+				else if(event.button.button == 2){ // middle click
+					y++;
+				}
+				else if(event.button.button == 3){
+					// user clicked right mouse button
+					x--;
+				}
+			}
+    	} // end while(event)
+    }// end while(quit == false
     
     //Free the surface and quit SDL
     clean_up();

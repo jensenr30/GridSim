@@ -1,7 +1,6 @@
 //this program decides which episode of MLP you should watch.
 
 
-
 #include <stdlib.h> // included for the rand() and srand() functions
 #include <time.h>   // included for the time() function
 #include <stdio.h>  // if you have to ask, leave now. xD

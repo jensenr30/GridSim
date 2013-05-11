@@ -113,7 +113,7 @@ int main(){
         else if(episode == 24 && season == 1){
         printf("Owl's Well That Ends Well\n");
         }
-        else if(episode == 25 && season == 1){
+        else if(episode == 25 && season == 1){ // Pinkie Pie
         printf("Party of One\n");
         }
         else if(episode == 26 && season == 1){
@@ -125,7 +125,7 @@ int main(){
         else if(episode == 2 && season == 2){
         printf("The Return of Harmony, Part 2\n");
         }
-        else if(episode == 3 && season == 2){
+        else if(episode == 3 && season == 2){ // twilight goes CRAZY!
         printf("Lesson Zero\n");
         }
         else if(episode == 4 && season == 2){

@@ -1,6 +1,5 @@
 //this program decides which episode of MLP you should watch.
 
-
 #include <stdlib.h> // included for the rand() and srand() functions
 #include <time.h>   // included for the time() function
 #include <stdio.h>  // if you have to ask, leave now. xD
@@ -231,10 +230,10 @@ int main(){
         printf("Just For Sidekicks\n");
         }
         else if(episode == 12 && season == 3){
-        printf("TBA\n");
+        printf("Games Ponies Play\n");
         }
         else if(episode == 13 && season == 3){
-        printf("TBA\n");
+        printf("Magical Mystery Cure\n");
         }
 
 		// at this point, you will have the season number and the episode number. write code to print out the episode number and season number.

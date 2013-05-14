@@ -1,4 +1,4 @@
-
+ 
 SDL_Surface *load_image( char* filename )
 {
     //Temporary storage for the image that is loaded
@@ -66,7 +66,7 @@ int init()
 int load_files()
 {
 	//Load the image
-	image = load_image( "x.png" );
+	image = load_image( "box.png" );
 	
 	//if there was an error in loading the image
 	if( image == NULL )

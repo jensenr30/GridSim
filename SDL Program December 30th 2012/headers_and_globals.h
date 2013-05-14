@@ -1,4 +1,4 @@
-
+ 
 /* Ryan Jensen * <date> * <title>
  * <purpose>
  */
@@ -8,6 +8,8 @@
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
 
+//definitions
+#define MAX_COUNT  150
 #define false 0 // c++ adaption
 #define true 1  // c++ adaption
 

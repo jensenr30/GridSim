@@ -19,3 +19,23 @@
 
 1361246295 d:\programming\sdl stuff\gliderbot\glider_functions.h
 
+1361249952 source:d:\programming\experiments\gliderbot\main.c
+	"SDL/SDL.h"
+	"SDL/SDL_image.h"
+	"SDL/SDL_ttf.h"
+	<Windows.h>
+	"stdlib.h"
+	"conio.h"
+	<math.h>
+	<string.h>
+	<time.h>
+	"functions.h"
+	"graphics_functions.h"
+	"glider_functions.h"
+
+1361249491 d:\programming\experiments\gliderbot\functions.h
+
+1361245577 d:\programming\experiments\gliderbot\graphics_functions.h
+
+1368561118 d:\programming\experiments\gliderbot\glider_functions.h
+

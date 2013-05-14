@@ -1,12 +1,12 @@
 # depslib dependency file v1.0
-1356907906 source:d:\programming\experiments\sdl program december 30th 2012\main.c
+1356912117 source:d:\programming\experiments\sdl program december 30th 2012\main.c
 	"headers_and_globals.h"
 
-1356907906 d:\programming\experiments\sdl program december 30th 2012\headers_and_globals.h
+1356912117 d:\programming\experiments\sdl program december 30th 2012\headers_and_globals.h
 	"SDL/SDL.h"
 	"SDL/SDL_image.h"
 	"SDL/SDL_ttf.h"
 	"functions.h"
 
-1356907906 d:\programming\experiments\sdl program december 30th 2012\functions.h
+1356912117 d:\programming\experiments\sdl program december 30th 2012\functions.h
 

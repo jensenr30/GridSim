@@ -11,8 +11,8 @@
 #define CELL_SIZE 10
 
 // this is how large the cell grid is.
-#define CELL_WIDTH (SCREEN_WIDTH/CELL_SIZE)
-#define CELL_HEIGHT (SCREEN_HEIGHT/CELL_SIZE)
+#define GRID_WIDTH (SCREEN_WIDTH/CELL_SIZE)
+#define GRID_HEIGHT (SCREEN_HEIGHT/CELL_SIZE)
 
 //this is how many different types of materials there can be.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100
@@ -22,7 +22,7 @@
 
 //this array holds the data for each cell. An integer indicates what material is stored in that cell.
 // cellData[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
-int cellData[CELL_WIDTH][CELL_HEIGHT];
+int cellData[GRID_WIDTH][GRID_HEIGHT];
 
 //this defines the material types.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
@@ -63,7 +63,7 @@ struct material {
 	struct affectMaterial affected[MAX_NUMBER_OF_MATERIAL_INTERACTIONS];
 
 	// the color of the material
-	SDL_Color color;
+	unsigned int color;
 
 	//value between 0 and 10000 describing the likelyhood of this material decaying on its own.
 	// 467 would mean there is a 4.67% chance of decay on each evaluation cycle.
@@ -91,9 +91,7 @@ void set_default_material_attributes(){
 	//DEFAULT MATERIAL VALUES:
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
 		mats[i].gravity = 0; // is not affected by gravity
-		mats[i].color.r = 0;// red=0	default color is black
-		mats[i].color.g = 0;// green=0
-		mats[i].color.b = 0;// blue=0
+		mats[i].color = 0x000000;//default color is black
 		mats[i].decayChance = 0; // 0% chance to decay.
 		mats[i].decayInto = 0;	 // decay into air (this is irrelevant because there is a 0% decayChance anyway)
 		for(j=0 ; j<MAX_NUMBER_OF_MATERIAL_INTERACTIONS ; j++){
@@ -113,16 +111,19 @@ void specify_material_attributes(void){
 
 	mats[M_earth].name = "Earth";
 	mats[M_earth].gravity = 0;
+	mats[M_earth].color = 0x885607;
 
 	mats[M_grass].name = "Grass";
 	mats[M_grass].gravity = 0;
+    mats[M_grass].color = 0x20e112;
 
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = 1;
-
+    mats[M_water].color = 0x158ad4;
 
 	mats[M_fire].name = "Fire";
 	mats[M_fire].gravity = 0;
+    mats[M_fire].color = 0xd83313;
 
 }
 
@@ -132,8 +133,8 @@ void specify_material_attributes(void){
 void reset_cells(void){
 	int i; int j;
 
-	for(i=0 ; i<CELL_WIDTH ; i++){
-		for(j=0 ; j<CELL_HEIGHT ; j++){
+	for(i=0 ; i<GRID_WIDTH ; i++){
+		for(j=0 ; j<GRID_HEIGHT ; j++){
 			cellData[i][j] = 0; // air
 		}
 	}

@@ -1,5 +1,5 @@
 
- 
+
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
@@ -34,7 +34,7 @@ SDL_Event event;
 
 
 #include "general_functions.h"
-#include "cell_utilities.h"
-#include "cell_graphics.h"
+#include "materials_and_cells.h"
+#include "cell_engine.h"
 
 

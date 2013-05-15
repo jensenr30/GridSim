@@ -3,7 +3,7 @@
 /// the GRID is the collection of cells in the application window.
 /// a MATERIAL refers to what thing is occupying a certain cell.
 /// for instance, you might fill a CELL with a MATERIAL.
-/// you do NOT fill a CELL with a MATERIAL. that just doesn't make any sense.
+/// you do NOT fill a METERIAL with a CELL. that just doesn't make any sense.
 /// if you want to make a cell empty, that means you are filling it with AIR.
 
 
@@ -27,7 +27,7 @@ int cellData[CELL_WIDTH][CELL_HEIGHT];
 //this defines the material types.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
-#define M_no_change -1  // this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid. 
+#define M_no_change -1  // this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid.
 #define M_air 0
 #define M_earth 1
 #define M_grass 2
@@ -57,26 +57,26 @@ struct affectMaterial{
 
 ///this is the data structure for materials:
 struct material {
-	
+
 	// this is an array of affectMaterial structures.
 	//Each element of the structure array describes one type of interaction this material can have with materials in neighboring cells.
 	struct affectMaterial affected[MAX_NUMBER_OF_MATERIAL_INTERACTIONS];
-	
+
 	// the color of the material
 	SDL_Color color;
-	
+
 	//value between 0 and 10000 describing the likelyhood of this material decaying on its own.
 	// 467 would mean there is a 4.67% chance of decay on each evaluation cycle.
 	int decayChance;
 	//this is the type of material that the current material may decay into.
 	int decayInto;
-	
+
 	// 0 = no gravity. 1 = material is subject to gravity.
 	int gravity;
-	
+
 	//material name
 	char *name;
-	
+
 } mats[MAX_NUMBER_OF_UNIQUE_MATERIALS]; // this mats array holds all the different types of materials.
 
 
@@ -107,23 +107,23 @@ void set_default_material_attributes(){
 }
 
 void specify_material_attributes(void){
-	
+
 	mats[M_air].name = "Air (empty)";
-	//everything else for air has already been 
-	
+	//everything else for air has already been
+
 	mats[M_earth].name = "Earth";
 	mats[M_earth].gravity = 0;
-	
+
 	mats[M_grass].name = "Grass";
 	mats[M_grass].gravity = 0;
-	
+
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = 1;
-	
-	
+
+
 	mats[M_fire].name = "Fire";
 	mats[M_fire].gravity = 0;
-	
+
 }
 
 
@@ -131,7 +131,7 @@ void specify_material_attributes(void){
 ///this function resets all the cells to default state. Nothing
 void reset_cells(void){
 	int i; int j;
-	
+
 	for(i=0 ; i<CELL_WIDTH ; i++){
 		for(j=0 ; j<CELL_HEIGHT ; j++){
 			cellData[i][j] = 0; // air
@@ -144,7 +144,7 @@ void reset_cells(void){
 ///this function is called when the program starts.
 ///It initializes everything that needs to be done to get the cell stuff working.
 void init_cell_stuff(void){
-	
+
 	set_default_material_attributes();
 	specify_material_attributes();
 	reset_cells();

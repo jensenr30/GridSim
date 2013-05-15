@@ -1,25 +1,25 @@
 #include "headers_and_globals.h"
- 
+
 int main( int argc, char* args[] )
 {
 	//make sure the program waits for a quit
 	int quit = false;
-	
+
     //Initialize
     if( init() == false )
     {
     	return 1;
     }
-    
+
     //Load the files
     if( load_files() == false )
     {
     	return 2;
     }
-    
+
     //Apply the surface to the screen
     apply_surface( 0, 0, image, screen );
-    
+
     //Update the screen
     if( SDL_Flip( screen ) == -1 )
     {
@@ -29,7 +29,7 @@ int main( int argc, char* args[] )
 	int keyup = 0, keydown = 0, keyleft = 0, keyright = 0;
 	int x=0, y=0;
 	int countup=0, countdown=0, countleft=0, countright=0;
-	
+
     //While the user hasn't quit
     while( quit == false )
     {
@@ -115,13 +115,13 @@ int main( int argc, char* args[] )
 		// flip screen
 		SDL_Flip( screen ); // update screen
 		//SDL_FreeSurface( screen ); // saves memory
-		
 
-		
+
+
     }// end while(quit == false)
-    
+
     //Free the surface and quit SDL
     clean_up();
-    
+
     return 0;
 }

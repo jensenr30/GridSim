@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1368569598 source:d:\users\josh\documents\github\experiments\sdl program december 30th 2012\main.c
+	"headers_and_globals.h"
+
+1368569598 d:\users\josh\documents\github\experiments\sdl program december 30th 2012\headers_and_globals.h
+	"SDL/SDL.h"
+	"SDL/SDL_image.h"
+	"SDL/SDL_ttf.h"
+	"functions.h"
+
+1368569598 d:\users\josh\documents\github\experiments\sdl program december 30th 2012\functions.h
+

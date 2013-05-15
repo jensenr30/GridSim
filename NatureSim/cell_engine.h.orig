@@ -16,6 +16,12 @@ void evaluate_cells(){
 
 // this will print to the screen each material in each cell.
 void print_cells(){
+<<<<<<< HEAD
+	
+	
+	
+	
+=======
 
     cellData[0][0] = M_water;
     cellData[1][0] = M_fire;
@@ -36,4 +42,5 @@ void print_cells(){
         myRectangle.y += 10;
     }
     SDL_Flip(screen);
+>>>>>>> 49d0ff24b565bfb3b301be4c9df46343c297b85e
 }

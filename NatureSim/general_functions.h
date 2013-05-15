@@ -1,6 +1,5 @@
  
-SDL_Surface *load_image( char* filename )
-{
+SDL_Surface *load_image( char* filename ){
     //Temporary storage for the image that is loaded
     SDL_Surface* loadedImage = NULL;
     
@@ -12,8 +11,7 @@ SDL_Surface *load_image( char* filename )
     //loadedImage = SDL_LoadBMP( filename );
     
     //If the image was loaded correctly
-    if( loadedImage != NULL )
-    {
+    if( loadedImage != NULL ){
         // Create an optimized image
         optimizedImage = SDL_DisplayFormatAlpha( loadedImage );
         //Free the old image
@@ -24,8 +22,7 @@ SDL_Surface *load_image( char* filename )
     return optimizedImage;
 }
 
-void apply_surface( int x, int y,  SDL_Surface* source, SDL_Surface* destination )
-{
+void apply_surface( int x, int y,  SDL_Surface* source, SDL_Surface* destination ){
     //make a temporary rectangle to hold offsets
     SDL_Rect offset;
     
@@ -37,11 +34,9 @@ void apply_surface( int x, int y,  SDL_Surface* source, SDL_Surface* destination
     SDL_BlitSurface( source, NULL, destination, &offset );
 }
 
-int init()
-{
+int init(){
 	//Initialize all subsystems
-	if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 )
-	{
+	if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 ){
 		return false;
 	}
 	
@@ -49,13 +44,12 @@ int init()
 	screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
 	
 	//If there was an error setting up the screen
-	if(screen == NULL )
-	{
+	if(screen == NULL ){
 		return false;
 	}
 	
 	//Set the window caption
-	SDL_WM_SetCaption( "Ryan's SDL Program", NULL );
+	SDL_WM_SetCaption( "NatureSim 0.1 - working copy", NULL );
 	
 	//SDL_WM_SetIcon( icon ); // sets the icon of the windows and taskbar item
 	
@@ -63,8 +57,8 @@ int init()
 	return true;
 }
 
-int load_files()
-{
+int load_files(){
+	/*
 	//Load the image
 	image = load_image( "box.png" );
 	
@@ -73,17 +67,17 @@ int load_files()
 	{
 		return false;
 	}
+	*/
 	
 	//If everthing loaded fine
 	return true;
 }
 
 
-void clean_up()
-{
+void clean_up(){
 	//free the image
-	SDL_FreeSurface( image );
-	SDL_FreeSurface( text );
+	//SDL_FreeSurface( image );
+	//SDL_FreeSurface( text );
 	SDL_FreeSurface( screen );
 	
 	//Quit SDL

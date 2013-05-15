@@ -1,1 +1,8 @@
-Lets make individual programming projects in subfolders in this repository just to keep things orderly  :)
+##Experiments Repo
+*A repo for JP and Jensen where we write programs collaboratively.*
+
+##Contact
+*Jensen*
+- JensenR30@GMail.com
+*JP*
+- 

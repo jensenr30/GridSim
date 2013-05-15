@@ -1,8 +1,4 @@
- 
-/* Ryan Jensen * <date> * <title>
- * <purpose>
- */
- 
+
  
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
@@ -14,28 +10,31 @@
 #define true 1  // c++ adaption
 
 //The attributes of the screen
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
-const int SCREEN_BPP = 32;
+#define SCREEN_WIDTH 900
+#define SCREEN_HEIGHT 540
+#define SCREEN_BPP 32
 
 //The surfaces that will be used
 SDL_Surface* screen = 	NULL;
-SDL_Surface* text = 	NULL;
-SDL_Surface* image = 	NULL;
-
+//SDL_Surface* text = 	NULL;
+//SDL_Surface* image = 	NULL;
+/// DON'T FORGET TO ADD THESE SURFACES TO "void clean_up"!
 //The event structure that will be used
 SDL_Event event;
 
 //the fint that will be used
-TTF_Font *font = NULL;
+//TTF_Font *font = NULL;
 
 //The color of the text
-SDL_Color textColor = { 0, 0, 0 };
+//SDL_Color textColor = { 0, 0, 0 };
 
 
 
 
 
-#include "functions.h"
+
+#include "general_functions.h"
+#include "cell_utilities.h"
+#include "cell_graphics.h"
 
 

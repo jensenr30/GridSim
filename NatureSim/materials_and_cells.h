@@ -1,16 +1,18 @@
-/// IMPORTANT LINGO:
-/// a CELL refers to a space in the grid.
+///------------IMPORTANT TERMS----------------------------------------------
+/// a CELL refers to a space in the GRID.
+/// the GRID is the collection of cells in the application window.
 /// a MATERIAL refers to what thing is occupying a certain cell.
 /// for instance, you might fill a CELL with a MATERIAL.
 /// you do NOT fill a CELL with a MATERIAL. that just doesn't make any sense.
 /// if you want to make a cell empty, that means you are filling it with AIR.
 
 
+// this is how big each square cell is
+#define CELL_SIZE 10
 
-#define CELL_SIZE 10 // this is how big each square cell is
-//this is how large the cell grid is.
-#define CELL_WIDTH SCREEN_WIDTH/CELL_SIZE
-#define CELL_HEIGHT SCREEN_HEIGHT/CELL_SIZE
+// this is how large the cell grid is.
+#define CELL_WIDTH (SCREEN_WIDTH/CELL_SIZE)
+#define CELL_HEIGHT (SCREEN_HEIGHT/CELL_SIZE)
 
 //this is how many different types of materials there can be.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100
@@ -18,12 +20,13 @@
 #define MAX_NUMBER_OF_MATERIAL_INTERACTIONS 10
 
 
-///this array holds the data for each cell. An integer indicates what material is stored in that cell.
+//this array holds the data for each cell. An integer indicates what material is stored in that cell.
+// cellData[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
 int cellData[CELL_WIDTH][CELL_HEIGHT];
 
 //this defines the material types.
-// for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
-// this is just for ease of code writing.
+//for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
+//this is just for ease of code writing.
 #define M_air 0
 #define M_earth 1
 #define M_grass 2

@@ -32,8 +32,8 @@ int cellData[CELL_WIDTH][CELL_HEIGHT];
 #define M_grass 2
 #define M_water 3
 #define M_fire 4
-#define M_gunpowder 5
-#define M_cement 6
+#define M_gunpowder 6
+#define M_cement 5
 #define M_concrete 7
 #define M_tree 8
 #define M_animal 9
@@ -62,7 +62,7 @@ struct material {
 	struct affectMaterial affected[MAX_NUMBER_OF_MATERIAL_INTERACTIONS];
 	
 	// the color of the material
-	SDL_Color color;
+	SDL_Color materialColor;
 	
 	//value between 0 and 10000 describing the likelyhood of this material decaying on its own.
 	// 467 would mean there is a 4.67% chance of decay on each evaluation cycle.
@@ -71,10 +71,10 @@ struct material {
 	int decayInto;
 	
 	// 0 = no gravity. 1 = material is subject to gravity.
-	int gravity;
+	int gravityWell;
 	
 	//material name
-	char *name;
+	char *materialName;
 	
 } mats[MAX_NUMBER_OF_UNIQUE_MATERIALS]; // this mats array holds all the different types of materials.
 
@@ -116,7 +116,7 @@ void specify_material_attributes(void){
 	mats[M_grass].name = "Grass";
 	mats[M_grass].gravity = 0;
 	
-	mats[M_water].name = "Water";
+	mats[M_water].name = "Heavy Water";
 	mats[M_water].gravity = 1;
 	
 	
@@ -138,6 +138,7 @@ void reset_cells(void){
 	}
 }
 
+//this is just a comment. don't mind me.
 
 
 ///this function is called when the program starts.

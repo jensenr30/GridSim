@@ -62,7 +62,7 @@ struct material {
 	struct affectMaterial affected[MAX_NUMBER_OF_MATERIAL_INTERACTIONS];
 	
 	// the color of the material
-	SDL_Color color;
+	SDL_Color the_color;
 	
 	//value between 0 and 10000 describing the likelyhood of this material decaying on its own.
 	// 467 would mean there is a 4.67% chance of decay on each evaluation cycle.
@@ -116,7 +116,7 @@ void specify_material_attributes(void){
 	mats[M_grass].name = "Grass";
 	mats[M_grass].gravity = 0;
 	
-	mats[M_water].name = "Water";
+	mats[M_water].name = "Water (murky)";
 	mats[M_water].gravity = 1;
 	
 	
@@ -139,6 +139,7 @@ void reset_cells(void){
 }
 
 
+//some comment. I dunno. testing. delete me. seriously. this is just a test.
 
 ///this function is called when the program starts.
 ///It initializes everything that needs to be done to get the cell stuff working.

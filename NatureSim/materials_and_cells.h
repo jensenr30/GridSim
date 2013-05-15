@@ -27,18 +27,19 @@ int cellData[CELL_WIDTH][CELL_HEIGHT];
 //this defines the material types.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
-#define M_no_change -1  // this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid. 
-#define M_air 0
-#define M_earth 1
-#define M_grass 2
-#define M_water 3
-#define M_fire 4
-#define M_gunpowder 5
-#define M_cement 6
-#define M_concrete 7
-#define M_tree 8
-#define M_animal 9
-#define M_human 10
+#define M_no_change 	-1  // this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid. 
+#define M_air			0
+#define M_earth			1
+#define M_grass			2
+#define M_water			3
+#define M_fire			4
+#define M_gunpowder		5
+#define M_cement		6
+#define M_concrete		7
+#define M_tree			8
+#define M_animal		9
+#define M_human			10
+#define M_rock			11
 
 
 
@@ -109,13 +110,17 @@ void set_default_material_attributes(){
 void specify_material_attributes(void){
 	
 	mats[M_air].name = "Air (empty)";
-	//everything else for air has already been 
+	//everything else for air has already been
 	
 	mats[M_earth].name = "Earth";
 	mats[M_earth].gravity = 0;
+	mats[M_earth].decayInto = M_rock;
+	mats[M_earth].decayChance = 05; // 0.5% chance of decaying into rock.
 	
 	mats[M_grass].name = "Grass";
 	mats[M_grass].gravity = 0;
+	mats[M_grass].decayInto = M_earth;
+	mats[M_grass].decayChance = 50; // 0.5% chance of decay into dirt
 	
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = 1;
@@ -123,6 +128,8 @@ void specify_material_attributes(void){
 	
 	mats[M_fire].name = "Fire";
 	mats[M_fire].gravity = 0;
+	mats[M_fire].decayInto = M_air;
+	mats[M_fire].decayChance = 3500; // 35% chance of decaying into air
 	
 }
 

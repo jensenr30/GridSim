@@ -20,6 +20,4 @@ void print_cells(){
 	
 	
 	
-	
-	
 }

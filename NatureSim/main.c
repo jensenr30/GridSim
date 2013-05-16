@@ -68,6 +68,8 @@ int main( int argc, char* args[] )
 			}
 
             if( event.type == SDL_MOUSEBUTTONDOWN ){
+				x = event.motion.x;
+				y = event.motion.y;
                 if( event.button.button == SDL_BUTTON_LEFT ){
                     mouseStatusLeft = 1;
                 }
@@ -78,6 +80,8 @@ int main( int argc, char* args[] )
             }
 
             if(event.type == SDL_MOUSEBUTTONUP){
+				x = event.motion.x;
+				y = event.motion.y;
                 if( event.button.button == SDL_BUTTON_LEFT ){
                     mouseStatusLeft = 0;
                 }
@@ -86,8 +90,8 @@ int main( int argc, char* args[] )
                 }
             }
             if( event.type == SDL_MOUSEMOTION ){
-                    x = event.motion.x;
-                    y = event.motion.y;
+				x = event.motion.x;
+				y = event.motion.y;
             }
 
             if( event.type == SDL_KEYDOWN ){
@@ -102,14 +106,10 @@ int main( int argc, char* args[] )
     	} // end while(event)
 		//no more events to handle at the moment.
         if(mouseStatusLeft == 1){
-            x = event.button.x;
-            y = event.button.y;
             setcell(x, y, d);
             }
 
         else if(mouseStatusRight == 1){
-            x = event.button.x;
-            y = event.button.y;
             deletecell(x, y, d);
         }
         
@@ -122,6 +122,7 @@ int main( int argc, char* args[] )
         //print recagle for cursor
         cursorRectangle.x = x - CELL_SIZE/2;
         cursorRectangle.y = y - CELL_SIZE/2;
+        cursorRectangle.w = cursorRectangle.h = CELL_SIZE;
         SDL_FillRect( screen , &cursorRectangle , mats[d].color);
 
         //updates the screen

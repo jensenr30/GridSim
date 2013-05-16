@@ -21,10 +21,17 @@ void evaluate_cells(){
 	
 	///this giant-ass for loop is where we find out which cells need to be changed
 	
-	for(i=0 ; i<GRID_WIDTH ; i++){
+	for(i=GRID_WIDTH-1 ; i>=0 ; i--){
 		
-		for(j=0 ; j<GRID_HEIGHT ; j++){
+		for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
 				
+			//gravity checking
+			if(mats[cellData[i][j]].gravity && (cellData[i][j+1] == M_air || cellChanges[i][j+1] == M_air || j == GRID_HEIGHT-1) ){ // if gravity affects this material, make it fall. Simple. Bada bing.
+				if(j < GRID_HEIGHT-1)
+					cellChanges[i][j+1] = cellData[i][j];
+				cellChanges[i][j] = M_air;
+			}
+			
 			if(roll_ht( mats[ cellData[i][j] ].decayChance) ) cellData[i][j] = mats[ cellData[i][j] ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
 				

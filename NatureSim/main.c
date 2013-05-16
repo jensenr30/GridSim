@@ -30,12 +30,12 @@ int main( int argc, char* args[] )
     int i,j;
     for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			cellData[i][j] = M_grass;
+			cellData[i][j] = M_water;
 		}
     }
-    cellData[GRID_WIDTH/2][GRID_HEIGHT/2] = M_fire;
-    cellData[GRID_WIDTH/2 + 1][GRID_HEIGHT/2] = M_fire;
-    cellData[GRID_WIDTH/2 - 1][GRID_HEIGHT/2] = M_fire;
+    cellData[GRID_WIDTH/2][GRID_HEIGHT/2] = M_grass;
+    cellData[GRID_WIDTH/2 + 1][GRID_HEIGHT/2] = M_grass;
+    cellData[GRID_WIDTH/2 - 1][GRID_HEIGHT/2] = M_grass;
     //for(i=0 ; i<10 ; i++){
 	//	cellData[get_rand(0,89)][get_rand(0,53)] = M_fire;
     //}

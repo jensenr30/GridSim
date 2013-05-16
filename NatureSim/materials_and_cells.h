@@ -8,7 +8,7 @@
 
 
 // this is how big each square cell is
-#define CELL_SIZE 2
+#define CELL_SIZE 5
 
 // this is how large the cell grid is.
 #define GRID_WIDTH (SCREEN_WIDTH/CELL_SIZE)
@@ -22,12 +22,15 @@
 
 //this array holds the data for each cell. An integer indicates what material is stored in that cell.
 // cellData[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
-int cellData[GRID_WIDTH][GRID_HEIGHT];
-
+short cellData[GRID_WIDTH][GRID_HEIGHT];
+//this is what modifier the materials in each cell have. it is soaked? (modified by water) is it on fire? (modified by fire?)
+// if it is soaked, then cellMod = M_water. If it is on fire, then cellMod= M_fire.
+short cellMod[GRID_WIDTH][GRID_HEIGHT];
 //this defines the material types.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
-#define M_no_change 		-1  // this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid. 
+#define M_no_modifier	-2	// this is used to flag that there is no modifier on the block.
+#define M_no_change 	-1	// this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid. 
 #define M_air			0
 #define M_earth			1
 #define M_grass			2
@@ -120,6 +123,16 @@ void specify_material_attributes(void){
 	mats[M_grass].name = "Grass";
 	mats[M_grass].gravity = 0;
     mats[M_grass].color = 0x20e112;
+    mats[M_grass].affected[0].typeBefore = M_water;
+	mats[M_grass].affected[0].typeAfter  = M_grass;
+	mats[M_grass].affected[0].chance[0] = 1000;
+	mats[M_grass].affected[0].chance[1] = 1000;
+	mats[M_grass].affected[0].chance[2] = 1000;
+	mats[M_grass].affected[0].chance[3] = 1000;
+	mats[M_grass].affected[0].chance[4] = 1000;
+	mats[M_grass].affected[0].chance[5] = 1000;
+	mats[M_grass].affected[0].chance[6] = 1000;
+	mats[M_grass].affected[0].chance[7] = 1000;
 
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = 1;
@@ -156,6 +169,7 @@ void reset_cells(void){
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			cellData[i][j] = 0; // air
+			cellMod[i][j]  = M_no_modifier;
 		}
 	}
 }

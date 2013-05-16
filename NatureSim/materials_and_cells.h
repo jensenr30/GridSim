@@ -8,7 +8,7 @@
 
 
 // this is how big each square cell is
-#define CELL_SIZE 10
+#define CELL_SIZE 2
 
 // this is how large the cell grid is.
 #define GRID_WIDTH (SCREEN_WIDTH/CELL_SIZE)
@@ -46,14 +46,15 @@ int cellData[GRID_WIDTH][GRID_HEIGHT];
 struct affectMaterial{
 	short typeBefore; // the type of material will be affected by the material in the current cell.
 	short typeAfter; // this is material that the above material will turn into.
-	short chance[8]; // int value from 0-10000 describes the likelyhood of current material affecting the material in the cell next to it.
-	//this is a diagram of how the numbers in the array correlate to the cells around material in the main cell (M)
+	unsigned chance[8]; // int value from 0-100000 describes the likelyhood of current material affecting the material in the cell next to it.
+	// = 0 never happens. 100 = always happens.
+	//this is a diagram of how the numbers in the chance array correlate to the cells around material in the main cell (M)
 	//  0 1 2
 	//  3 M 4
 	//  5 6 7
-	// if we set  chance[2] = 5370;   then the material in the cell up and to the right from the main cell (M) has a 53.70% chance of being changed into typeAfter.
-	// if we set  chance[6] = 0012;   then the material in the cell directly below the main cell (M) will have a 00.12% chance of being changed into typeAfter.
-	// if we set  chance[3] = 10000;  then the material in the cell to the left of the main cell (M) will have a 100.00% chance of being changed into typeAfter.
+	// if we set  chance[2] =  53700;   then the material in the cell up and to the right from the main cell (M) has a 53.700% chance of being changed into typeAfter.
+	// if we set  chance[6] =     12;   then the material in the cell directly below the main cell (M) will have a 0.012% chance of being changed into typeAfter.
+	// if we set  chance[3] = 100000;  then the material in the cell to the left of the main cell (M) will have a 100.000% chance of being changed into typeAfter.
 };
 
 ///this is the data structure for materials:
@@ -66,9 +67,9 @@ struct material {
 	// the color of the material
 	unsigned int color;
 
-	//value between 0 and 10000 describing the likelyhood of this material decaying on its own.
-	// 467 would mean there is a 4.67% chance of decay on each evaluation cycle.
-	int decayChance;
+	//value between 0 and 100000 describing the likelyhood of this material decaying on its own.
+	// 467 would mean there is a 0.467% chance of decay on each evaluation cycle.
+	unsigned decayChance;
 	//this is the type of material that the current material may decay into.
 	int decayInto;
 
@@ -114,13 +115,11 @@ void specify_material_attributes(void){
 	mats[M_earth].gravity = 0;
 	mats[M_earth].decayInto = M_rock;
 	mats[M_earth].color = 0x885607;
-	mats[M_earth].decayChance = 05; // 0.5% chance of decaying into rock.
+	mats[M_earth].decayChance = 1;
 
 	mats[M_grass].name = "Grass";
 	mats[M_grass].gravity = 0;
-	mats[M_grass].decayInto = M_earth;
     mats[M_grass].color = 0x20e112;
-	mats[M_grass].decayChance = 50; // 0.5% chance of decay into dirt
 
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = 1;
@@ -130,8 +129,22 @@ void specify_material_attributes(void){
 	mats[M_fire].gravity = 0;
 	mats[M_fire].decayInto = M_air;
     mats[M_fire].color = 0xd83313;
-	mats[M_fire].decayChance = 3500; // 35% chance of decaying into air
-
+	mats[M_fire].decayChance = 9000;
+	mats[M_fire].affected[0].typeBefore = M_grass;
+	mats[M_fire].affected[0].typeAfter  = M_fire;
+	mats[M_fire].affected[0].chance[0] = 12000;
+	mats[M_fire].affected[0].chance[1] = 15000;
+	mats[M_fire].affected[0].chance[2] = 12000;
+	mats[M_fire].affected[0].chance[3] =  9000;
+	mats[M_fire].affected[0].chance[4] =  9000;
+	mats[M_fire].affected[0].chance[5] =  4500;
+	mats[M_fire].affected[0].chance[6] =  6500;
+	mats[M_fire].affected[0].chance[7] =  4500;
+	
+	mats[M_rock].name = "Rock";
+	mats[M_rock].gravity = 0;
+	mats[M_rock].color = 0x5a5651;
+	
 }
 
 

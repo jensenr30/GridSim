@@ -84,4 +84,23 @@ void clean_up(){
 	SDL_Quit();
 }
 
+/// returns a random number from lowBound to highBound.
+/// i.e. if you call:
+///		get_rand(3,7);
+/// then you could get: 3, 4, 5, 6, 7 as a return value.
+int get_rand(lowBound, highBound){
+	int diff = highBound - lowBound;
+	return ( rand() % (diff+1) ) + lowBound;
+}
 
+
+/// when you call this function, it returns a 1 or a 0.
+/// your chances of getting a '1' returned are chance/100,000
+/// for example, if call:
+/// 	roll_ht(5000);
+/// then there is a 5000/100000 chance (5%) that roll_ht will return a 1.
+/// "roll_ht" means, "roll hundred thousand"
+int roll_ht(int chance){
+	if(chance > get_rand(0,99999)) return 1; // return 1 if the number the user gave you is greater than a random number between 0 and 9999.
+	return 0; // otherwise, return 0
+}

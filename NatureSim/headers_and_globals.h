@@ -3,6 +3,8 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
+#include "Windows.h"
+#include "time.h"
 
 //definitions
 #define MAX_COUNT  150

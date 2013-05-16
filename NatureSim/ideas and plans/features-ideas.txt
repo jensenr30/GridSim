@@ -6,3 +6,12 @@ that way, everything will have an equal chance of affecting something.
 ------------------------------------------------------------------------------------------------------
 
 modify the print_cells to only print cells that have changed. get this data from the cellChanged[][] array in the evaluate_cells() function.
+
+
+------------------------------------------------------------------------------------------------------
+
+
+give blocks modifiers.
+allow grass to be modified by fire. This will basically mean that the grass is "on fire".
+allow grass to be modified by water. this will make the grass "hydrated"
+allow dirt to be modified by water. this will make the ground "moist"

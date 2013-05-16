@@ -38,7 +38,7 @@ int main( int argc, char* args[] )
     
     
 
-    print_cells();//print initial random cells
+   print_cells();//print initial random cells
     Sleep(500);//wait half a second
 
     //While the user hasn't quit

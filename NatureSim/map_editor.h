@@ -2,12 +2,10 @@
 
 void setcell(int x, int y, int data)
 {
-    cellData[x/10][y/10] = data;
-    print_cells();
+    cellData[x/CELL_SIZE][y/CELL_SIZE] = data;
 }
 
 void deletecell(int x, int y, int data)
 {
-    cellData[x/10][y/10] = 0;
-    print_cells();
+    cellData[x/CELL_SIZE][y/CELL_SIZE] = 0;
 }

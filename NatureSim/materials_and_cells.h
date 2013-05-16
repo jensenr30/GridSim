@@ -27,7 +27,7 @@ int cellData[GRID_WIDTH][GRID_HEIGHT];
 //this defines the material types.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
-#define M_no_change 		-1  // this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid. 
+#define M_no_change 		-1  // this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid.
 #define M_air			0
 #define M_earth			1
 #define M_grass			2

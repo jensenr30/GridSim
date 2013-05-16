@@ -35,5 +35,4 @@ void print_cells(){
         myRectangle.x = 0;
         myRectangle.y += 10;
     }
-    SDL_Flip(screen);
 }

@@ -107,15 +107,18 @@ int main( int argc, char* args[] )
             setcell(x, y, d);
             }
 
+<<<<<<< HEAD
+
+
+	evaluate_cells(); // evaluates the cells and advances the simulation ahead by one generation.
+	print_cells(); // re-prints the
+	Sleep(30);
+=======
         else if(mouseStatusRight == 1){
             x = event.button.x;
             y = event.button.y;
             deletecell(x, y, d);
         }
-        
-        //evaluate cells
-        evaluate_cells();
-        
         //updates screen with cells
         print_cells();
 
@@ -126,7 +129,7 @@ int main( int argc, char* args[] )
 
         //updates the screen
         SDL_Flip( screen );
-	Sleep(30);
+>>>>>>> 9c72cd24b8b068bfeafee53d2d18854dc99f0d47
     }// end while(quit == false)
 
 

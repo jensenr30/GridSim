@@ -126,5 +126,4 @@ void print_cells(){
             SDL_FillRect( screen , &myRectangle , mats[cellData[i][j]].color);
         }
     }
-    SDL_Flip(screen);
 }

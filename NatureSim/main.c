@@ -3,7 +3,7 @@
 int main( int argc, char* args[] )
 {
     //mouse variables and cell types
-    int x, y, d;
+    int x, y, d = 0;
 
 	//make sure the program waits for a quit
 	int quit = false;

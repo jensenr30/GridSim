@@ -4,9 +4,9 @@ int main( int argc, char* args[] )
 {
 	//get a random seed.
 	srand(time(NULL));
-	
+
     //mouse variables and cell types
-    int x, y, d = 1;
+    int x, y, d = 1, sleepTime = 64, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -32,9 +32,9 @@ int main( int argc, char* args[] )
 
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to air
     init_cell_stuff();
-    
-    
-    
+
+
+
 ///-------------------------------------
 ///putting test materials into grid
     int i,j;
@@ -50,8 +50,8 @@ int main( int argc, char* args[] )
 	//	cellData[get_rand(0,89)][get_rand(0,53)] = M_fire;
     //}
 ///--------------------------------------
-    
-    
+
+
 
    print_cells();//print initial random cells
 
@@ -95,6 +95,8 @@ int main( int argc, char* args[] )
                     case SDLK_UP: d++; break;
                     case SDLK_DOWN: d--; break;
                     case SDLK_c: reset_cells();  break;
+                    case SDLK_LEFT: sleepTime /= 2; break;
+                    case SDLK_RIGHT: sleepTime *= 2; if(sleepTime == 0){sleepTime = 1;} break;
                     default: break;
                     }
                 }
@@ -112,10 +114,20 @@ int main( int argc, char* args[] )
             y = event.button.y;
             deletecell(x, y, d);
         }
-        
-        //evaluate cells
-        evaluate_cells();
-        
+
+        countVar++;
+        //speed of gameplay
+        if(sleepTime <= 0)
+        {
+            sleepTime = 0;
+        }
+
+        //evealuate cells
+        if(countVar >= sleepTime){
+            evaluate_cells();
+            countVar = 0;
+        }
+
         //updates screen with cells
         print_cells();
 
@@ -126,7 +138,8 @@ int main( int argc, char* args[] )
 
         //updates the screen
         SDL_Flip( screen );
-	Sleep(30);
+
+        //Sleep(sleepTime);
     }// end while(quit == false)
 
 

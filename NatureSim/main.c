@@ -6,7 +6,7 @@ int main( int argc, char* args[] )
     int x, y, d = 0;
 
     //mouse is held variables
-    int mousestatus = 0;
+    int mouseStatusLeft = 0, mouseStatusRight = 0;
 
 	//make sure the program waits for a quit
 	int quit = false;
@@ -39,30 +39,20 @@ int main( int argc, char* args[] )
 
             if( event.type == SDL_MOUSEBUTTONDOWN ){
                 if( event.button.button == SDL_BUTTON_LEFT ){
-                        x = event.button.x;
-                        y = event.button.y;
-                        setcell(x, y, d);
-                    /*
-                    mousestatus = 1;
-                    while(mousestatus == 1){
-                        x = event.button.x;
-                        y = event.button.y;
-                        setcell(x, y, d);
-                        if(event.type == SDL_MOUSEBUTTONUP){
-                            mousestatus = 0;
-                        }
-                    }
-                    */
-                    if(!event.type == SDL_MOUSEBUTTONUP){
-                        x = event.button.x;
-                        y = event.button.y;
-                        setcell(x, y, d);
-                    }
+                    mouseStatusLeft = 1;
+                }
+
+                if( event.button.button == SDL_BUTTON_RIGHT ){
+                    mouseStatusRight = 1;
+                }
+            }
+
+            if(event.type == SDL_MOUSEBUTTONUP){
+                if( event.button.button == SDL_BUTTON_LEFT ){
+                    mouseStatusLeft = 0;
                 }
                 if( event.button.button == SDL_BUTTON_RIGHT ){
-                    x = event.button.x;
-                    y = event.button.y;
-                    deletecell(x, y, d);
+                    mouseStatusRight = 0;
                 }
             }
 
@@ -76,10 +66,20 @@ int main( int argc, char* args[] )
 
     	} // end while(event)
 		//no more events to handle at the moment.
+        if(mouseStatusLeft == 1){
+            x = event.button.x;
+            y = event.button.y;
+            setcell(x, y, d);
+            }
 
-
+        if(mouseStatusRight == 1){
+            x = event.button.x;
+            y = event.button.y;
+            deletecell(x, y, d);
+        }
 
     }// end while(quit == false)
+
 
     //Free the surface and quit SDL
     clean_up();

@@ -2,6 +2,9 @@
 
 int main( int argc, char* args[] )
 {
+    //mouse variables and cell types
+    int x, y, d = 0;
+
 	//make sure the program waits for a quit
 	int quit = false;
 
@@ -30,13 +33,31 @@ int main( int argc, char* args[] )
 				//Quit the program
 				quit = true;
 			}
+            if( event.type == SDL_MOUSEBUTTONDOWN ){
+                if( event.button.button == SDL_BUTTON_LEFT ){
 
-
+                    x = event.button.x;
+                    y = event.button.y;
+                    setcell(x, y, d);
+                }
+            }
+            if( event.type == SDL_MOUSEBUTTONDOWN ){
+                if( event.button.button == SDL_BUTTON_RIGHT ){
+                    x = event.button.x;
+                    y = event.button.y;
+                    deletecell(x, y, d);
+                }
+            }
+            if( event.type == SDL_KEYDOWN ){
+                switch( event.key.keysym.sym ){
+                    case SDLK_UP: d++; break;
+                    case SDLK_DOWN: d--; break;
+                    default: break;
+                    }
+                }
 
     	} // end while(event)
 		//no more events to handle at the moment.
-
-
 
 
 

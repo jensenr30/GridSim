@@ -15,3 +15,12 @@ give blocks modifiers.
 allow grass to be modified by fire. This will basically mean that the grass is "on fire".
 allow grass to be modified by water. this will make the grass "hydrated"
 allow dirt to be modified by water. this will make the ground "moist"
+
+------------------------------------------------------------------------------------------------------
+
+fire spreading leaves holes in grass. making the spreading based on modifying the grass with fire when fire is next to it might be a good idea.
+that might make things look more organic.
+
+make grass spreading based on how much water there is around the grass...? or maybe just add gravity to water...
+
+Ideas ideas ideas...

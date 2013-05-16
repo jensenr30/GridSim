@@ -1,5 +1,5 @@
 
-
+#include "Windows.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
@@ -38,5 +38,6 @@ SDL_Event event;
 #include "general_functions.h"
 #include "materials_and_cells.h"
 #include "cell_engine.h"
+#include "map_editor.h"
 
 

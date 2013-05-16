@@ -40,6 +40,7 @@ int cellData[GRID_WIDTH][GRID_HEIGHT];
 #define M_animal		9
 #define M_human			10
 #define M_rock			11
+#define M_spring		12
 
 
 
@@ -112,21 +113,31 @@ void specify_material_attributes(void){
 	//everything else for air has already been
 
 	mats[M_earth].name = "Earth";
-	mats[M_earth].gravity = 0;
 	mats[M_earth].decayInto = M_rock;
 	mats[M_earth].color = 0x885607;
 	mats[M_earth].decayChance = 1;
 
 	mats[M_grass].name = "Grass";
-	mats[M_grass].gravity = 0;
     mats[M_grass].color = 0x20e112;
 
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = 1;
     mats[M_water].color = 0x158ad4;
+    
+    mats[M_spring].name = "Spring";
+	mats[M_spring].color = 0x97bcbb;
+	mats[M_spring].affected[0].typeBefore = M_air;
+	mats[M_spring].affected[0].typeAfter = M_water;
+	mats[M_spring].affected[0].chance[0] = 0;
+	mats[M_spring].affected[0].chance[1] = 0;
+	mats[M_spring].affected[0].chance[2] = 0;
+	mats[M_spring].affected[0].chance[3] = 300;
+	mats[M_spring].affected[0].chance[4] = 300;
+	mats[M_spring].affected[0].chance[5] = 700;
+	mats[M_spring].affected[0].chance[6] = 1000;
+	mats[M_spring].affected[0].chance[7] = 700;
 
 	mats[M_fire].name = "Fire";
-	mats[M_fire].gravity = 0;
 	mats[M_fire].decayInto = M_air;
     mats[M_fire].color = 0xd83313;
 	mats[M_fire].decayChance = 9000;
@@ -142,9 +153,9 @@ void specify_material_attributes(void){
 	mats[M_fire].affected[0].chance[7] =  4500;
 	
 	mats[M_rock].name = "Rock";
-	mats[M_rock].gravity = 0;
 	mats[M_rock].color = 0x5a5651;
 	
+		
 }
 
 

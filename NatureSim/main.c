@@ -96,6 +96,8 @@ int main( int argc, char* args[] )
                     case SDLK_LEFT: sleepTime /= 2; break;
                     case SDLK_RIGHT: sleepTime *= 2; if(sleepTime == 0){sleepTime = 1;} break;
                     case SDLK_ESCAPE: quit = true; // quit with escape
+                    case SDLK_EQUALS: zoomplus(); break;
+                    case SDLK_MINUS: zoomminus(); break;
                     default: break;
                     }
                 }

@@ -4,11 +4,11 @@
 
 // this will evaluate the grid. It will run a simulation for the number of generations you tell it to.
 void evaluate_cells(){
-	
+
 	int i,j,a,c; // i = x position in grid. j = y position in grid. k = material type being evaluated. a = type of block being affected. c = which cell around the block is being checked
 	// used for checking how many times gravity has been evaluated. I need to run through checking each row of cells twice because of stupid logistics
 	int checkGravCnt;
-	
+
 	// this array is used to log the changes that will need to be made to the cells in the grid.
 	// I apply the changes that need to be made ONLY AFTER I have evaluated all the cells in the grid.
 	// I do this so that the evaluation is not partial to things that are evaluated earlier than others.
@@ -20,11 +20,11 @@ void evaluate_cells(){
 			cellChanges[i][j] = M_no_change;
 		}
 	}
-	
+
 	/// this is where the gravity gets checked
 	for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
 		for(i=0 ; i<GRID_WIDTH ; i++){
-				
+
 			// if gravity affects this material...
 			if(mats[cellData[i][j]].gravity){
 				//dissapears through the bottom
@@ -67,18 +67,18 @@ void evaluate_cells(){
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			
+
 			if(roll_ht( mats[ cellData[i][j] ].decayChance) ) cellData[i][j] = mats[ cellData[i][j] ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
-				
+
 				if(mats[ cellData[i][j] ].affected[a].typeBefore == M_air && mats[ cellData[i][j] ].affected[a].typeAfter == M_air) break; // air becoming air. stop checking material affects. there are no more.
 				for(c=0 ; c<8 ; c++){
-					
+
 					//this is a diagram of how the numbers in the chance array correlate to the cells around material in the main cell (M)
 					//  0 1 2
 					//  3 M 4
 					//  5 6 7
-					
+
 					switch(c){
 					case 0:
 						// if the material is the right one to be changed AND if the roll comes back good
@@ -125,15 +125,15 @@ void evaluate_cells(){
 						break;
 					default:
 						break;
-					
+
 					}//end switch
 				}
 			}
 		}
 	}
-	
+
 	/// this is where we use the results collected in the cellChanged array to modify the cellData array.
-	
+
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(cellChanges[i][j] == M_no_change) continue; // if there is no change in this cell, move on to the next one, asshole!
@@ -146,7 +146,7 @@ void evaluate_cells(){
 
 // this will print to the screen each material in each cell.
 void print_cells(){
-	
+
     int i,j;
 	SDL_Rect myRectangle;
 	myRectangle.x = 0;
@@ -155,7 +155,7 @@ void print_cells(){
 	myRectangle.h = SCREEN_HEIGHT;
 	//INITIAL BLACK BACGROUND
 	SDL_FillRect( screen , &myRectangle , 0x000000);
-	
+
 	//constant cell sizes
 	myRectangle.w = CELL_SIZE;
 	myRectangle.h = CELL_SIZE;
@@ -163,7 +163,7 @@ void print_cells(){
     for(i = 0; i < GRID_WIDTH; i++){
         for(j = 0; j < GRID_HEIGHT; j++){
 			if(cellData[i][j] == M_air) continue; // you don't need to print air. there is a black background being printed at the beginning of this print_cells() function.
-			
+
 			myRectangle.x = i*CELL_SIZE;
 			myRectangle.y = j*CELL_SIZE;
             SDL_FillRect( screen , &myRectangle , mats[cellData[i][j]].color);

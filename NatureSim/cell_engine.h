@@ -6,7 +6,6 @@
 void evaluate_cells(){
 	
 	int i,j,a,c; // i = x position in grid. j = y position in grid. k = material type being evaluated. a = type of block being affected. c = which cell around the block is being checked
-	unsigned short gravityCheckCounter;
 	
 	// this array is used to log the changes that will need to be made to the cells in the grid.
 	// I apply the changes that need to be made ONLY AFTER I have evaluated all the cells in the grid.
@@ -26,34 +25,22 @@ void evaluate_cells(){
 		
 		for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
 			
-			for(gravityCheckCounter=0 ; gravityCheckCounter<2 ; gravityCheckCounter++)
-			{
-				//gravity checking
-				if(mats[cellData[i][j]].gravity){ // if gravity affects this material...
-					if(j >= GRID_HEIGHT-1){ // if the gravity block is at the bottom of the screen, get rid of it.
-						cellChanges[i][j] = M_air;
-					}
-					// falls down
-					else if(cellChanges[i][j+1] == M_air || cellData[i][j+1] == M_air){
-						cellData[i][j+1] = cellChanges[i][j+1] = cellData[i][j];
-						cellData[i][j] = cellChanges[i][j] = M_air;
-					}
-					/*else if( (cellChanges[i-1][j+1]==M_air || cellChanges[i-1][j+1]==M_air)  &&  (cellChanges[i+1][j+1]==M_air || cellChanges[i+1][j+1]==M_air)  ){
-						if(get_rand(0,1))
-							cellChanges[i+1][j+1] = cellData[i][j];
-						else
-							cellChanges[i-1][j+1] = cellData[i][j];
-						cellChanges[i][j] = M_air;
-					}*/
-					// falls down and to the left
-					else if( ( i>0 && (cellChanges[i-1][j+1]==M_air || cellData[i-1][j+1]==M_air)  &&  (cellChanges[i-1][j]==M_air || cellData[i-1][j]==M_air) ) ){
-						cellData[i-1][j+1] = cellChanges[i-1][j+1] = cellData[i][j];
-						cellData[i][j] = cellChanges[i][j] = M_air;
-					}
-					// falls down and to the right.
-					else if( i<GRID_WIDTH-1 && ( (cellChanges[i+1][j+1]==M_air || cellData[i+1][j+1]==M_air)  &&  (cellChanges[i+1][j]==M_air || cellData[i+1][j]==M_air))){
-						cellData[i-1][j+1] = cellChanges[i+1][j+1] = cellData[i][j];
-						cellData[i][j] = cellChanges[i][j] = M_air;
+			//gravity checking
+			if(mats[cellData[i][j]].gravity){ // if gravity affects this material...
+				//dissapears
+				if(j >= GRID_HEIGHT-1){ // if the gravity block is at the bottom of the screen, get rid of it.
+					cellData[i][j] = M_air;
+				}
+				// falls down
+				else if(cellChanges[i][j+1] == M_air || cellData[i][j+1] == M_air){
+					cellData[i][j+1] = cellData[i][j];
+					cellData[i][j] = M_air;
+				}
+				//could fall to the left or the right
+				else if( (cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air) && (cellData[i+1][j] == M_air && cellData[i+1][j+1]) ){
+					if(get_rand(0,1)){
+						cellData[i-1][j+1] = cellData[i][j];
+						cellData[i][j] = M_air;
 					}
 				}
 			}

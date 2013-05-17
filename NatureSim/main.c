@@ -6,7 +6,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, d = 1, sleepTime = 64, countVar = 0;
+    int x, y, d = M_water, sleepTime = 64, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -43,14 +43,8 @@ int main( int argc, char* args[] )
 	//		cellData[i][j] = M_water;
 	//	}
     //}
-    for(i=0 ; i<5 ; i++){
-		cellData[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)] = M_grass;
-	}
-	for(i=0 ; i<GRID_WIDTH ; i++){
-		cellData[i][GRID_HEIGHT-1] = M_rock;
-	}
-	for(i=0 ; i<GRID_WIDTH ; i+=2){
-		cellData[i][0] = M_spring;
+    for(i=0 ; i<20 ; i++){
+		cellData[i+13][16] = M_rock;
 	}
 ///--------------------------------------
 
@@ -65,6 +59,7 @@ int main( int argc, char* args[] )
 				//Quit the program
 				quit = true;
 			}
+			
 
             if( event.type == SDL_MOUSEBUTTONDOWN ){
 				x = event.motion.x;
@@ -100,6 +95,7 @@ int main( int argc, char* args[] )
                     case SDLK_c: reset_cells();  break;
                     case SDLK_LEFT: sleepTime /= 2; break;
                     case SDLK_RIGHT: sleepTime *= 2; if(sleepTime == 0){sleepTime = 1;} break;
+                    case SDLK_ESCAPE: quit = true; // quit with escape
                     default: break;
                     }
                 }

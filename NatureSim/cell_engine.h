@@ -6,6 +6,8 @@
 void evaluate_cells(){
 	
 	int i,j,a,c; // i = x position in grid. j = y position in grid. k = material type being evaluated. a = type of block being affected. c = which cell around the block is being checked
+	// used for checking how many times gravity has been evaluated. I need to run through checking each row of cells twice because of stupid logistics
+	int checkGravCnt;
 	
 	// this array is used to log the changes that will need to be made to the cells in the grid.
 	// I apply the changes that need to be made ONLY AFTER I have evaluated all the cells in the grid.
@@ -19,15 +21,13 @@ void evaluate_cells(){
 		}
 	}
 	
-	///this giant-ass for loop is where we find out which cells need to be changed
-	
-	for(i=GRID_WIDTH-1 ; i>=0 ; i--){
-		
-		for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
-			
-			//gravity checking
-			if(mats[cellData[i][j]].gravity){ // if gravity affects this material...
-				//dissapears
+	/// this is where the gravity gets checked
+	for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
+		for(i=0 ; i<GRID_WIDTH ; i++){
+				
+			// if gravity affects this material...
+			if(mats[cellData[i][j]].gravity){
+				//dissapears through the bottom
 				if(j >= GRID_HEIGHT-1){ // if the gravity block is at the bottom of the screen, get rid of it.
 					cellData[i][j] = M_air;
 				}
@@ -36,15 +36,37 @@ void evaluate_cells(){
 					cellData[i][j+1] = cellData[i][j];
 					cellData[i][j] = M_air;
 				}
-				//could fall to the left or the right
-				else if( (cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air) && (cellData[i+1][j] == M_air && cellData[i+1][j+1]) ){
+				
+				// if the material could EITHER fall to the LEFT or the RIGHT
+				else if( cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air   &&   cellData[i+1][j] == M_air && cellData[i+1][j+1] == M_air ){
+					// randomly choose whether to...
 					if(get_rand(0,1)){
-						cellData[i-1][j+1] = cellData[i][j];
+						cellData[i-1][j+1] = cellData[i][j]; // go to the left or...
+						cellData[i][j] = M_air;
+					}
+					else{
+						cellData[i+1][j+1] = cellData[i][j]; // go to the right.
 						cellData[i][j] = M_air;
 					}
 				}
+				// if the material can ONLY fall to the LEFT
+				else if(cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air){
+					cellData[i-1][j+1] = cellData[i][j]; // go to the left or...
+					cellData[i][j] = M_air;
+				}
+				//if the material can ONLY fall the the RIGHT
+				else if(cellData[i+1][j] == M_air && cellData[i+1][j+1] == M_air){
+					cellData[i+1][j+1] = cellData[i][j]; // go to the right.
+					cellData[i][j] = M_air;
+				}
 			}
-			
+		}
+	}
+	
+	///this giant-ass for loop is where we find out which cells need to be changed. DECAY AND AFFECTS.
+	for(i=0 ; i<GRID_WIDTH ; i++){
+		
+		for(j=0 ; j<GRID_HEIGHT ; j++){
 			
 			if(roll_ht( mats[ cellData[i][j] ].decayChance) ) cellData[i][j] = mats[ cellData[i][j] ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions

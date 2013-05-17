@@ -8,11 +8,11 @@
 
 
 // this is how big each square cell is
-#define CELL_SIZE 10
+int CELL_SIZE = 10;
 
 // this is how large the cell grid is.
-#define GRID_WIDTH (SCREEN_WIDTH/CELL_SIZE)
-#define GRID_HEIGHT (SCREEN_HEIGHT/CELL_SIZE)
+#define GRID_WIDTH (900/10)
+#define GRID_HEIGHT (540/10)
 
 //this is how many different types of materials there can be.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100
@@ -30,7 +30,7 @@ short cellMod[GRID_WIDTH][GRID_HEIGHT];
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
 #define M_no_modifier	-2	// this is used to flag that there is no modifier on the block.
-#define M_no_change 	-1	// this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid. 
+#define M_no_change 	-1	// this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid.
 #define M_air			0
 #define M_earth			1
 #define M_grass			2
@@ -136,7 +136,7 @@ void specify_material_attributes(void){
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = 1;
     mats[M_water].color = 0x158ad4;
-    
+
     mats[M_spring].name = "Spring";
 	mats[M_spring].color = 0x97bcbb;
 	mats[M_spring].affected[0].typeBefore = M_air;
@@ -164,11 +164,11 @@ void specify_material_attributes(void){
 	mats[M_fire].affected[0].chance[5] =  4500;
 	mats[M_fire].affected[0].chance[6] =  6500;
 	mats[M_fire].affected[0].chance[7] =  4500;
-	
+
 	mats[M_rock].name = "Rock";
 	mats[M_rock].color = 0x5a5651;
-	
-		
+
+
 }
 
 

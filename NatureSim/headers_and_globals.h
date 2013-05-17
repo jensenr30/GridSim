@@ -12,8 +12,8 @@
 #define true 1  // c++ adaption
 
 //The attributes of the screen
-#define SCREEN_WIDTH 900
-#define SCREEN_HEIGHT 540
+int SCREEN_WIDTH = 900;
+int SCREEN_HEIGHT = 540;
 #define SCREEN_BPP 32
 
 //The surfaces that will be used

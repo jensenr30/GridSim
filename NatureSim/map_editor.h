@@ -14,14 +14,10 @@ void zoomplus()
 {
     CELL_SIZE *= 2;
     CELL_SIZE *= 2;
-    SCREEN_WIDTH *= 2;
-    SCREEN_HEIGHT *= 2;
 }
 
 void zoomminus()
 {
     CELL_SIZE /= 2;
     CELL_SIZE /= 2;
-    SCREEN_WIDTH /= 2;
-    SCREEN_HEIGHT /= 2;
 }

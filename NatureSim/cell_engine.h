@@ -52,7 +52,7 @@ void evaluate_cells(){
 					}
 					// falls down and to the right.
 					else if( i<GRID_WIDTH-1 && ( (cellChanges[i+1][j+1]==M_air || cellData[i+1][j+1]==M_air)  &&  (cellChanges[i+1][j]==M_air || cellData[i+1][j]==M_air))){
-						cellData[i+1][j+1] = cellChanges[i+1][j+1] = cellData[i][j];
+						cellData[i-1][j+1] = cellChanges[i+1][j+1] = cellData[i][j];
 						cellData[i][j] = cellChanges[i][j] = M_air;
 					}
 				}

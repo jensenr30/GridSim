@@ -24,3 +24,57 @@ that might make things look more organic.
 make grass spreading based on how much water there is around the grass...? or maybe just add gravity to water...
 
 Ideas ideas ideas...
+
+------------------------------------------------------------------------------------------------------
+
+Make different grades of gravity. for instance,
+make it so that water seeks TRUELY it's own level by checking for any open spots just below its level.
+make it so that salt stacks at a 45 degree angle like so:
+		#
+	   ###
+	  #####
+	 #######
+	#########
+   ###########
+  #############
+ ###############
+#################
+
+	make gradeLength
+	and  gradeDepth
+in the materials structure.
+
+	gradeLength tells you how far away an air cell can be for the block to fill that air cell
+	gradeDepth tells you how deep the hole must be in order for the material to fill it.
+	
+To make a 45 degree angle like the salt stack shown above, simply set both to 1.
+that would mean that the air hole must be at least 1 cell below the cell that holds the material trying to move and...
+the air hole can be no more than 1 cell away.
+
+if you had:
+	gradeLength = 3;
+	gradeDepth  = 1;
+then the stack would look something like this:
+
+		 #
+	  #######
+   #############
+###################
+
+if you made the gradeLength really really big, something might act like water and seek it's own level
+
+##########################################
+
+if you had
+	gradeLength = 1;
+	gradeDepth  = 2;
+your stack of materials might look something like this:
+
+		#
+		#
+	   ###
+	   ###
+	  #####
+	  #####
+	 #######
+	 #######

@@ -6,6 +6,7 @@
 void evaluate_cells(){
 	
 	int i,j,a,c; // i = x position in grid. j = y position in grid. k = material type being evaluated. a = type of block being affected. c = which cell around the block is being checked
+	unsigned short gravityCheckCounter;
 	
 	// this array is used to log the changes that will need to be made to the cells in the grid.
 	// I apply the changes that need to be made ONLY AFTER I have evaluated all the cells in the grid.
@@ -24,13 +25,39 @@ void evaluate_cells(){
 	for(i=GRID_WIDTH-1 ; i>=0 ; i--){
 		
 		for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
-				
-			//gravity checking
-			if(mats[cellData[i][j]].gravity && (cellData[i][j+1] == M_air || cellChanges[i][j+1] == M_air || j == GRID_HEIGHT-1) ){ // if gravity affects this material, make it fall. Simple. Bada bing.
-				if(j < GRID_HEIGHT-1)
-					cellChanges[i][j+1] = cellData[i][j];
-				cellChanges[i][j] = M_air;
+			
+			for(gravityCheckCounter=0 ; gravityCheckCounter<2 ; gravityCheckCounter++)
+			{
+				//gravity checking
+				if(mats[cellData[i][j]].gravity){ // if gravity affects this material...
+					if(j >= GRID_HEIGHT-1){ // if the gravity block is at the bottom of the screen, get rid of it.
+						cellChanges[i][j] = M_air;
+					}
+					// falls down
+					else if(cellChanges[i][j+1] == M_air || cellData[i][j+1] == M_air){
+						cellChanges[i][j+1] = cellData[i][j];
+						cellChanges[i][j] = M_air;
+					}
+					/*else if( (cellChanges[i-1][j+1]==M_air || cellChanges[i-1][j+1]==M_air)  &&  (cellChanges[i+1][j+1]==M_air || cellChanges[i+1][j+1]==M_air)  ){
+						if(get_rand(0,1))
+							cellChanges[i+1][j+1] = cellData[i][j];
+						else
+							cellChanges[i-1][j+1] = cellData[i][j];
+						cellChanges[i][j] = M_air;
+					}*/
+					// falls down and to the left
+					else if( (cellChanges[i-1][j+1]==M_air || cellData[i-1][j+1]==M_air)  &&  (cellChanges[i-1][j]==M_air || cellData[i-1][j]==M_air) ){
+						cellChanges[i-1][j+1] = cellData[i][j];
+						cellChanges[i][j] = M_air;
+					}
+					// falls down and to the right.
+					else if( (cellChanges[i+1][j+1]==M_air || cellData[i+1][j+1]==M_air)  &&  (cellChanges[i+1][j]==M_air || cellData[i+1][j]==M_air)){
+						cellChanges[i+1][j+1] = cellData[i][j];
+						cellChanges[i][j] = M_air;
+					}
+				}
 			}
+			
 			
 			if(roll_ht( mats[ cellData[i][j] ].decayChance) ) cellData[i][j] = mats[ cellData[i][j] ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions

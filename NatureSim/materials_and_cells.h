@@ -8,11 +8,11 @@
 
 
 // this is how big each square cell is
-int CELL_SIZE = 10;
+int CELL_SIZE = 8;
 
 // this is how large the cell grid is.
-#define GRID_WIDTH (900/10)
-#define GRID_HEIGHT (540/10)
+#define GRID_WIDTH SCREEN_WIDTH/CELL_SIZE
+#define GRID_HEIGHT SCREEN_HEIGHT/CELL_SIZE
 
 //this is how many different types of materials there can be.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100
@@ -22,10 +22,10 @@ int CELL_SIZE = 10;
 
 //this array holds the data for each cell. An integer indicates what material is stored in that cell.
 // cellData[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
-short cellData[GRID_WIDTH][GRID_HEIGHT];
+short cellData[SCREEN_WIDTH][SCREEN_HEIGHT];
 //this is what modifier the materials in each cell have. it is soaked? (modified by water) is it on fire? (modified by fire?)
 // if it is soaked, then cellMod = M_water. If it is on fire, then cellMod= M_fire.
-short cellMod[GRID_WIDTH][GRID_HEIGHT];
+short cellMod[SCREEN_WIDTH][SCREEN_HEIGHT];
 //this defines the material types.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.

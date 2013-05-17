@@ -35,8 +35,8 @@ void evaluate_cells(){
 					}
 					// falls down
 					else if(cellChanges[i][j+1] == M_air || cellData[i][j+1] == M_air){
-						cellChanges[i][j+1] = cellData[i][j];
-						cellChanges[i][j] = M_air;
+						cellData[i][j+1] = cellChanges[i][j+1] = cellData[i][j];
+						cellData[i][j] = cellChanges[i][j] = M_air;
 					}
 					/*else if( (cellChanges[i-1][j+1]==M_air || cellChanges[i-1][j+1]==M_air)  &&  (cellChanges[i+1][j+1]==M_air || cellChanges[i+1][j+1]==M_air)  ){
 						if(get_rand(0,1))
@@ -46,14 +46,14 @@ void evaluate_cells(){
 						cellChanges[i][j] = M_air;
 					}*/
 					// falls down and to the left
-					else if( (cellChanges[i-1][j+1]==M_air || cellData[i-1][j+1]==M_air)  &&  (cellChanges[i-1][j]==M_air || cellData[i-1][j]==M_air) ){
-						cellChanges[i-1][j+1] = cellData[i][j];
-						cellChanges[i][j] = M_air;
+					else if( ( i>0 && (cellChanges[i-1][j+1]==M_air || cellData[i-1][j+1]==M_air)  &&  (cellChanges[i-1][j]==M_air || cellData[i-1][j]==M_air) ) ){
+						cellData[i-1][j+1] = cellChanges[i-1][j+1] = cellData[i][j];
+						cellData[i][j] = cellChanges[i][j] = M_air;
 					}
 					// falls down and to the right.
-					else if( (cellChanges[i+1][j+1]==M_air || cellData[i+1][j+1]==M_air)  &&  (cellChanges[i+1][j]==M_air || cellData[i+1][j]==M_air)){
-						cellChanges[i+1][j+1] = cellData[i][j];
-						cellChanges[i][j] = M_air;
+					else if( i<GRID_WIDTH-1 && ( (cellChanges[i+1][j+1]==M_air || cellData[i+1][j+1]==M_air)  &&  (cellChanges[i+1][j]==M_air || cellData[i+1][j]==M_air))){
+						cellData[i+1][j+1] = cellChanges[i+1][j+1] = cellData[i][j];
+						cellData[i][j] = cellChanges[i][j] = M_air;
 					}
 				}
 			}

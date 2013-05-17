@@ -8,7 +8,7 @@
 
 
 // this is how big each square cell is
-#define CELL_SIZE 2
+#define CELL_SIZE 20
 
 // this is how large the cell grid is.
 #define GRID_WIDTH (SCREEN_WIDTH/CELL_SIZE)

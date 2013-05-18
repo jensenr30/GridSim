@@ -1,6 +1,0 @@
-make it so that all cells are evaluated, then the changes are applied.
-if you evaluate fire, then apply fire's effects, that will skew the simulation.
-we need to have all materials being evaluated, then their effects need to be applied to the grid.
-that way, everything will have an equal chance of affecting something.
-
-------------------------------------------------------------------------------------------------------

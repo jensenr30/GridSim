@@ -37,7 +37,7 @@ int main( int argc, char* args[] )
 
 ///-------------------------------------
 ///putting test materials into grid
-    int i,j;
+    int i;
     //for(i=0 ; i<GRID_WIDTH ; i++){
 	//	for(j=0 ; j<GRID_HEIGHT ; j++){
 	//		cellData[i][j] = M_water;

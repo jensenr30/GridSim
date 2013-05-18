@@ -78,3 +78,21 @@ your stack of materials might look something like this:
 	  #####
 	 #######
 	 #######
+	 
+------------------------------------------------------------------------------------------------------
+
+make rippling water. (low priority)
+
+------------------------------------------------------------------------------------------------------
+
+make animals that jump around.
+They eat grass.
+when they feast on grass, there is some chance that they will give disgusting animal birth to another wild beast.
+humans can eat them.
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------

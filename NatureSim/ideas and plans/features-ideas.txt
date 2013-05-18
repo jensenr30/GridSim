@@ -141,5 +141,17 @@ From fastest burning to slowest burning:
 			wood_end
 			wood_branch
 	fast->	wood
+leaves_end have a very very very small chance of spawning fruit in the air around them.
+once the fruit is spawned, it then saturates the leaves with it's fruitiness and the leaves can no longer spawn fruit.
+
+All of the above materials can be burnt.
+However, they should burn for different lengths of time.
+From fastest burning to slowest burning:
+
+	slow->	leaves_end
+			leaves
+			wood_end
+			wood_branch
+	fast->	wood
 
 ------------------------------------------------------------------------------------------------------

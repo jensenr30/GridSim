@@ -1,9 +1,3 @@
-make it so that all cells are evaluated, then the changes are applied.
-if you evaluate fire, then apply fire's effects, that will skew the simulation.
-we need to have all materials being evaluated, then their effects need to be applied to the grid.
-that way, everything will have an equal chance of affecting something.
-
-------------------------------------------------------------------------------------------------------
 
 modify the print_cells to only print cells that have changed. get this data from the cellChanged[][] array in the evaluate_cells() function.
 
@@ -15,6 +9,15 @@ give blocks modifiers.
 allow grass to be modified by fire. This will basically mean that the grass is "on fire".
 allow grass to be modified by water. this will make the grass "hydrated"
 allow dirt to be modified by water. this will make the ground "moist"
+
+Add another member to the material struct.
+make it the matEffects member.
+it will describe how being saturated changes its behavior and such.
+i.e. for grass:
+	if(satured with fire){
+		30% chance of burning up
+		25% chance of spreading fire to air around it.
+	}
 
 ------------------------------------------------------------------------------------------------------
 
@@ -89,10 +92,42 @@ make animals that jump around.
 They eat grass.
 when they feast on grass, there is some chance that they will give disgusting animal birth to another wild beast.
 humans can eat them.
+these animals and humans would probably not be materials.
+I would have to make a seperate thing like an "entity" or a "mob" basiclaly.
 
 
 ------------------------------------------------------------------------------------------------------
 
+TREE GENERATION:
+M_wood
+make a material called "wood".
+this material will have an 80% chance of spawning more wood in the cell directly above it.
+it will have a 20% chance of spawning a material called "wood_branch" directly above it
 
+M_wood_branch
+woodbranch will have a relatively high chance of spawning leaves in the air around it.
+woodbranch will then have a smaller chance of spawning more branches where the leaves are.
+wood_branch has a good possibility of spawning "wood_end".
+
+M_wood_end
+wood_end only spawns leaves_end and some leaves in the air around itself.
+
+M_leaves
+leaves have a small chance of spawning other leaves around themselves.
+they have a much much higher chance of spawning "leaves_end"
+
+M_leaves_end
+leaves_end have a very very very small chance of spawning fruit in the air around them.
+once the fruit is spawned, it then saturates the leaves with it's fruitiness and the leaves can no longer spawn fruit.
+
+All of the above materials can be burnt.
+However, they should burn for different lengths of time.
+From fastest burning to slowest burning:
+
+	slow->	leaves_end
+			leaves
+			wood_end
+			wood_branch
+	fast->	wood
 
 ------------------------------------------------------------------------------------------------------

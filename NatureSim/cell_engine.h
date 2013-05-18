@@ -6,8 +6,7 @@
 void evaluate_cells(){
 
 	int i,j,a,c; // i = x position in grid. j = y position in grid. k = material type being evaluated. a = type of block being affected. c = which cell around the block is being checked
-	// used for checking how many times gravity has been evaluated. I need to run through checking each row of cells twice because of stupid logistics
-	int checkGravCnt;
+
 
 	// this array is used to log the changes that will need to be made to the cells in the grid.
 	// I apply the changes that need to be made ONLY AFTER I have evaluated all the cells in the grid.
@@ -70,8 +69,9 @@ void evaluate_cells(){
 
 			if(roll_ht( mats[ cellData[i][j] ].decayChance) ) cellData[i][j] = mats[ cellData[i][j] ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
-
-				if(mats[ cellData[i][j] ].affected[a].typeBefore == M_air && mats[ cellData[i][j] ].affected[a].typeAfter == M_air) break; // air becoming air. stop checking material affects. there are no more.
+				
+				//because a starts at 0, the first
+				if(mats[ cellData[i][j] ].affectMat[a].typeBefore == M_air && mats[ cellData[i][j] ].affectMat[a].typeAfter == M_air) break; // air becoming air. stop checking material affects. there are no more.
 				for(c=0 ; c<8 ; c++){
 
 					//this is a diagram of how the numbers in the chance array correlate to the cells around material in the main cell (M)
@@ -82,45 +82,45 @@ void evaluate_cells(){
 					switch(c){
 					case 0:
 						// if the material is the right one to be changed AND if the roll comes back good
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i-1][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && i>0 && j>0 ){
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i-1][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i>0 && j>0 ){
 							//then change that cell to the material type after the cell affects the neighboring cell.
-							cellChanges[i-1][j-1] = mats[ cellData[i][j] ].affected[a].typeAfter;
+							cellChanges[i-1][j-1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					case 1:
 						// all of the other cases work very similarly.
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && j>0 ){
-							cellChanges[i][j-1] = mats[ cellData[i][j] ].affected[a].typeAfter;
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && j>0 ){
+							cellChanges[i][j-1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					case 2:
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i+1][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && i<(GRID_WIDTH-1) && j>0 ){
-							cellChanges[i+1][j-1] = mats[ cellData[i][j] ].affected[a].typeAfter;
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i+1][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i<(GRID_WIDTH-1) && j>0 ){
+							cellChanges[i+1][j-1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					case 3:
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i-1][j]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && i>0 ){
-							cellChanges[i-1][j] = mats[ cellData[i][j] ].affected[a].typeAfter;
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i-1][j]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i>0 ){
+							cellChanges[i-1][j] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					case 4:
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i+1][j]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && i<(GRID_WIDTH-1) ){
-							cellChanges[i+1][j] = mats[ cellData[i][j] ].affected[a].typeAfter;
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i+1][j]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i<(GRID_WIDTH-1) ){
+							cellChanges[i+1][j] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					case 5:
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i-1][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && i>0 && j<(GRID_HEIGHT-1) ){
-							cellChanges[i-1][j+1] = mats[ cellData[i][j] ].affected[a].typeAfter;
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i-1][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i>0 && j<(GRID_HEIGHT-1) ){
+							cellChanges[i-1][j+1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					case 6:
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && j<(GRID_HEIGHT-1) ){
-							cellChanges[i][j+1] = mats[ cellData[i][j] ].affected[a].typeAfter;
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && j<(GRID_HEIGHT-1) ){
+							cellChanges[i][j+1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					case 7:
-						if(  mats[ cellData[i][j] ].affected[a].typeBefore == cellData[i+1][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affected[a].chance[c] ) && i<(GRID_WIDTH-1) && j<(GRID_HEIGHT-1) ){
-							cellChanges[i+1][j+1] = mats[ cellData[i][j] ].affected[a].typeAfter;
+						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i+1][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i<(GRID_WIDTH-1) && j<(GRID_HEIGHT-1) ){
+							cellChanges[i+1][j+1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
 						}
 						break;
 					default:

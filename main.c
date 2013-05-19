@@ -129,6 +129,9 @@ int main( int argc, char* args[] )
         //updates screen with cells
         print_cells();
 
+        //displays selection gui
+        selectionGUI();
+
         //print recagle for cursor
         cursorRectangle.x = x - CELL_SIZE/2;
         cursorRectangle.y = y - CELL_SIZE/2;

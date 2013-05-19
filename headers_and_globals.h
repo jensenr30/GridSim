@@ -39,5 +39,6 @@ SDL_Event event;
 #include "materials_and_cells.h"
 #include "cell_engine.h"
 #include "map_editor.h"
+#include "selection_gui.h"
 
 

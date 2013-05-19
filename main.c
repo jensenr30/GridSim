@@ -6,7 +6,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, d = M_water, sleepTime = 64, countVar = 0;
+    int x, y, d = M_water, sleepTime = 64, sleepTimeTemp = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -59,7 +59,7 @@ int main( int argc, char* args[] )
 				//Quit the program
 				quit = true;
 			}
-			
+
 
             if( event.type == SDL_MOUSEBUTTONDOWN ){
 				x = event.motion.x;
@@ -90,14 +90,33 @@ int main( int argc, char* args[] )
 
             if( event.type == SDL_KEYDOWN ){
                 switch( event.key.keysym.sym ){
-                    case SDLK_UP: d++; break;
-                    case SDLK_DOWN: d--; break;
-                    case SDLK_c: reset_cells();  break;
-                    case SDLK_LEFT: sleepTime /= 2; break;
-                    case SDLK_RIGHT: sleepTime *= 2; if(sleepTime == 0){sleepTime = 1;} break;
+                    case SDLK_UP: d++; break; //change block type up
+                    case SDLK_DOWN: d--; break; // change block type down
+                    case SDLK_c: reset_cells();  break;//clear the screen
+                    //change speed of game ( left means speed up, right means slow down )
+                    case SDLK_LEFT: if(sleepTimeTemp != 100000000) {sleepTime /= 2;} break;
+                    case SDLK_RIGHT: if(sleepTime == 0){sleepTime = 1;} if(sleepTimeTemp != 100000000) {sleepTime *= 2;} break;
+                    //pause the game
+                    case SDLK_SPACE:
+                        switch(sleepTimeTemp)
+                        {
+                        case 0:
+                            //stores old valye in a temp value
+                            sleepTimeTemp = sleepTime;
+                            //sets sleep time to a really high number (its not a true pause, but its close)
+                            sleepTime = 100000000;
+                            break;
+                        default:
+                            //if space is pressed again, it will resume your previous speed setting
+                            sleepTime = sleepTimeTemp;
+                            //resets
+                            sleepTimeTemp = 0;
+                            break;
+                        }
+                        break;
+                    case SDLK_EQUALS: zoomplus(); break; //zoom in
+                    case SDLK_MINUS: zoomminus(); break; //zoom out
                     case SDLK_ESCAPE: quit = true; // quit with escape
-                    case SDLK_EQUALS: zoomplus(); break;
-                    case SDLK_MINUS: zoomminus(); break;
                     default: break;
                     }
                 }

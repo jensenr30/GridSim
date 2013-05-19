@@ -49,7 +49,7 @@ int init(){
 	}
 	
 	//Set the window caption
-	SDL_WM_SetCaption( "NatureSim 0.1 - working copy", NULL );
+	SDL_WM_SetCaption( "GridSim 0.1 - working copy", NULL );
 	
 	//SDL_WM_SetIcon( icon ); // sets the icon of the windows and taskbar item
 	

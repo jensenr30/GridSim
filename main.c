@@ -6,7 +6,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, d = M_water, sleepTime = 64, sleepTimeTemp = 0, paused = 0, countVar = 0;
+    int x, y, d = M_water, sleepTime = 64, paused = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -93,28 +93,9 @@ int main( int argc, char* args[] )
                     case SDLK_UP: d++; break; //change block type up
                     case SDLK_DOWN: d--; break; // change block type down
                     case SDLK_c: reset_cells();  break;//clear the screen
-                    //change speed of game ( left means speed up, right means slow down )
-                    case SDLK_LEFT: if(sleepTimeTemp != 100000000) {sleepTime /= 2;} break;
-                    case SDLK_RIGHT: if(sleepTime == 0){sleepTime = 1;} if(sleepTimeTemp != 100000000) {sleepTime *= 2;} break;
-                    //pause the game
-                    case SDLK_SPACE:
-                        switch(sleepTimeTemp)
-                        {
-                        case 0:
-                            //stores old valye in a temp value
-                            sleepTimeTemp = sleepTime;
-                            //sets sleep time to a really high number (its not a true pause, but its close)
-                            paused = 1;
-                            sleepTime = 100000000;
-                            break;
-                        default:
-                            //if space is pressed again, it will resume your previous speed setting
-                            sleepTime = sleepTimeTemp;
-                            //resets
-                            sleepTimeTemp = 0;
-                            break;
-                        }
-                        break;
+                    case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
+                    case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
+                    case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
                     case SDLK_EQUALS: zoomplus(); break; //zoom in
                     case SDLK_MINUS: zoomminus(); break; //zoom out
                     case SDLK_ESCAPE: quit = true; // quit with escape
@@ -140,7 +121,7 @@ int main( int argc, char* args[] )
         }
 
         //evealuate cells
-        if(countVar >= sleepTime){
+        if(countVar >= sleepTime && paused != 1){
             evaluate_cells();
             countVar = 0;
         }

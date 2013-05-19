@@ -6,7 +6,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, d = M_water, sleepTime = 64, sleepTimeTemp = 0, countVar = 0;
+    int x, y, d = M_water, sleepTime = 64, sleepTimeTemp = 0, paused = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -104,6 +104,7 @@ int main( int argc, char* args[] )
                             //stores old valye in a temp value
                             sleepTimeTemp = sleepTime;
                             //sets sleep time to a really high number (its not a true pause, but its close)
+                            paused = 1;
                             sleepTime = 100000000;
                             break;
                         default:

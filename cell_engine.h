@@ -37,7 +37,7 @@ void evaluate_cells(){
 				}
 				
 				// if the material could EITHER fall to the LEFT or the RIGHT
-				else if( cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air   &&   cellData[i+1][j] == M_air && cellData[i+1][j+1] == M_air ){
+				else if( i>0 && cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air   &&   i<GRID_WIDTH-1 && cellData[i+1][j] == M_air && cellData[i+1][j+1] == M_air ){
 					// randomly choose whether to...
 					if(get_rand(0,1)){
 						cellData[i-1][j+1] = cellData[i][j]; // go to the left or...
@@ -49,12 +49,12 @@ void evaluate_cells(){
 					}
 				}
 				// if the material can ONLY fall to the LEFT
-				else if(cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air){
+				else if( i>0 && cellData[i-1][j] == M_air && cellData[i-1][j+1] == M_air){
 					cellData[i-1][j+1] = cellData[i][j]; // go to the left or...
 					cellData[i][j] = M_air;
 				}
 				//if the material can ONLY fall the the RIGHT
-				else if(cellData[i+1][j] == M_air && cellData[i+1][j+1] == M_air){
+				else if( i <GRID_WIDTH-1 && cellData[i+1][j] == M_air && cellData[i+1][j+1] == M_air){
 					cellData[i+1][j+1] = cellData[i][j]; // go to the right.
 					cellData[i][j] = M_air;
 				}

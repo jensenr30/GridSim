@@ -39,6 +39,7 @@
 		</Unit>
 		<Unit filename="map_editor.h" />
 		<Unit filename="materials_and_cells.h" />
+		<Unit filename="selection_gui.h" />
 		<Unit filename="unused.h" />
 		<Extensions>
 			<code_completion />

@@ -75,6 +75,7 @@ void selectionGUI(int x, int y, int mouse)
     
     //apply text to screen
     apply_surface( SCREEN_WIDTH - 170, 0, text, screen );
+    SDL_FreeSurface( text );
 
     //selection box
     selectionBox.x = xSel;
@@ -180,7 +181,7 @@ void selectionGUI(int x, int y, int mouse)
         }
     
     //grass box
-    if( ( x > matIcon[M_grass].x ) && ( x < matIcon[M_grass].x + widthButton ) && ( y > matIcon[M_grass].y ) && ( y < matIcon[M_grass].y + heightButton ) )
+    else if( ( x > matIcon[M_grass].x ) && ( x < matIcon[M_grass].x + widthButton ) && ( y > matIcon[M_grass].y ) && ( y < matIcon[M_grass].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -190,7 +191,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //water box
-    if( ( x > matIcon[M_water].x ) && ( x < matIcon[M_water].x + widthButton ) && ( y > matIcon[M_water].y ) && ( y < matIcon[M_water].y + heightButton ) )
+    else if( ( x > matIcon[M_water].x ) && ( x < matIcon[M_water].x + widthButton ) && ( y > matIcon[M_water].y ) && ( y < matIcon[M_water].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -200,7 +201,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //fire
-    if( ( x > matIcon[M_fire].x ) && ( x < matIcon[M_fire].x + widthButton ) && ( y > matIcon[M_fire].y ) && ( y < matIcon[M_fire].y + heightButton ) )
+    else if( ( x > matIcon[M_fire].x ) && ( x < matIcon[M_fire].x + widthButton ) && ( y > matIcon[M_fire].y ) && ( y < matIcon[M_fire].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -210,7 +211,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //gunpowder	
-    if( ( x > matIcon[M_gunpowder].x ) && ( x < matIcon[M_gunpowder].x + widthButton ) && ( y > matIcon[M_gunpowder].y ) && ( y < matIcon[M_gunpowder].y + heightButton ) )
+    else if( ( x > matIcon[M_gunpowder].x ) && ( x < matIcon[M_gunpowder].x + widthButton ) && ( y > matIcon[M_gunpowder].y ) && ( y < matIcon[M_gunpowder].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -220,7 +221,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //cement
-    if( ( x > matIcon[M_cement].x ) && ( x < matIcon[M_cement].x + widthButton ) && ( y > matIcon[M_cement].y ) && ( y < matIcon[M_cement].y + heightButton ) )
+    else if( ( x > matIcon[M_cement].x ) && ( x < matIcon[M_cement].x + widthButton ) && ( y > matIcon[M_cement].y ) && ( y < matIcon[M_cement].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -230,7 +231,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //concrete
-    if( ( x > matIcon[M_concrete].x ) && ( x < matIcon[M_concrete].x + widthButton ) && ( y > matIcon[M_concrete].y ) && ( y < matIcon[M_concrete].y + heightButton ) )
+    else if( ( x > matIcon[M_concrete].x ) && ( x < matIcon[M_concrete].x + widthButton ) && ( y > matIcon[M_concrete].y ) && ( y < matIcon[M_concrete].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -240,7 +241,7 @@ void selectionGUI(int x, int y, int mouse)
         }
     
     //tree
-    if( ( x > matIcon[M_tree].x ) && ( x < matIcon[M_tree].x + widthButton ) && ( y > matIcon[M_tree].y ) && ( y < matIcon[M_tree].y + heightButton ) )
+    else if( ( x > matIcon[M_tree].x ) && ( x < matIcon[M_tree].x + widthButton ) && ( y > matIcon[M_tree].y ) && ( y < matIcon[M_tree].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -250,7 +251,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //animal
-    if( ( x > matIcon[M_animal].x ) && ( x < matIcon[M_animal].x + widthButton ) && ( y > matIcon[M_animal].y ) && ( y < matIcon[M_animal].y + heightButton ) )
+    else if( ( x > matIcon[M_animal].x ) && ( x < matIcon[M_animal].x + widthButton ) && ( y > matIcon[M_animal].y ) && ( y < matIcon[M_animal].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -270,7 +271,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //rock
-    if( ( x > matIcon[M_rock].x ) && ( x < matIcon[M_rock].x + widthButton ) && ( y > matIcon[M_rock].y ) && ( y < matIcon[M_rock].y + heightButton ) )
+    else if( ( x > matIcon[M_rock].x ) && ( x < matIcon[M_rock].x + widthButton ) && ( y > matIcon[M_rock].y ) && ( y < matIcon[M_rock].y + heightButton ) )
         {
             if(mouse == 1)
             {
@@ -280,7 +281,7 @@ void selectionGUI(int x, int y, int mouse)
         }
         
     //spring
-    if( ( x > matIcon[M_spring].x ) && ( x < matIcon[M_spring].x + widthButton ) && ( y > matIcon[M_spring].y ) && ( y < matIcon[M_spring].y + heightButton ) )
+    else if( ( x > matIcon[M_spring].x ) && ( x < matIcon[M_spring].x + widthButton ) && ( y > matIcon[M_spring].y ) && ( y < matIcon[M_spring].y + heightButton ) )
         {
             if(mouse == 1)
             {

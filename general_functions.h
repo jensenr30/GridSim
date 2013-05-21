@@ -80,7 +80,7 @@ int load_files(){
     
     if (font == NULL)
     {
-        MessageBox(NULL, "all your base are belong to us", "Gello Gentelmen", MB_OK);
+        MessageBox(NULL, "all your base are belong to us", "Hello Gentelmen", MB_OK);
     }
 	
 	//If everthing loaded fine

@@ -134,21 +134,17 @@ void evaluate_cells(){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(cellSat[i][j] != -2){ // if there is a valid saturation here
 				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATION_EFFECTS ; satEffIndex++){
-					if(mats[cellData[i][j]].satEffect[satEffIndex].satMat == cellSat[i][j]) // if this is the right saturation
-					{
-						//check decay
-						if(roll_ht( mats[cellData[i][j]].satEffect[satEffIndex].decayChance )){
-							cellData[i][j] = mats[cellData[i][j]].satEffect[satEffIndex].decayInto;
-							cellSat[i][j] = mats[cellData[i][j]].satEffect[satEffIndex].decaySatMat;
-						}
-						for(a=0 ; a<MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS ; a++){ // check all valid affectMat entries for this saturation.
+					if(mats[cellData[i][j]].satEffect[satEffIndex].satMat == cellSat[i][j]){ // if this is the right saturation
+						
+						// check all valid affectMat entries for this saturation.
+						for(a=0 ; a<MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS ; a++){
 							
 							affMat = &mats[cellData[i][j]].satEffect[satEffIndex].affectMat[a]; // set to correct affectMaterial structure
 							// diagram of cell placement in relation to our cell that we are evaluating right now.
 							//		0 1 2
 							//		3 M 4
 							//		5 6 7
-					
+							
 							// 0.
 							if(affMat->typeBefore == cellData[i-1][j-1])
 								if(roll_ht(affMat->chance[0]))
@@ -182,6 +178,12 @@ void evaluate_cells(){
 								if(roll_ht(affMat->chance[7]))
 									cellChanges[i+1][j+1] = affMat->typeAfter;
 							
+						}
+						
+						//check saturation-initiated decay 
+						if(roll_ht( mats[cellData[i][j]].satEffect[satEffIndex].decayChance )){
+							cellData[i][j] = mats[cellData[i][j]].satEffect[satEffIndex].decayInto;
+							cellSat[i][j] = mats[cellData[i][j]].satEffect[satEffIndex].decaySatMat;
 						}
 					}
 				}

@@ -1,7 +1,8 @@
 #include "headers_and_globals.h"
 
-int main( int argc, char* args[] )
+int main( int argc, char* args[] ) 
 {
+	
 	//get a random seed.
 	srand(time(NULL));
 

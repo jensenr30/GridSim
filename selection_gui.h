@@ -53,16 +53,16 @@ void selectionGUI(int x, int y, int mouse)
     matIcon[M_spring].y = firstRow + (heightButton * 2) * columnSpacingMultiplier;
     
     //define rectangles
-    SDL_Rect guiRectangle;
+    SDL_Rect guiRectangle; 
     SDL_Rect selectionBox;
-    
+     
     //prints names of material
     text = TTF_RenderText_Blended( font, mats[currentMat].name , textColor );
 
     //main window
 	guiRectangle.x = xPos;
 	guiRectangle.y = yPos;
-	guiRectangle.w = wPos;
+	guiRectangle.w = wPos; 
 	guiRectangle.h = hPos;
     SDL_FillRect( screen , &guiRectangle , 0x181818);
     

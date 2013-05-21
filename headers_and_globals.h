@@ -17,21 +17,22 @@
 #define SCREEN_BPP 32
 
 //The surfaces that will be used
-SDL_Surface* screen = 	NULL;
-//SDL_Surface* text = 	NULL;
-//SDL_Surface* image = 	NULL;
+SDL_Surface *screen = 	NULL;
+SDL_Surface *text = 	NULL;
+//SDL_Surface *image = 	NULL;
 /// DON'T FORGET TO ADD THESE SURFACES TO "void clean_up"!
 //The event structure that will be used
 SDL_Event event;
 
 //the fint that will be used
-//TTF_Font *font = NULL;
+TTF_Font *font = NULL;
 
 //The color of the text
-//SDL_Color textColor = { 0, 0, 0 };
+SDL_Color textColor = { 255, 255, 255 };
 
-
-
+//id for changing materials
+//3 = water
+int currentMat = 1;
 
 
 

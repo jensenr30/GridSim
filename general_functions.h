@@ -68,6 +68,20 @@ int load_files(){
 		return false;
 	}
 	*/
+	//Initialize SDL_ttf
+    if( TTF_Init() == -1 )
+    {
+        MessageBox(NULL, "all your base are belong to us", "Hello Gentelmen", MB_OK);
+        return false;
+    }
+    
+    //open font file
+    font = TTF_OpenFont( "FreeMonoBold.ttf", 28 );
+    
+    if (font == NULL)
+    {
+        MessageBox(NULL, "all your base are belong to us", "Gello Gentelmen", MB_OK);
+    }
 	
 	//If everthing loaded fine
 	return true;
@@ -77,7 +91,7 @@ int load_files(){
 void clean_up(){
 	//free the image
 	//SDL_FreeSurface( image );
-	//SDL_FreeSurface( text );
+	SDL_FreeSurface( text );
 	SDL_FreeSurface( screen );
 	
 	//Quit SDL

@@ -6,7 +6,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, d = M_water, sleepTime = 64, paused = 0, countVar = 0;
+    int x, y, sleepTime = 64, paused = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -90,8 +90,8 @@ int main( int argc, char* args[] )
 
             if( event.type == SDL_KEYDOWN ){
                 switch( event.key.keysym.sym ){
-                    case SDLK_UP: d++; break; //change block type up
-                    case SDLK_DOWN: d--; break; // change block type down
+                    case SDLK_UP: currentMat++; break; //change block type up
+                    case SDLK_DOWN: currentMat--; break; // change block type down
                     case SDLK_c: reset_cells();  break;//clear the screen
                     case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
                     case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
@@ -106,11 +106,11 @@ int main( int argc, char* args[] )
     	} // end while(event)
 		//no more events to handle at the moment.
         if(mouseStatusLeft == 1){
-            setcell(x, y, d);
+            setcell(x, y, currentMat);
             }
 
         else if(mouseStatusRight == 1){
-            deletecell(x, y, d);
+            deletecell(x, y, currentMat);
         }
 
         countVar++;
@@ -130,13 +130,13 @@ int main( int argc, char* args[] )
         print_cells();
 
         //displays selection gui
-        selectionGUI();
+        selectionGUI(x, y, mouseStatusLeft);
 
         //print recagle for cursor
         cursorRectangle.x = x - CELL_SIZE/2;
         cursorRectangle.y = y - CELL_SIZE/2;
         cursorRectangle.w = cursorRectangle.h = CELL_SIZE;
-        SDL_FillRect( screen , &cursorRectangle , mats[d].color);
+        SDL_FillRect( screen , &cursorRectangle , mats[currentMat].color);
 
         //updates the screen
         SDL_Flip( screen );

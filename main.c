@@ -91,8 +91,8 @@ int main( int argc, char* args[] )
 
             if( event.type == SDL_KEYDOWN ){
                 switch( event.key.keysym.sym ){
-                    case SDLK_UP: currentMat++; break; //change block type up
-                    case SDLK_DOWN: currentMat--; break; // change block type down
+                    case SDLK_UP: break; //change block type up
+                    case SDLK_DOWN: break; // change block type down
                     case SDLK_c: reset_cells();  break;//clear the screen
                     case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
                     case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game

@@ -132,6 +132,7 @@ void set_default_material_attributes(){
 	
 	//DEFAULT MATERIAL VALUES:
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
+        mats[i].name = NULL;
 		mats[i].gravity = 0; // is not affected by gravity
 		mats[i].color = 0x000000;//default color is black
 		mats[i].decayChance = 0; // 0% chance to decay.

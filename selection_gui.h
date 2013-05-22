@@ -4,59 +4,63 @@
 SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
 //main button controls
-short firstColumn = 190;
-short firstRow = 80;
-short widthButton = 20;
-short heightButton = 20;
-double selectionBoxSizeMultiplier = 1.5;
-double rowSpacingMultiplier = 2;
-double columnSpacingMultiplier = 2;
+#define firstColumn 190
+#define firstRow 80
+#define widthButton 20
+#define heightButton 20
+#define rowSpacingMultiplier 2
+#define columnSpacingMultiplier 2
+#define selectionBoxSize 3
+
+//main gui variables
+#define xPos SCREEN_WIDTH - 200
+#define yPos 0
+#define wPos 200
+#define hPos SCREEN_HEIGHT
 
 //selection box positions
 //compiler is GAY so you have to keep these as number values
-short xSel = SCREEN_WIDTH - 195, ySel = 75, wSel = 30, hSel = 30;
-
-//main gui varibles
-short xPos = SCREEN_WIDTH - 200, yPos = 0, wPos = 200, hPos = SCREEN_HEIGHT;
+short xSel = SCREEN_WIDTH - firstColumn - selectionBoxSize, ySel = firstRow - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
 
 //displays gui
 void selectionGUI(int x, int y, int mouse)
 {
     //variables to step through array
-    int i;
+    int i, j, k;
     
-    //materals start at 1 and go up from there
-    //icon positions
+    //steps through the array and sets the icons of each material
+    //varaibles for keeping track of were to put the icons
+    j = xPos + widthButton/2;
+    k = firstRow;
     for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
-        if(i <= 5){
-            matIcon[i].x = SCREEN_WIDTH - firstColumn + widthButton * (i - 1) * rowSpacingMultiplier;  
-            matIcon[i].y = firstRow;
+        if(j < SCREEN_WIDTH){
+            //sets icons
+            matIcon[i].x = j;
+            matIcon[i].y = k;
+            //updates value for the next icon
+            j = j + (widthButton * rowSpacingMultiplier);
         }
-        else if(i <= 10){
-            matIcon[i].x = SCREEN_WIDTH - firstColumn + widthButton * (i - 6) * rowSpacingMultiplier;
-            matIcon[i].y = firstRow + heightButton * columnSpacingMultiplier;
-        }
-        else if(i <= 15){
-            matIcon[i].x = SCREEN_WIDTH - firstColumn + widthButton * (i - 11) * rowSpacingMultiplier;
-            matIcon[i].y = firstRow + heightButton * 2 * columnSpacingMultiplier;
-        }
-        else if(i <= 20){
-            matIcon[i].x = SCREEN_WIDTH - firstColumn + widthButton * (i - 16) * rowSpacingMultiplier;
-            matIcon[i].y = firstRow + heightButton * 3 * columnSpacingMultiplier;
+        else{
+            //reduces i by 1 so that it doesn't skip a material
+            i--;
+            //resets j
+            j = xPos + widthButton/2;
+            //increases k for the next line
+            k = k + heightButton * columnSpacingMultiplier;
         }
     }
     
     //define rectangles
-    SDL_Rect guiRectangle; 
+    SDL_Rect guiRectangle;
     SDL_Rect selectionBox;
-     
+    
     //prints names of material
     text = TTF_RenderText_Blended( font, mats[currentMat].name , textColor );
 
     //main window
 	guiRectangle.x = xPos;
 	guiRectangle.y = yPos;
-	guiRectangle.w = wPos; 
+	guiRectangle.w = wPos;
 	guiRectangle.h = hPos;
     SDL_FillRect( screen , &guiRectangle , 0x181818);
     
@@ -80,6 +84,7 @@ void selectionGUI(int x, int y, int mouse)
     
     //prints a rectangle for each material icon
     for( i = M_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
+        if(mats[i].name == NULL) {continue;}
         guiRectangle.x = matIcon[i].x;
         guiRectangle.y = matIcon[i].y;
         guiRectangle.w = widthButton;
@@ -94,8 +99,11 @@ void selectionGUI(int x, int y, int mouse)
         {
             if(mouse == 1)
             {
+                if(mats[i].name == NULL) {continue;}
+                //changes material
                 currentMat = i;
-                xSel = matIcon[i].x - 5, ySel = matIcon[i].y - 5, wSel = (widthButton * selectionBoxSizeMultiplier), hSel = (heightButton * selectionBoxSizeMultiplier);
+                //changes selection box to be under current material
+                xSel = matIcon[i].x - selectionBoxSize, ySel = matIcon[i].y - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
             }
         }
     }

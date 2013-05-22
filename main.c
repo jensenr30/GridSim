@@ -38,15 +38,12 @@ int main( int argc, char* args[] )
 
 ///-------------------------------------
 ///putting test materials into grid
-    int i;
-    //for(i=0 ; i<GRID_WIDTH ; i++){
-	//	for(j=0 ; j<GRID_HEIGHT ; j++){
-	//		cellData[i][j] = M_water;
-	//	}
-    //}
-    for(i=0 ; i<20 ; i++){
-		cellData[i+13][16] = M_rock;
-	}
+    int i,j;
+    for(i=0 ; i<GRID_WIDTH ; i++){
+		for(j=0 ; j<GRID_HEIGHT ; j++){
+			cellData[i][j] = M_earth;
+		}
+    }
 ///--------------------------------------
 
     //While the user hasn't quit
@@ -94,6 +91,7 @@ int main( int argc, char* args[] )
                     case SDLK_UP: break; //change block type up
                     case SDLK_DOWN: break; // change block type down
                     case SDLK_c: reset_cells();  break;//clear the screen
+                    case SDLK_p: print_saturation_data(); break; // prints the cellSat[][] array to stdout. this is for debuggin purposes.
                     case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
                     case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
                     case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
@@ -123,7 +121,7 @@ int main( int argc, char* args[] )
 
         //evealuate cells
         if(countVar >= sleepTime && paused != 1){
-            evaluate_cells();
+            evaluate_grid();
             countVar = 0;
         }
 

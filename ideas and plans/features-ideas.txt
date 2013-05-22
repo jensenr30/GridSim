@@ -5,9 +5,11 @@ struct cell{
 	short m;
 	// the material that our cell is saturated with
 	short s;
+	// the level of saturation the material has. if the material is completely surreounded by fire, the l = 8. if there is only one fire block, then the level would be l = 1.
+	char l;
 } cells[SCREEN_WIDTH][SCREEN_HEIGHT];
 
-then change ALL OF THE PARTS IN THE CODE where it uses "cellData[][]" instead of "cells[][].m"
+then change ALL OF THE PARTS IN THE CODE where it uses "cellData[][]" to this: "cells[][].m"
 
 ------------------------------------------------------------------------------------------------------
 
@@ -16,27 +18,12 @@ modify the print_cells to only print cells that have changed. get this data from
 
 ------------------------------------------------------------------------------------------------------
 
-
-give blocks modifiers.
-allow grass to be modified by fire. This will basically mean that the grass is "on fire".
-allow grass to be modified by water. this will make the grass "hydrated"
-allow dirt to be modified by water. this will make the ground "moist"
-
-Add another member to the material struct.
-make it the matEffects member.
-it will describe how being saturated changes its behavior and such.
-i.e. for grass:
-	if(satured with fire){
-		30% chance of burning up
-		25% chance of spreading fire to air around it.
-	}
-
-------------------------------------------------------------------------------------------------------
-
 fire spreading leaves holes in grass. making the spreading based on modifying the grass with fire when fire is next to it might be a good idea.
 that might make things look more organic.
 
-make grass spreading based on how much water there is around the grass...? or maybe just add gravity to water...
+do this by saturating grass with fire.
+
+make grass spreading based on how much water there is around the grass...? or maybe just add gravity to water... this can be achieved through saturation if I add levels of saturation.
 
 Ideas ideas ideas...
 
@@ -155,3 +142,57 @@ From fastest burning to slowest burning:
 	fast->	wood
 
 ------------------------------------------------------------------------------------------------------
+
+HIGH PRIORITY
+
+make it so mud can get saturated with water. that water is then passed to another mud/dirt block below it.
+in this way, water can saturate more than just the top of a pile of dirt.
+ 
+ ------------------------------------------------------------------------------------------------------
+ 
+ HIGH priority
+ 
+ make grass_roots want to pass water to the grass_roots below them. (low probability of passing water to the grass_roots to the side of them. super low priority of passing water to the roots above them.)
+ 
+ make saturated grass_roots colored differently than normal grass_roots?? that would be nice. to see the water moving through.
+ 
+ this will probably require that you make the satEffect[].affectMat be evaluated before the decay of saturated materials.
+ whatever. that makes sense anyway. do it.
+ 
+ make grass_roots grow grass 
+ 
+ ------------------------------------------------------------------------------------------------------
+ 
+ HIGH PRIORITY
+ 
+ have a way of showing which cells are saturated with what.
+ 
+ here is a diagram:
+ 
+		 . - color of material in cell
+		 # - color of material saturating cell
+ 
+1x1 // no indication of the saturating material
+	. 
+
+2x2 // small indication of the saturating material
+	. .
+	. #
+
+4x4 // decent indication
+	. . . .
+	. # # .
+	. # # .
+	. . . .
+
+8x8 // good show of saturating material color.
+	. . . . . . . .
+	. . . . . . . .
+	. . # # # # . .
+	. . # # # # . .
+	. . # # # # . .
+	. . # # # # . .
+	. . . . . . . .
+	. . . . . . . .
+
+and so on in this order. each other cell size should similarly have the color of the saturating material only take up a quarter of the area (and be centered on the cell)

@@ -128,6 +128,9 @@ void evaluate_grid(){
 						case 7: newi = i+1;	newj = j+1;
 							break;
 						}
+						// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
+						if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
+						
 						if(cellData[newi][newj] != cellSatChanges[i][j]){ // if the around our cell is of a different material than our current saturation (this releaves processing power and stops things from sucking up all that can saturate it.
 							if(cellData[newi][newj] == mats[cMat].satEffect[satEffIndex].satMat){ // if the material near this cell is the right type to sturate it
 								if(roll_ht(mats[cMat].satEffect[satEffIndex].satChance[c])){ // determine if it will become saturated based on roll_ht function.
@@ -191,7 +194,7 @@ void evaluate_grid(){
 								case 7: newi = i+1;	newj = j+1;
 									break;
 								}
-								//if the newi and newj values aren't valid, move onto the next chance checking itteration of the for(c) loop.
+								// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
 								if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
 								
 								if(testVector[c] == true && ( affMat->typeBefore == cellData[newi][newj] || affMat->typeBefore == M_dont_care) && ( affMat->satBefore == cellSat[newi][newj] || affMat->satBefore == M_dont_care) ){
@@ -275,7 +278,7 @@ void evaluate_grid(){
 					case 7: newi = i+1;	newj = j+1;
 						break;
 					}
-					// if the newi or newj values fall outside the grid, continue to the next cycle of the for(c) loop.
+					// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
 					if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
 					
 					//if the material

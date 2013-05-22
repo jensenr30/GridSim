@@ -7,6 +7,7 @@
 /// if you want to make a cell empty, that means you are filling it with AIR.
 
 
+
 // this is how big each square cell is
 int CELL_SIZE = 16;
 
@@ -44,6 +45,7 @@ short cellSat[SCREEN_WIDTH][SCREEN_HEIGHT];
 //negative values are not actual materials, but rather flags for conditions used in evaluating the grid.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
+#define M_dont_care		-3  // this is used to show that we don't care what the material is.
 #define M_no_saturation -2  // this is used to signify that a material in a cell has no saturation
 #define M_no_change 	-1	// this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid.
 #define M_air			0
@@ -51,8 +53,8 @@ short cellSat[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define M_grass			2
 #define M_water			3
 #define M_fire			4
-
-
+#define M_test			5
+#define M_test2			6
 
 
 
@@ -69,25 +71,56 @@ short cellSat[SCREEN_WIDTH][SCREEN_HEIGHT];
 /// IF YOU MAKE A MATERIAL THAT CAN BE SATURATED WITH SOMETHING, ADD THAT MATERIAL TO THIS LIST.
 short matSatOrder[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
-
+void set_chance(unsigned *, unsigned);
 
 
 struct affectMaterial{
-	short typeBefore; // the type of material will be affected by the material in the current cell.
-	short typeAfter; // this is material that the above material will turn into.
+	
+	// the type of material will be affected by the material in the current cell.
+	// default to M_air
+	short typeBefore;
+	
+	// the type of saturation the material must have had before being changed
+	//default to M_dont_care
+	short satBefore;
+	
+	// this is material that the above material will turn into.
+	// default to M_air
+	short typeAfter;
+	// this is the type of saturation the material will have after the affectMat
+	// default to M_no_change
+	short satAfter;
+	
+	
+	
+	//the maximum number of changes to nearby materials that can occur per cell_evaluate() cycle.
+	// this is a value from 0 to 8 ( 0 = no changes ever. 8 = this block can (has the posibillity. chance permitting) affect all blocks around it simultaniously.)
+	// default set to 0 (no changes ever. this means that the affectMaterial entry is non-active. it doesn't do anything if matChanges = 0.)
+	short matChanges;
+	
 	unsigned chance[8]; // int value from 0-100000 describes the likelyhood of current material affecting the material in the cell next to it.
-	// = 0 never happens. 100000 = always happens.
-	//this is a diagram of how the numbers in the chance array correlate to the cells around material in the main cell (M)
+	// 0 = never happens. 100000 = always happens.
+	// this is a diagram of how the numbers in the chance array correlate to the cells around material in the main cell (M)
 	//		0 1 2
 	//		3 M 4
 	//		5 6 7
 	// if we set  chance[2] =  53700;   then the material in the cell up and to the right from the main cell (M) has a 53.700% chance of being changed into typeAfter.
 	// if we set  chance[6] =     12;   then the material in the cell directly below the main cell (M) will have a 0.012% chance of being changed into typeAfter.
 	// if we set  chance[3] = 100000;  then the material in the cell to the left of the main cell (M) will have a 100.000% chance of being changed into typeAfter.
+	
+	// does the original material (the one that is affecting the surrounding material) change after and only after affecting the surrounding material?
+	// default set to M_no_change.
+	short changeOrigMat;
+	
+	// what saturation will the original material have after and only after changing as a result of affecting the nearby material?
+	// default set to M_no_change.
+	short changeOrigSat;
+	
 };
 
 
 struct saturationEffect{
+	
 	//this is some material that is saturating our material.
 	//default to M_no_saturation
 	//if satMat == M_no_saturation for a given material, that means there is no saturation effect for that material.
@@ -104,13 +137,15 @@ struct saturationEffect{
 	//		5 6 7
 	// chance of 0-100000. 0 = never 100000 = always
 	// default to each space around our material to have a 100% chance (satChance[0 thru 7] = 100000)
-	int satChance[8];
+	unsigned satChance[8];
 
 	// the chance that our saturated material will decay into something else.
 	// from 0-100000
 	unsigned decayChance;
+	
 	// the thing that our saturated material may decay into now that it is saturated.
 	short decayInto;
+	
 	// what will the saturation be after the block decays?
 	// set to M_no_saturation by default.
 	short decaySatMat;
@@ -141,6 +176,7 @@ struct material {
 	//value between 0 and 100000 describing the likelyhood of this material decaying on its own.
 	// 467 would mean there is a 0.467% chance of decay on each evaluation cycle.
 	unsigned decayChance;
+	
 	//this is the type of material that the current material may decay into.
 	short decayInto;
 
@@ -180,8 +216,12 @@ void set_default_material_attributes(){
 			}
 			for(k=0; k<MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS ; k++){ // for every interaction a saturated material can have with another material.
 				mats[i].satEffect[j].affectMat[k].typeBefore = M_air;// affects air
-				mats[i].satEffect[j].affectMat[k].typeAfter = M_air; // turns air into air
-
+				mats[i].satEffect[j].affectMat[k].typeAfter  = M_air; // turns air into air
+				mats[i].satEffect[j].affectMat[k].satBefore  = M_dont_care; // by default, the saturation before doesn't matter in an affectMat.
+				mats[i].satEffect[j].affectMat[k].satAfter   = M_no_change; // by default, the saturation afterwards doesn't chance in an affectMat.
+				mats[i].satEffect[j].affectMat[k].matChanges = 8; // by default, any material can affect the stuff around it all at once.
+				mats[i].satEffect[j].affectMat[k].changeOrigMat = M_no_change; // by default, the original material will not change after affecting the material around it.
+				mats[i].satEffect[j].affectMat[k].changeOrigSat  = M_no_change; // by default, the material that the original material turns into will have the same saturation.
 				for(l=0 ; l<8 ; l++){
 					mats[i].satEffect[j].affectMat[k].chance[l] = 0; // no chance of affecting anything (so it never affects air. it never will actually go through the process of turning air into air)
 				}
@@ -190,8 +230,13 @@ void set_default_material_attributes(){
 
 		// for every affect that our material can have on other materials, set it to default (default = air changes to air with a 0% chance. nothing happens.)
 		for(k=0 ; k<MAX_NUMBER_OF_MATERIAL_INTERACTIONS ; k++){
-			mats[i].affectMat[k].typeBefore = M_air;// affects air
-			mats[i].affectMat[k].typeAfter = M_air; // turns air into air
+			mats[i].affectMat[k].typeBefore = M_air;// affects air.
+			mats[i].affectMat[k].typeAfter = M_air; // turns air into air.
+			mats[i].affectMat[k].satBefore = M_dont_care; // by default, it doesn't matter what the affected material had for saturation before the incident.
+			mats[i].affectMat[k].satAfter  = M_no_change; // by default, there is no change in saturation after the affectMat.
+			mats[i].affectMat[k].matChanges = 8; // by default, any material can affect the stuff around it all at once.
+			mats[i].affectMat[k].changeOrigMat = M_no_change; // by default, doesn't change the original block type.
+			mats[i].affectMat[k].changeOrigSat = M_no_change; // by default, the original materials saturation does not change.
 			for(l=0 ; l<8 ; l++){
 				mats[i].affectMat[k].chance[l] = 0; // no chance of affecting anything (so it never affects air. it never will actually go through the process of turning air into air)
 			}
@@ -275,6 +320,40 @@ void init_material_attributes(void){
 	mats[M_fire].affectMat[0].chance[5] =  4500;
 	mats[M_fire].affectMat[0].chance[6] =  6500;
 	mats[M_fire].affectMat[0].chance[7] =  4500;
+	
+	mats[M_test].name = "TestMat"; // the material that jensen tests evaluate_grid() with
+	mats[M_test].color = 0xccff00;
+	mats[M_test].affectMat[0].typeBefore = M_air;
+	mats[M_test].affectMat[0].typeAfter  = M_test;
+	mats[M_test].affectMat[0].changeOrigMat = M_air;
+	mats[M_test].affectMat[0].matChanges = 1;		// this material moves itself around once per grid evaluation.
+	mats[M_test].affectMat[0].chance[0] = 100000;
+	mats[M_test].affectMat[0].chance[1] = 100000;
+	mats[M_test].affectMat[0].chance[2] = 100000;
+	mats[M_test].affectMat[0].chance[3] = 100000;
+	mats[M_test].affectMat[0].chance[4] = 100000;
+	mats[M_test].affectMat[0].chance[5] = 100000;
+	mats[M_test].affectMat[0].chance[6] = 100000;
+	mats[M_test].affectMat[0].chance[7] = 100000;
+	
+	mats[M_test2].name = "TestMat2"; // the material that jensen tests evaluate_grid() with
+	mats[M_test2].color = 0x00ffcc;
+	mats[M_test2].satEffect[0].absorb = 1;
+	set_chance(&mats[M_test2].satEffect[0].satChance[0], 100000);
+	mats[M_test2].satEffect[0].satMat = M_earth;
+	mats[M_test2].satEffect[0].affectMat[0].typeBefore = M_air;
+	mats[M_test2].satEffect[0].affectMat[0].typeAfter  = M_test2;
+	mats[M_test2].satEffect[0].affectMat[0].satAfter   = mats[M_test2].satEffect[0].satMat;
+	mats[M_test2].satEffect[0].affectMat[0].changeOrigMat = M_air;
+	mats[M_test2].satEffect[0].affectMat[0].matChanges = 1;		// this material moves itself around once per grid evaluation.
+	mats[M_test2].satEffect[0].affectMat[0].chance[0] = 100000;
+	mats[M_test2].satEffect[0].affectMat[0].chance[1] = 100000;
+	mats[M_test2].satEffect[0].affectMat[0].chance[2] = 100000;
+	mats[M_test2].satEffect[0].affectMat[0].chance[3] = 100000;
+	mats[M_test2].satEffect[0].affectMat[0].chance[4] = 100000;
+	mats[M_test2].satEffect[0].affectMat[0].chance[5] = 100000;
+	mats[M_test2].satEffect[0].affectMat[0].chance[6] = 100000;
+	mats[M_test2].satEffect[0].affectMat[0].chance[7] = 100000;
 	
 	mats[M_rock].name = "Rock";
 	mats[M_rock].color = 0x5a5651;
@@ -371,4 +450,14 @@ void print_saturation_data(){
 
 
 
-
+//this function will take in a 1-Dimensional array of 8 elements (such as a 'chance[8]' array from affectMat) and give them all the same values that you choose.
+void set_chance(unsigned *chanceArray, unsigned chance){
+	chanceArray[0] = chance;
+	chanceArray[1] = chance;
+	chanceArray[2] = chance;
+	chanceArray[3] = chance;
+	chanceArray[4] = chance;
+	chanceArray[5] = chance;
+	chanceArray[6] = chance;
+	chanceArray[7] = chance;
+}

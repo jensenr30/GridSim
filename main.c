@@ -37,15 +37,12 @@ int main( int argc, char* args[] )
 
 ///-------------------------------------
 ///putting test materials into grid
-    int i;
-    //for(i=0 ; i<GRID_WIDTH ; i++){
-	//	for(j=0 ; j<GRID_HEIGHT ; j++){
-	//		cellData[i][j] = M_water;
-	//	}
-    //}
-    for(i=0 ; i<20 ; i++){
-		cellData[i+13][16] = M_rock;
-	}
+    int i,j;
+    for(i=0 ; i<GRID_WIDTH ; i++){
+		for(j=0 ; j<GRID_HEIGHT ; j++){
+			cellData[i][j] = M_earth;
+		}
+    }
 ///--------------------------------------
 
     //While the user hasn't quit
@@ -123,7 +120,7 @@ int main( int argc, char* args[] )
 
         //evealuate cells
         if(countVar >= sleepTime && paused != 1){
-            evaluate_cells();
+            evaluate_grid();
             countVar = 0;
         }
 

@@ -1,13 +1,17 @@
 /// this document contains the necessary functions to evaluate and advance the simulation.
 /// It looks at the materials in the cells and then updates the cells based on the dynamics of the materials described in materials_and_cells.h
 
+bool *generate_near_by_cell_test_vector(unsigned short);
 
 // this will evaluate the grid. It will run a simulation for the number of generations you tell it to.
-void evaluate_cells(){
+void evaluate_grid(){
 /// 0. VARIABLES - this is where all the variables used heavily in the loops are declared.
 	
 	///variables used in 1. GRAVITY, 3. AFFECT & DECAY, AND 4. APPLY CHANGES
 	int i,j,a,c; // i = x position in grid. j = y position in grid. k = material type being evaluated. a = type of material being affected. c = which cell around the material is being checked
+	
+	/// variables used in lots of places
+	bool *testVector;
 	
 	///variables used in 2. APPLY SATURATION
 	// cMat		  :	the current material that we are trying to see if it gets saturated.
@@ -28,12 +32,18 @@ void evaluate_cells(){
 	 * Using an array to log the changes that need to be made to the cells in the grid is a pretty good way of going abou this problem I think.
 	 */
 	short cellChanges[GRID_WIDTH][GRID_HEIGHT];
+	short cellSatChanges[GRID_WIDTH][GRID_HEIGHT];
+	
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			cellChanges[i][j] = M_no_change;
+			cellSatChanges[i][j] = M_no_change;
 		}
 	}
-
+	
+	
+	
+	
 /// 1. GRAVITY - this is where the gravity gets CHECKED and APPLIED.
 	for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
 		for(i=0 ; i<GRID_WIDTH ; i++){
@@ -77,7 +87,9 @@ void evaluate_cells(){
 	}
 	
 	
-/// 2. APPLY SATURATION - the giant ass loop where the saturation is applied to appropriate materials
+	
+	
+/// 2.1 EVALUATE SATURATION - the giant ass loop where the saturation is evaluated
 	for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
 		for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
 			for(matIndex=0; matIndex<numberOfMaterialsThatCanBeSaturated ; matIndex++){ // go through every type of material that can be saturated
@@ -116,10 +128,10 @@ void evaluate_cells(){
 						case 7: newi = i+1;	newj = j+1;
 							break;
 						}
-						if(cellData[newi][newj] != cellSat[i][j]){ // if the around our cell is of a different material than our current saturation (this releaves processing power and stops things from sucking up all that can saturate it.
+						if(cellData[newi][newj] != cellSatChanges[i][j]){ // if the around our cell is of a different material than our current saturation (this releaves processing power and stops things from sucking up all that can saturate it.
 							if(cellData[newi][newj] == mats[cMat].satEffect[satEffIndex].satMat){ // if the material near this cell is the right type to sturate it
 								if(roll_ht(mats[cMat].satEffect[satEffIndex].satChance[c])){ // determine if it will become saturated based on roll_ht function.
-									cellSat[i][j] = mats[cMat].satEffect[satEffIndex].satMat;
+									cellSatChanges[i][j] = mats[cMat].satEffect[satEffIndex].satMat;
 									cellData[newi][newj] = M_air;
 								}
 							}
@@ -129,7 +141,18 @@ void evaluate_cells(){
 			}
 		}
 	}
-/// 2.1 SATURATION DECAY AND AFFECTMATS
+	
+	
+	
+	
+/// 2.1.5  APPLY NEW SATURATION BASED ON WHAT WAS FOUND IN 2.1
+	for(i=0 ; i<GRID_WIDTH ; i++){
+		if(cellSatChanges[i][j] != M_no_change) // only apply new saturation if it is, in fact, new!
+			cellSat[i][j] = cellSatChanges[i][j];
+	}
+	
+	
+/// 2.2 SATURATION DECAY AND AFFECTMATS
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(cellSat[i][j] != -2){ // if there is a valid saturation here
@@ -139,45 +162,52 @@ void evaluate_cells(){
 						// check all valid affectMat entries for this saturation.
 						for(a=0 ; a<MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS ; a++){
 							
-							affMat = &mats[cellData[i][j]].satEffect[satEffIndex].affectMat[a]; // set to correct affectMaterial structure
-							// diagram of cell placement in relation to our cell that we are evaluating right now.
-							//		0 1 2
-							//		3 M 4
-							//		5 6 7
+							// set to correct affectMaterial structure for ease of writing in this particular for loop.
+							affMat = &mats[cellData[i][j]].satEffect[satEffIndex].affectMat[a];
 							
-							// 0.
-							if(affMat->typeBefore == cellData[i-1][j-1])
-								if(roll_ht(affMat->chance[0]))
-									cellChanges[i-1][j-1] = affMat->typeAfter;
-							// 1.
-							if(affMat->typeBefore == cellData[i][j-1])
-								if(roll_ht(affMat->chance[1]))
-									cellChanges[i][j-1] = affMat->typeAfter;
-							// 2.
-							if(affMat->typeBefore == cellData[i+1][j-1])
-								if(roll_ht(affMat->chance[2]))
-									cellChanges[i+1][j-1] = affMat->typeAfter;
-							// 3.
-							if(affMat->typeBefore == cellData[i-1][j])
-								if(roll_ht(affMat->chance[3]))
-									cellChanges[i-1][j] = affMat->typeAfter;
-							// 4.
-							if(affMat->typeBefore == cellData[i+1][j])
-								if(roll_ht(affMat->chance[4]))
-									cellChanges[i+1][j] = affMat->typeAfter;
-							// 5.
-							if(affMat->typeBefore == cellData[i-1][j+1])
-								if(roll_ht(affMat->chance[5]))
-									cellChanges[i-1][j+1] = affMat->typeAfter;
-							// 6.
-							if(affMat->typeBefore == cellData[i][j+1])
-								if(roll_ht(affMat->chance[6]))
-									cellChanges[i][j+1] = affMat->typeAfter;
-							// 7.
-							if(affMat->typeBefore == cellData[i+1][j+1])
-								if(roll_ht(affMat->chance[7]))
-									cellChanges[i+1][j+1] = affMat->typeAfter;
+							//generate a testvector for the cells around the cell being evaluated.
+							testVector = generate_near_by_cell_test_vector(affMat->matChanges);
+							// if there aren't any blocks to be changed, then move on to the next one.
+							if(affMat->matChanges == 0) continue;
 							
+							//for each chance
+							for(c=0 ; c<8 ; c++){
+									
+								switch(c){
+								case 0: newi = i-1;	newj = j-1;
+									break;
+								case 1: newi = i;	newj = j-1;
+									break;
+								case 2: newi = i+1;	newj = j-1;
+									break;
+								case 3: newi = i-1;	newj = j;
+									break;
+								case 4: newi = i+1;	newj = j;
+									break;
+								case 5: newi = i-1;	newj = j+1;
+									break;
+								case 6: newi = i;	newj = j+1;
+									break;
+								case 7: newi = i+1;	newj = j+1;
+									break;
+								}
+								//if the newi and newj values aren't valid, move onto the next chance checking itteration of the for(c) loop.
+								if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
+								
+								if(testVector[c] == true && ( affMat->typeBefore == cellData[newi][newj] || affMat->typeBefore == M_dont_care) && ( affMat->satBefore == cellSat[newi][newj] || affMat->satBefore == M_dont_care) ){
+									if(roll_ht(affMat->chance[a])){
+										//change the cell
+										cellChanges[newi][newj] = affMat->typeAfter;
+										cellSatChanges[newi][newj] = affMat->satAfter;
+										
+										//check to see if the original material will change because of it having completed an affectMat
+										if(affMat->changeOrigMat != M_no_change) // if the material changes after it affects neighboring cells
+											cellChanges[i][j] = affMat->changeOrigMat; // change the material
+										if(affMat->changeOrigSat != M_no_change) // if the saturation of our material changes after our material affects neighboring cells
+											cellSatChanges[i][j] = affMat->changeOrigSat; // change the saturation of our material.
+									}
+								}
+							}
 						}
 						
 						//check saturation-initiated decay 
@@ -190,101 +220,98 @@ void evaluate_cells(){
 			}
 		}
 	}
-/// 2.2 APPLY SATURATION CHANGES
-// this applies the changes put into
-		for(i=0 ; i<GRID_WIDTH ; i++){
-			for(j=0 ; j<GRID_HEIGHT ; j++){
+	
+	
+	
+	
+/// 2.2.5 APPLY SATURATION CHANGES BASED ON WHAT WAS FOUND IN 2.2
+	// this applies the changes put into
+	for(i=0 ; i<GRID_WIDTH ; i++){
+		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(cellChanges[i][j] == M_no_change) continue; // if there is no change in this cell, move on to the next one, asshole!
 			//otherwise, these was a change in the cell. so copy cellChanges into cellData
 			cellData[i][j] = cellChanges[i][j];
 		}
 	}
 	
+	
+	
+	
 /// 3. DECAY AND AFFECTS - this giant-ass for loop is where we find out which cells need to be changed.
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-
-			if(roll_ht( mats[ cellData[i][j] ].decayChance) ) cellData[i][j] = mats[ cellData[i][j] ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
 				
-				//because a starts at 0, the first
-				if(mats[ cellData[i][j] ].affectMat[a].typeBefore == M_air && mats[ cellData[i][j] ].affectMat[a].typeAfter == M_air) break; // air becoming air. stop checking material affects. there are no more.
+				//copy current affectMaterial into this pointer so that it is easy to write it and read it in this for(a) loop.
+				affMat = &mats[cellData[i][j]].affectMat[a];
+				//generate test vector
+				testVector = generate_near_by_cell_test_vector(mats[cellData[i][j]].affectMat[a].matChanges);
+			
+				//check to see if we need to check for materialAffects
+				if( mats[cellData[i][j]].affectMat[a].matChanges == 0 || ( mats[ cellData[i][j] ].affectMat[a].typeBefore == M_air && mats[ cellData[i][j] ].affectMat[a].typeAfter == M_air) ) break; // no blocks effected OR air becoming air. stop checking material affects. there are no more.
 				for(c=0 ; c<8 ; c++){
-
+					if(testVector[c] != true) continue; // if you aren't supposed to check this one, try the next one.
+					
+					//generate how many
 					//this is a diagram of how the numbers in the chance array correlate to the cells around material in the main cell (M)
 					//		0 1 2
 					//		3 M 4
 					//		5 6 7
-
 					switch(c){
-					case 0:
-						// if the material is the right one to be changed AND if the roll comes back good
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i-1][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i>0 && j>0 ){
-							//then change that cell to the material type after the cell affects the neighboring cell.
-							cellChanges[i-1][j-1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 0: newi = i-1;	newj = j-1;
 						break;
-					case 1:
-						// all of the other cases work very similarly.
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && j>0 ){
-							cellChanges[i][j-1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 1: newi = i;	newj = j-1;
 						break;
-					case 2:
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i+1][j-1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i<(GRID_WIDTH-1) && j>0 ){
-							cellChanges[i+1][j-1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 2: newi = i+1;	newj = j-1;
 						break;
-					case 3:
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i-1][j]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i>0 ){
-							cellChanges[i-1][j] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 3: newi = i-1;	newj = j;
 						break;
-					case 4:
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i+1][j]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i<(GRID_WIDTH-1) ){
-							cellChanges[i+1][j] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 4: newi = i+1;	newj = j;
 						break;
-					case 5:
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i-1][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i>0 && j<(GRID_HEIGHT-1) ){
-							cellChanges[i-1][j+1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 5: newi = i-1;	newj = j+1;
 						break;
-					case 6:
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && j<(GRID_HEIGHT-1) ){
-							cellChanges[i][j+1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 6: newi = i;	newj = j+1;
 						break;
-					case 7:
-						if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[i+1][j+1]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] ) && i<(GRID_WIDTH-1) && j<(GRID_HEIGHT-1) ){
-							cellChanges[i+1][j+1] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
-						}
+					case 7: newi = i+1;	newj = j+1;
 						break;
-					default:
-						break;
-
-					}//end switch
+					}
+					// if the newi or newj values fall outside the grid, continue to the next cycle of the for(c) loop.
+					if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
+					
+					//if the material
+					if(  mats[ cellData[i][j] ].affectMat[a].typeBefore == cellData[newi][newj]  &&  roll_ht( mats[ cellData[i][j] ].affectMat[a].chance[c] )){
+						//then change that cell to the material type after the cell affects the neighboring cell.
+						cellChanges[newi][newj] = mats[ cellData[i][j] ].affectMat[a].typeAfter;
+					}
 				}
+				
+				// check for decay.
+				if(roll_ht( mats[ cellData[i][j] ].decayChance) ) cellData[i][j] = mats[ cellData[i][j] ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 			}
 		}
 	}
-
-/// 4. APPLY CHANGES
-	/// this is where we use the results collected in the cellChanged array to modify the cellData array.
-	/// this applies the changes from the saturation checking looop and the affectMat/decay loop.
+	
+	
+	
+	
+	
+/// 4. APPLY CHANGES - this collects the changes from part 3 and applies those changes to the cellData[][] array and the cellSat[][] array.
+	// this is where we use the results collected in the cellChanged array to modify the cellData array.
+	// this applies the changes from the saturation checking looop and the affectMat/decay loop.
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			if(cellChanges[i][j] == M_no_change) continue; // if there is no change in this cell, move on to the next one, asshole!
-			//otherwise, these was a change in the cell. so copy cellChanges into cellData
-			cellData[i][j] = cellChanges[i][j];
+			if(cellChanges[i][j] != M_no_change) // only apply the new material type if it is different from the last. save on processing power.
+				cellData[i][j] = cellChanges[i][j];
+			if(cellSatChanges[i][j] != M_no_change) // only apply new saturation type if it is different from before.
+				cellSat[i][j] = cellSatChanges[i][j];
 		}
 	}
 }
-
-
-// this will print to the screen each material in each cell.
+	
+	
+/// this will print to the screen each material in each cell.
 void print_cells(){
-
+	
     int i,j;
 	SDL_Rect myRectangle;
 	myRectangle.x = 0;
@@ -293,18 +320,50 @@ void print_cells(){
 	myRectangle.h = SCREEN_HEIGHT;
 	//INITIAL BLACK BACGROUND
 	SDL_FillRect( screen , &myRectangle , 0x000000);
-
+	
 	//constant cell sizes
 	myRectangle.w = CELL_SIZE;
 	myRectangle.h = CELL_SIZE;
-
+	
     for(i = 0; i < GRID_WIDTH; i++){
         for(j = 0; j < GRID_HEIGHT; j++){
 			if(cellData[i][j] == M_air) continue; // you don't need to print air. there is a black background being printed at the beginning of this print_cells() function.
-
+			
 			myRectangle.x = i*CELL_SIZE;
 			myRectangle.y = j*CELL_SIZE;
             SDL_FillRect( screen , &myRectangle , mats[cellData[i][j]].color);
         }
     }
 }
+
+
+
+
+// this will return a pointer to an array that has picks out "matChanges" of random elements in the testVector array.
+// they correspond to the materials in the cells around our cell that will be checked.
+bool *generate_near_by_cell_test_vector(unsigned short matChanges){
+	static bool testVector[8];
+	unsigned short emelentsChanged = 0; // this holds how many cells have been changed from 0's into 1's.
+	unsigned short temp;
+	
+	testVector[0] = testVector[1] = testVector[2] = testVector[3] = testVector[4] = testVector[5] = testVector[6] = testVector[7] = false; // set to 0.
+	
+	if(matChanges == 0)
+	{
+		return testVector;
+	}
+	else if(matChanges == 8){
+		testVector[0] = testVector[1] = testVector[2] = testVector[3] = testVector[4] = testVector[5] = testVector[6] = testVector[7] = true;
+	}
+	else{ // 1,2,3,4,5,6,7
+		while(emelentsChanged < matChanges){ // while the number of entries in the textVector[] array are less than how many we need, try to add more to the array.
+			temp = get_rand(0,7);
+			if( testVector[temp] == false){
+				testVector[temp] = true;
+				emelentsChanged++;
+			}
+		}
+	}
+	return testVector;
+}
+

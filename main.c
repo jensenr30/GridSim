@@ -41,7 +41,10 @@ int main( int argc, char* args[] )
     int i,j;
     for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			cellData[i][j] = M_earth;
+			if(j>4 && j<12) continue;
+			if(j==4) cellData[i][j] = M_spring;
+			else
+				cellData[i][j] = M_earth;
 		}
     }
 ///--------------------------------------

@@ -42,13 +42,12 @@ int main( int argc, char* args[] )
     for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(j>4 && j<12) continue;
-			if(j==4) cellData[i][j] = M_spring;
+			if(j==4) cellMat[i][j] = M_spring;
 			else
-				cellData[i][j] = M_earth;
+				cellMat[i][j] = M_earth;
 		}
     }
     */
-    randomize_grid();
 ///--------------------------------------
 
     //While the user hasn't quit
@@ -97,6 +96,7 @@ int main( int argc, char* args[] )
                     case SDLK_DOWN: break; // change block type down
                     case SDLK_c: reset_cells();  break;//clear the screen
                     case SDLK_p: print_saturation_data(); break; // prints the cellSat[][] array to stdout. this is for debuggin purposes.
+                    case SDLK_r:  randomize_grid(); break; // randomize grid
                     case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
                     case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
                     case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game

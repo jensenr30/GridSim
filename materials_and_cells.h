@@ -32,13 +32,17 @@ short numberOfMaterialsThatCanBeSaturated;
 
 
 //this array holds the data for each cell. An integer indicates what material is stored in that cell.
-// cellData[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
-short cellData[SCREEN_WIDTH][SCREEN_HEIGHT];
+// cellMat[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
+short cellMat[SCREEN_WIDTH][SCREEN_HEIGHT];
 //this is what modifier the materials in each cell have. it is soaked? (modified by water) is it on fire? (modified by fire?)
 // if it is soaked, then cellSat = M_water. If it is on fire, then cellSat= M_fire.
 // being saturated with air does not mean the same thing as being saturated with nothing.
 // if there is no saturation, then use M_no_saturation.
 short cellSat[SCREEN_WIDTH][SCREEN_HEIGHT];
+
+//these are used to store temporary data concerning what we need to change in the cellMat and cellSat arrays.
+short cellMatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
+short cellSatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
 
 //this defines the material types. a material type is a
 //		signed short
@@ -473,8 +477,10 @@ void reset_cells(void){
 
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			cellData[i][j] = 0; // air
+			cellMat[i][j] = M_air;
 			cellSat[i][j]  = M_no_saturation;
+			cellMatChanges[i][j] = M_no_change;
+			cellSatChanges[i][j] = M_no_change;
 		}
 	}
 }
@@ -521,7 +527,7 @@ void set_chance(unsigned *chanceArray, unsigned chance){
 }
 
 ///this randomizes the materials and saturations in the grid.
-///this basically randomizes cellData[][] and cellSat[][].
+///this basically randomizes cellMat[][] and cellSat[][].
 void randomize_grid(){
 	int i, j, temp;
 	for(i=0 ; i<SCREEN_WIDTH ; i++){
@@ -532,7 +538,7 @@ void randomize_grid(){
 			while(mats[temp].name == NULL){
 				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
 			}
-			cellData[i][j] = temp;
+			cellMat[i][j] = temp;
 			
 			//get random 
 			temp = M_valid_but_null_material;

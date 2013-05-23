@@ -212,7 +212,7 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 		// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
 		if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) return;
 		
-		if(testVector[c] == true && ( affMat->typeBefore == cellData[newi][newj] || affMat->typeBefore == M_dont_care) && ( affMat->satBefore == cellSat[newi][newj] || affMat->satBefore == M_dont_care) ){
+		if(testVector[c] == true && ( affMat->matBefore == cellData[newi][newj] || affMat->matBefore == M_dont_care) && ( affMat->satBefore == cellSat[newi][newj] || affMat->satBefore == M_dont_care) ){
 			if(roll_ht(affMat->chance[c])){
 				//change the material only if it needs changing.
 				if(affMat->matAfter != M_no_change) cellData[newi][newj] = affMat->matAfter;

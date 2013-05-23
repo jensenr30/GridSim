@@ -38,7 +38,7 @@ int main( int argc, char* args[] )
 
 ///-------------------------------------
 ///putting test materials into grid
-    int i,j;
+    /*int i,j;
     for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(j>4 && j<12) continue;
@@ -47,6 +47,8 @@ int main( int argc, char* args[] )
 				cellData[i][j] = M_earth;
 		}
     }
+    */
+    randomize_grid();
 ///--------------------------------------
 
     //While the user hasn't quit

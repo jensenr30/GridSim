@@ -13,8 +13,8 @@ then change ALL OF THE PARTS IN THE CODE where it uses "cellData[][]" to this: "
 
 ------------------------------------------------------------------------------------------------------
 
-modify the print_cells to only print cells that have changed. get this data from the cellChanged[][] array in the evaluate_cells() function.
-
+PREFORMANCE INCREASE
+modify the print_cells to only print cells that have changed. i.e. only print the elements in the grid[][].matChanged that are NOT M_no_change
 
 ------------------------------------------------------------------------------------------------------
 

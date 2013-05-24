@@ -20,7 +20,7 @@ int CELL_SIZE = 16;
 
 //this holds the number of unique materials that have the ability to be saturated by something.
 // this value is detected and set in the set_default_material_attributes() function
-short numberOfMaterialsThatCanBeSaturated;
+short numberOfSatableMats;
 
 //this is how many different interactions any given material can have with other materials in neighboring cells.
 #define MAX_NUMBER_OF_MATERIAL_INTERACTIONS 4
@@ -30,19 +30,19 @@ short numberOfMaterialsThatCanBeSaturated;
 //e.g. is grass is saturaed with fire, it may affect at most this many other material types:
 #define MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS 2
 
+struct cellData{
+	short mat; // the material in a cell. 	// default to M_air
+	short sat; // the saturaiton of a cell. // default to M_no_saturation
+	char satLevel;  // the saturation level of a cell. i.e. how saturated is it? (integer range 1-8) default to 1
+	
+	short matChange; // does the material need to change?
+	short satChange; // does the saturation need to change?
+	char satLevelChange; // does the saturationLevel need to change?
+};
+//this is the array of structures that the data for the grid is stored in.
+// your entire map exists in here.
+struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 
-//this array holds the data for each cell. An integer indicates what material is stored in that cell.
-// cellMat[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
-short cellMat[SCREEN_WIDTH][SCREEN_HEIGHT];
-//this is what modifier the materials in each cell have. it is soaked? (modified by water) is it on fire? (modified by fire?)
-// if it is soaked, then cellSat = M_water. If it is on fire, then cellSat= M_fire.
-// being saturated with air does not mean the same thing as being saturated with nothing.
-// if there is no saturation, then use M_no_saturation.
-short cellSat[SCREEN_WIDTH][SCREEN_HEIGHT];
-
-//these are used to store temporary data concerning what we need to change in the cellMat and cellSat arrays.
-short cellMatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
-short cellSatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
 
 //this defines the material types. a material type is a
 //		signed short
@@ -454,19 +454,19 @@ void init_material_attributes(void){
 	
 	
 	// find how many saturatable materials there are:
-	numberOfMaterialsThatCanBeSaturated = 0; // set this to 0 by default. it will get incremented in the for loop and brought to the correct value.
+	numberOfSatableMats = 0; // set this to 0 by default. it will get incremented in the for loop and brought to the correct value.
 	int i;
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
 		// if the saturationMaterial is an invalid choice (like M_no_saturation or M_no_change) skip and move on.
 		if(mats[i].satEffect[0].satMat == M_no_saturation) continue;
 		
-		matSatOrder[numberOfMaterialsThatCanBeSaturated] = i; // put the material type into the array at the right point.
+		matSatOrder[numberOfSatableMats] = i; // put the material type into the array at the right point.
 		
-		printf("matSatOrder[%d] = %d\n", numberOfMaterialsThatCanBeSaturated, matSatOrder[numberOfMaterialsThatCanBeSaturated]);
+		printf("matSatOrder[%d] = %d\n", numberOfSatableMats, matSatOrder[numberOfSatableMats]);
 		
-		numberOfMaterialsThatCanBeSaturated++; // increment the number of materials that be saturated that we have.
+		numberOfSatableMats++; // increment the number of materials that be saturated that we have.
 	}
-	printf("numberOfMaterialsThatCanBeSaturated = %d\n\n\n\n\n", numberOfMaterialsThatCanBeSaturated);
+	printf("numberOfSatableMats = %d\n\n\n\n\n", numberOfSatableMats);
 }
 
 
@@ -477,10 +477,10 @@ void reset_cells(void){
 
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			cellMat[i][j] = M_air;
-			cellSat[i][j]  = M_no_saturation;
-			cellMatChanges[i][j] = M_no_change;
-			cellSatChanges[i][j] = M_no_change;
+			grid[i][j].mat = M_air;
+			grid[i][j].sat  = M_no_saturation;
+			grid[i][j].matChange = M_no_change;
+			grid[i][j].satChange = M_no_change;
 		}
 	}
 }
@@ -502,7 +502,7 @@ void print_saturation_data(){
 	printf("printTime = %d\n",printTime);
 	for(j=0 ; j<GRID_HEIGHT ; j++){
 		for(i=0 ; i<GRID_WIDTH ; i++){
-			if(cellSat[i][j] >= 0)printf("%2d ",cellSat[i][j]);
+			if(grid[i][j].sat >= 0)printf("%2d ",grid[i][j].sat);
 			else printf(" . ");
 		}
 		printf("\n");
@@ -538,14 +538,14 @@ void randomize_grid(){
 			while(mats[temp].name == NULL){
 				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
 			}
-			cellMat[i][j] = temp;
+			grid[i][j].mat = temp;
 			
 			//get random 
 			temp = M_valid_but_null_material;
 			while(mats[temp].name == NULL){
 				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
 			}
-			cellSat[i][j] = temp;
+			grid[i][j].sat = temp;
 		
 		}
 	}

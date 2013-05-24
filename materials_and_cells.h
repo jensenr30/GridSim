@@ -69,7 +69,9 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define M_mud			14
 #define M_grass_root	15
 
-#define M_life			21
+#define M_scurge			21
+#define M_anti_scurge		22
+#define M_dead_scurge		23
 
 #define M_valid_but_null_material (MAX_NUMBER_OF_UNIQUE_MATERIALS-1)
 
@@ -259,6 +261,7 @@ void init_material_attributes(void){
 	// I don't need to specify anything for air because air doesn't do anything.
 	// all of the elements of the mats[M_air] structure are initialized in the set_default_material_attributes() function.
 	mats[M_air].name = "Air";
+	//DON'T YOU DARE CHANGE ANYTHING ABOUT AIR!
 	
 	mats[M_earth].name = "Earth";
 	mats[M_earth].color = 0x8b672d;
@@ -301,7 +304,7 @@ void init_material_attributes(void){
 	mats[M_grass].affectMat[1].chance[7] = 4500;
 	
 	mats[M_water].name = "Water";
-	mats[M_water].gravity = 1;
+	mats[M_water].gravity = true;
     mats[M_water].color = 0x158ad4;
 	
     mats[M_spring].name = "Spring";
@@ -347,9 +350,9 @@ void init_material_attributes(void){
 	mats[M_test].affectMat[0].chance[6] = 100000;
 	mats[M_test].affectMat[0].chance[7] = 100000;
 	
-	mats[M_test2].name = NULL; // the material that jensen tests evaluate_grid() with
+	mats[M_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[M_test2].color = 0x00ffcc;
-	mats[M_test2].satEffect[0].absorb = 1;
+	mats[M_test2].satEffect[0].absorb = 0;
 	set_chance(&mats[M_test2].satEffect[0].satChance[0], 100000);
 	mats[M_test2].satEffect[0].satMat = M_earth;
 	mats[M_test2].satEffect[0].affectMat[0].matBefore = M_air;
@@ -374,7 +377,7 @@ void init_material_attributes(void){
 	mats[M_sand].color = 0xcfc1aa;
 	
 	mats[M_mud].name = "Mud";
-	mats[M_mud].gravity = 1;
+	mats[M_mud].gravity = true;
 	mats[M_mud].color = 0x644310;
 	mats[M_mud].satEffect[0].absorb = 1;
 	mats[M_mud].satEffect[0].satMat = M_water;
@@ -440,17 +443,36 @@ void init_material_attributes(void){
 	mats[M_grass_root].affectMat[0].chance[6] = 400;
 	mats[M_grass_root].affectMat[0].chance[7] = 400;
 	
-	mats[M_life].name = "Life";
-	mats[M_life].color = 0x561377;
-	mats[M_life].affectMat[0].matBefore = M_air; /// life turns empty space into life.
-	mats[M_life].affectMat[0].matAfter = M_life;
-	mats[M_life].affectMat[0].changesPerEval = 1;
-	set_chance( &mats[M_life].affectMat[0].chance[0], 100000 );
+	mats[M_scurge].name = "Scurge";
+	mats[M_scurge].color = 0x561377;
+	mats[M_scurge].affectMat[0].matBefore = M_air; /// scurge turns empty space into scurge.
+	mats[M_scurge].affectMat[0].matAfter = M_scurge;
+	mats[M_scurge].affectMat[0].changesPerEval = 1;
+	set_chance( &mats[M_scurge].affectMat[0].chance[0], 100000 );
+	mats[M_scurge].satEffect[0].satMat = M_scurge; /// scurge turns other scurge into empty space
+	mats[M_scurge].satEffect[0].decayInto = M_air;
+	mats[M_scurge].satEffect[0].decayChance = 100000;
+	set_chance( &mats[M_scurge].satEffect[0].satChance[0], 3250);
 	
-	mats[M_life].satEffect[0].satMat = M_life; /// life turns other life into empty space
-	mats[M_life].satEffect[0].decayInto = M_air;
-	mats[M_life].satEffect[0].decayChance = 100000;
-	set_chance( &mats[M_life].satEffect[0].satChance[0], 5000);
+	mats[M_anti_scurge].name = "Anti Scurge";
+	mats[M_anti_scurge].color = 0x0b94a0;
+	mats[M_anti_scurge].affectMat[0].matBefore = M_air; /// anti scurge turns empty space into anti scurge.
+	mats[M_anti_scurge].affectMat[0].matAfter = M_anti_scurge;
+	mats[M_anti_scurge].affectMat[0].changesPerEval = 1;
+	set_chance( &mats[M_anti_scurge].affectMat[0].chance[0], 100000 );
+	mats[M_anti_scurge].satEffect[0].satMat = M_anti_scurge; /// anti scurge turns other anti scurge into empty space
+	mats[M_anti_scurge].satEffect[0].decayInto = M_air;
+	mats[M_anti_scurge].satEffect[0].decayChance = 100000;
+	set_chance( &mats[M_anti_scurge].satEffect[0].satChance[0], mats[M_scurge].satEffect[0].satChance[0]); // make the anti scuge survive just as well as the scurge
+	mats[M_anti_scurge].affectMat[1].matBefore = M_scurge;		/// anti scurge will fight the scurge to the death
+	mats[M_anti_scurge].affectMat[1].matAfter = M_dead_scurge;
+	mats[M_anti_scurge].affectMat[1].changeOrigMat = M_dead_scurge;
+	mats[M_anti_scurge].affectMat[1].changesPerEval = 1;
+	set_chance( &mats[M_anti_scurge].affectMat[1].chance[0], 100000);
+	
+	mats[M_dead_scurge].name = NULL;		//dead scurge falls.
+	mats[M_dead_scurge].color = 0xa00b0b;
+	mats[M_dead_scurge].gravity = true;
 	
 	
 	// find how many saturatable materials there are:
@@ -479,8 +501,10 @@ void reset_cells(void){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			grid[i][j].mat = M_air;
 			grid[i][j].sat  = M_no_saturation;
+			grid[i][j].satLevel = 1;
 			grid[i][j].matChange = M_no_change;
 			grid[i][j].satChange = M_no_change;
+			grid[i][j].satLevelChange = 0;
 		}
 	}
 }
@@ -539,13 +563,6 @@ void randomize_grid(){
 				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
 			}
 			grid[i][j].mat = temp;
-			
-			//get random 
-			temp = M_valid_but_null_material;
-			while(mats[temp].name == NULL){
-				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
-			}
-			grid[i][j].sat = temp;
 		
 		}
 	}

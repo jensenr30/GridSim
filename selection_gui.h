@@ -8,8 +8,8 @@ SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 #define firstRow 80
 #define widthButton 20
 #define heightButton 20
-#define rowSpacingMultiplier 2
-#define columnSpacingMultiplier 2
+#define rowSpacingMultiplier 1.3
+#define columnSpacingMultiplier 1.618
 #define selectionBoxSize 3
 
 //main gui variables
@@ -33,7 +33,7 @@ void selectionGUI(int x, int y, int mouse)
     j = xPos + widthButton/2;
     k = firstRow;
     for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
-        if(j < SCREEN_WIDTH){
+        if(j + widthButton < SCREEN_WIDTH){
             //sets icons
             matIcon[i].x = j;
             matIcon[i].y = k;
@@ -72,7 +72,7 @@ void selectionGUI(int x, int y, int mouse)
     SDL_FillRect( screen , &guiRectangle , mats[currentMat].color);
     
     //apply text to screen
-    apply_surface( SCREEN_WIDTH - 170, 0, text, screen );
+    apply_surface( xPos+10, 4, text, screen );
     SDL_FreeSurface( text );
 
     //selection box

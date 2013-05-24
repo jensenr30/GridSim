@@ -81,20 +81,22 @@ void evaluate_grid(){
 	unsigned short matIndex, satEffIndex, newi, newj;
 	
 	/// 2.1 EVALUATE SATURATION - the giant ass loop where the saturation is evaluated
-	for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
-		for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
-			for(matIndex=0; matIndex<numberOfSatableMats ; matIndex++){ // go through every type of material that can be saturated
-				
-				cMat = matSatOrder[matIndex]; // get correct material
-				//make sure the current cell has the current material, cMat, in it!! if not, continue;
-				if(cMat != grid[i][j].mat) continue;
-				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATION_EFFECTS ; satEffIndex++){
+	for(matIndex=0; matIndex<numberOfSatableMats ; matIndex++){ // go through every type of material that can be saturated and ONLY the types of materials that can be saturated.
+			
+		cMat = matSatOrder[matIndex]; // get correct material
+		
+		for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATION_EFFECTS ; satEffIndex++){
 					
-					// if there is no saturation effect at the satEffIndex-th saturation effect, then there aren't any more by definition.
-					//break out of this look and move on the the next material that may have saturation effects.
-					if(mats[cMat].satEffect[satEffIndex].satMat == M_no_saturation) break;
+			// if there is no saturation effect at the satEffIndex-th saturation effect, then there aren't any more by definition.
+			//break out of this look and move on the the next material that may have saturation effects.
+			if(mats[cMat].satEffect[satEffIndex].satMat == M_no_saturation) break;
+		
+			for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
+				for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
+					
+					//make sure the current cell has the current material, cMat, in it!! if not, continue;
+					if(cMat != grid[i][j].mat) continue;
 
-					
 					//for every cell around our cell [i][j], evaluate whether or not it gets saturated
 					//  	0 1 2
 					//  	3 M 4
@@ -169,9 +171,12 @@ void evaluate_grid(){
 	apply_cell_sat_and_mat_changes(); // apply changes from the SATURATION AFFECTS AND DECAY part of this function.
 	
 	
+	
 	/// 3. AFFECTS AND DECAY - this giant-ass for loop is where we find out which cells need to be changed.
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
+			// air doesn't do anything. that is it's definition.
+			if(grid[i][j].mat == M_air) continue;
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
 				
 				//evaluate the affectMaterial structure (this will apply correct changes to the cellMat array)
@@ -183,6 +188,7 @@ void evaluate_grid(){
 		}
 	}
 	apply_cell_sat_and_mat_changes(); // apply changes from the AFFECTS AND DECAY and decay part of this function.
+	
 }/// end evaluate_grid()
 
 
@@ -225,6 +231,8 @@ void apply_cell_sat_and_mat_changes(){
 
 void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMaterial *affMat){
 	
+	//don't do anything if you don't need to.
+	if(affMat->matBefore == M_air && affMat->matAfter == M_air) return;
 	static int newi,newj;
 	static short c;
 	

@@ -76,7 +76,7 @@ int load_files(){
     }
     
     //open font file
-    font = TTF_OpenFont( "FreeMonoBold.ttf", 28 );
+    font = TTF_OpenFont( "FreeMonoBold.ttf", 22 );
     
     if (font == NULL)
     {

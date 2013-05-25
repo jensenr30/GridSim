@@ -1,3 +1,17 @@
+add a copy/cut/paste system.
+add a history system to undo and redo
+
+------------------------------------------------------------------------------------------------------
+
+make it so that when you press G, it makes ALL blocks (except ROCK) obey gravity. that way you can stack shit.
+
+------------------------------------------------------------------------------------------------------
+
+make it so that when you place materials, you don't replace others.
+e.g. when you place fire, it doesn't replace rock. it only gets placed in places where there is nothing (where there is air).
+
+------------------------------------------------------------------------------------------------------
+
 make a array of "cell" structures for the cell data.
 
 struct cell{

@@ -6,6 +6,7 @@
 void apply_cell_sat_and_mat_changes();
 bool *generate_near_by_cell_test_vector(unsigned short);
 void evaluate_affectMaterial(unsigned short, unsigned short, struct affectMaterial *);
+void reset_grid_changes();
 
 // this will evaluate the grid. It will run a simulation for the number of generations you tell it to.
 void evaluate_grid(){
@@ -68,7 +69,7 @@ void evaluate_grid(){
 	
 	
 	
-	
+	reset_grid_changes();
 	
 	
 	///variables used in 2. APPLY SATURATION
@@ -96,7 +97,8 @@ void evaluate_grid(){
 					
 					//make sure the current cell has the current material, cMat, in it!! if not, continue;
 					if(cMat != grid[i][j].mat) continue;
-
+					// this is set to M_no_change. it will change if need be.
+					grid[i][j].satLevelChange = M_no_change;
 					//for every cell around our cell [i][j], evaluate whether or not it gets saturated
 					//  	0 1 2
 					//  	3 M 4
@@ -116,7 +118,7 @@ void evaluate_grid(){
 							break;
 						case 5: newi = i-1;	newj = j+1;
 							break;
-						case 6: newi = i;	newj = j+1;
+						case 6: newi = i;	newj = j+1; 
 							break;
 						case 7: newi = i+1;	newj = j+1;
 							break;
@@ -125,13 +127,18 @@ void evaluate_grid(){
 						if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
 						
 						if(grid[newi][newj].mat != grid[i][j].sat){ // if the around our cell is of a different material than our current saturation (this releaves processing power and stops things from sucking up all that can saturate it.
-							if(grid[newi][newj].mat == mats[cMat].satEffect[satEffIndex].satMat){ // if the material near this cell is the right type to sturate it
+							// if the material near this cell is the right type to sturate it
+							if(grid[newi][newj].mat == mats[cMat].satEffect[satEffIndex].satMat){
+								
 								if(roll_ht(mats[cMat].satEffect[satEffIndex].satChance[c])){ // determine if it will become saturated based on roll_ht function.
 									grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
-									grid[newi][newj].matChange = M_air; // absorbs the material.
-									
-									
+									if(mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = M_air; // absorbs the material if required.
 								}
+								// increment the satLevel if needed.
+								if(grid[i][j].satLevelChange == M_no_change)
+									grid[i][j].satLevelChange=1;
+								else
+									grid[i][j].satLevelChange++;
 							}
 						}
 					}
@@ -149,20 +156,11 @@ void evaluate_grid(){
 			if(grid[i][j].sat != -2){ // if there is a valid saturation here
 				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATION_EFFECTS ; satEffIndex++){
 					if(mats[grid[i][j].mat].satEffect[satEffIndex].satMat == grid[i][j].sat){ // if this is the right saturation
-						
-						// check all valid affectMat entries for this saturation.
-						for(a=0 ; a<MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS ; a++){
-							
-							//evaluate the affectMaterial structure (this will apply correct changes to the cellMat array)
-							evaluate_affectMaterial(i, j, &mats[grid[i][j].mat].satEffect[satEffIndex].affectMat[a] );
-							
-						}
 						//check saturation-initiated decay 
 						if(roll_ht( mats[grid[i][j].mat].satEffect[satEffIndex].decayChance )){
 							grid[i][j].matChange = mats[grid[i][j].mat].satEffect[satEffIndex].decayInto;
 							grid[i][j].satChange = mats[grid[i][j].mat].satEffect[satEffIndex].decaySatMat;
 						}
-						
 					}
 				}
 			}
@@ -195,7 +193,17 @@ void evaluate_grid(){
 
 
 
-
+void reset_grid_changes(){
+	int i,j;
+	//reset cellMatChanges and cellSatChanges
+	for(i=0 ; i<GRID_WIDTH ; i++){
+		for(j=0 ; j<GRID_HEIGHT ; j++){
+			grid[i][j].matChange = M_no_change;
+			grid[i][j].satChange = M_no_change;
+			//grid[i][j].satLevelChange = M_no_change;
+		}
+	}
+}
 
 
 
@@ -208,6 +216,8 @@ void apply_cell_sat_and_mat_changes(){
 			if(grid[i][j].matChange != M_no_change) grid[i][j].mat = grid[i][j].matChange;
 			//if the saturation at [i][j] needs to be changed (updated) then change it
 			if(grid[i][j].satChange != M_no_change) grid[i][j].sat = grid[i][j].satChange;
+			//if the saturation level at [i][j] needs to be changed (updated) then change it.
+			if(grid[i][j].satLevelChange != M_no_change) grid[i][j].satLevel = grid[i][j].satLevelChange;
 		}
 	}
 	//reset cellMatChanges and cellSatChanges
@@ -215,6 +225,7 @@ void apply_cell_sat_and_mat_changes(){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			grid[i][j].matChange = M_no_change;
 			grid[i][j].satChange = M_no_change;
+			grid[i][j].satLevelChange = M_no_change;
 		}
 	}
 }
@@ -241,7 +252,16 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	//generate a testvector for the cells around the cell being evaluated.
 	testVector = generate_near_by_cell_test_vector(affMat->changesPerEval);
 	// if there aren't any blocks to be changed, then move on to the next one.
-	if(affMat->changesPerEval == 0) return;;
+	if(affMat->changesPerEval == 0) return;
+	
+	if(affMat->satNeeded != M_dont_care){
+		//if the saturation here isn't right, return
+		if(grid[i][j].sat != affMat->satNeeded) return;
+		//if our material isn't saturated enough, return
+		if(grid[i][j].satLevel < affMat->satGTE) return;
+		//if our material is too saturated, return
+		if(grid[i][j].satLevel > affMat->satLTE) return;
+	}
 	
 	//for each chance
 	for(c=0 ; c<8 ; c++){

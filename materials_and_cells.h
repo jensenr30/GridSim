@@ -156,16 +156,18 @@ struct saturationEffect{
 	//		3 M 4
 	//		5 6 7
 	// chance of 0-100000. 0 = never 100000 = always
-	// default to each space around our material to have a 100% chance (satChance[0 thru 7] = 100000)
-	unsigned satChance[8];
+	// default to each space around our material to have a 100% chance (chance[0 thru 7] = 100000)
+	unsigned chance[8];
 
 	// the chance that our saturated material will decay into something else.
 	// from 0-100000
 	unsigned decayChance;
-	
+	//the minimum saturation level needed to decay. default 1
+	char decaySatGTE;
+	//the maximum saturation level that will allow decay. default 8
+	char decaySatLTE;
 	// the thing that our saturated material may decay into now that it is saturated.
 	short decayInto;
-	
 	// what will the saturation be after the block decays?
 	// set to M_no_saturation by default.
 	short decaySatMat;
@@ -229,8 +231,10 @@ void set_default_material_attributes(){
 			mats[i].satEffect[s].decayChance = 0; // be default, nothing saturated will decay into anything.
 			mats[i].satEffect[s].decayInto =	M_air; // default decay into air. kind of irrelevant because the chance of decay is already 0. oh well. better safe than sorry.
 			mats[i].satEffect[s].decaySatMat =	M_no_saturation; // the default saturation the material will have after decaying is nothing.
+			mats[i].satEffect[s].decaySatGTE = 1;
+			mats[i].satEffect[s].decaySatLTE = 8;
 			for(k=0 ; k<8 ; k++){ // set all the absorb chances to 100% be default
-				mats[i].satEffect[s].satChance[k] = 100000; // 100%
+				mats[i].satEffect[s].chance[k] = 100000; // 100%
 			}
 		}
 
@@ -264,14 +268,14 @@ void init_material_attributes(void){
 	mats[M_earth].color = 0x8b672d;
 	mats[M_earth].satEffect[0].satMat = M_water;    /// earth turns into mud when soaked
 	mats[M_earth].satEffect[0].absorb = 1;
-	mats[M_earth].satEffect[0].satChance[0] = 125;
-	mats[M_earth].satEffect[0].satChance[1] = 125;
-	mats[M_earth].satEffect[0].satChance[2] = 125;
-	mats[M_earth].satEffect[0].satChance[3] = 125;
-	mats[M_earth].satEffect[0].satChance[4] = 125;
-	mats[M_earth].satEffect[0].satChance[5] = 125;
-	mats[M_earth].satEffect[0].satChance[6] = 125;
-	mats[M_earth].satEffect[0].satChance[7] = 125;
+	mats[M_earth].satEffect[0].chance[0] = 125;
+	mats[M_earth].satEffect[0].chance[1] = 125;
+	mats[M_earth].satEffect[0].chance[2] = 125;
+	mats[M_earth].satEffect[0].chance[3] = 125;
+	mats[M_earth].satEffect[0].chance[4] = 125;
+	mats[M_earth].satEffect[0].chance[5] = 125;
+	mats[M_earth].satEffect[0].chance[6] = 125;
+	mats[M_earth].satEffect[0].chance[7] = 125;
 	mats[M_earth].satEffect[0].decayInto = M_mud;
 	mats[M_earth].satEffect[0].decayChance = 100000;
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -332,6 +336,12 @@ void init_material_attributes(void){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 	mats[M_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[M_test].color = 0xccff00;
+	mats[M_test].satEffect[0].satMat = M_earth; /// when surrounded by rock, it turns into dirt.
+	set_chance(mats[M_test].satEffect[0].chance, 100000);
+	mats[M_test].satEffect[0].decayChance = 100000;
+	mats[M_test].satEffect[0].decayInto = M_rock;
+	mats[M_test].satEffect[0].decaySatGTE = 3; // has to have at least 3 blocks around it
+	mats[M_test].satEffect[0].decaySatLTE = 5; // can have no more than 5 dirt around it
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 	mats[M_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[M_test2].color = 0x00ffcc;
@@ -340,7 +350,7 @@ void init_material_attributes(void){
 	mats[M_test2].affectMat[0].changesPerEval = 1;
 	set_chance( mats[M_test2].affectMat[0].chance, 12500);
 	mats[M_test2].satEffect[0].absorb = 0;
-	set_chance(&mats[M_test2].satEffect[0].satChance[0], 100000); /// test2 turns the test above it into test2. it grows upwards into test.
+	set_chance(&mats[M_test2].satEffect[0].chance[0], 100000); /// test2 turns the test above it into test2. it grows upwards into test.
 	mats[M_test2].satEffect[0].satMat = M_test;
 	mats[M_test2].affectMat[1].matBefore = M_test;
 	mats[M_test2].affectMat[1].matAfter  = M_test2;
@@ -359,14 +369,14 @@ void init_material_attributes(void){
 	mats[M_mud].color = 0x644310;
 	mats[M_mud].satEffect[0].absorb = 1;
 	mats[M_mud].satEffect[0].satMat = M_water;
-	mats[M_mud].satEffect[0].satChance[0] = 1000; /// mud absorbs water
-	mats[M_mud].satEffect[0].satChance[1] = 1100;
-	mats[M_mud].satEffect[0].satChance[2] = 1000;
-	mats[M_mud].satEffect[0].satChance[3] = 500;
-	mats[M_mud].satEffect[0].satChance[4] = 500;
-	mats[M_mud].satEffect[0].satChance[5] = 150;
-	mats[M_mud].satEffect[0].satChance[6] = 200;
-	mats[M_mud].satEffect[0].satChance[7] = 150;
+	mats[M_mud].satEffect[0].chance[0] = 1000; /// mud absorbs water
+	mats[M_mud].satEffect[0].chance[1] = 1100;
+	mats[M_mud].satEffect[0].chance[2] = 1000;
+	mats[M_mud].satEffect[0].chance[3] = 500;
+	mats[M_mud].satEffect[0].chance[4] = 500;
+	mats[M_mud].satEffect[0].chance[5] = 150;
+	mats[M_mud].satEffect[0].chance[6] = 200;
+	mats[M_mud].satEffect[0].chance[7] = 150;
 	mats[M_mud].affectMat[1].changesPerEval = 1; /// when mud is saturated with water, it will leak water into other mud that is NOT saturated with water.
 	mats[M_mud].affectMat[1].changeOrigSat = M_no_saturation;
 	mats[M_mud].affectMat[1].satNeeded = M_water;
@@ -440,7 +450,7 @@ void init_material_attributes(void){
 	mats[M_scurge].satEffect[0].satMat = M_scurge; /// scurge turns other scurge into empty space
 	mats[M_scurge].satEffect[0].decayInto = M_air;
 	mats[M_scurge].satEffect[0].decayChance = 100000;
-	set_chance( &mats[M_scurge].satEffect[0].satChance[0], 3250);
+	set_chance( &mats[M_scurge].satEffect[0].chance[0], 3250);
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 	mats[M_anti_scurge].name = "Anti Scurge";
 	mats[M_anti_scurge].color = 0x0b94a0;
@@ -451,7 +461,7 @@ void init_material_attributes(void){
 	mats[M_anti_scurge].satEffect[0].satMat = M_anti_scurge; /// anti scurge turns other anti scurge into empty space
 	mats[M_anti_scurge].satEffect[0].decayInto = M_air;
 	mats[M_anti_scurge].satEffect[0].decayChance = 100000;
-	set_chance( &mats[M_anti_scurge].satEffect[0].satChance[0], mats[M_scurge].satEffect[0].satChance[0]); // make the anti scuge survive just as well as the scurge
+	set_chance( &mats[M_anti_scurge].satEffect[0].chance[0], mats[M_scurge].satEffect[0].chance[0]); // make the anti scuge survive just as well as the scurge
 	mats[M_anti_scurge].affectMat[1].matBefore = M_scurge;		/// anti scurge will fight the scurge to the death
 	mats[M_anti_scurge].affectMat[1].matAfter = M_dead_scurge;
 	mats[M_anti_scurge].affectMat[1].changeOrigMat = M_dead_scurge;

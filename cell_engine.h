@@ -125,21 +125,19 @@ void evaluate_grid(){
 						}
 						// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
 						if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
-						
-						if(grid[newi][newj].mat != grid[i][j].sat){ // if the around our cell is of a different material than our current saturation (this releaves processing power and stops things from sucking up all that can saturate it.
-							// if the material near this cell is the right type to sturate it
-							if(grid[newi][newj].mat == mats[cMat].satEffect[satEffIndex].satMat){
-								
-								if(roll_ht(mats[cMat].satEffect[satEffIndex].satChance[c])){ // determine if it will become saturated based on roll_ht function.
-									grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
-									if(mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = M_air; // absorbs the material if required.
-								}
-								// increment the satLevel if needed.
-								if(grid[i][j].satLevelChange == M_no_change)
-									grid[i][j].satLevelChange=1;
-								else
-									grid[i][j].satLevelChange++;
+					
+						// if the material near this cell is the right type to saturate it
+						if(grid[newi][newj].mat == mats[cMat].satEffect[satEffIndex].satMat){
+							
+							if(roll_ht(mats[cMat].satEffect[satEffIndex].chance[c])){ // determine if it will become saturated based on roll_ht function.
+								grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
+								if(mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = M_air; // absorbs the material if required.
 							}
+							// increment the satLevel if needed.
+							if(grid[i][j].satLevelChange == M_no_change)
+								grid[i][j].satLevelChange=1;
+							else
+								grid[i][j].satLevelChange++;
 						}
 					}
 				}
@@ -150,16 +148,21 @@ void evaluate_grid(){
 	
 	
 	
-	/// 2.2 SATURATION AFFECTMATS AND DECAY
+	/// 2.2 SATURATION DECAY
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(grid[i][j].sat != -2){ // if there is a valid saturation here
+				//store current material here for convenience
+				cMat = grid[i][j].mat;
 				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATION_EFFECTS ; satEffIndex++){
-					if(mats[grid[i][j].mat].satEffect[satEffIndex].satMat == grid[i][j].sat){ // if this is the right saturation
-						//check saturation-initiated decay 
-						if(roll_ht( mats[grid[i][j].mat].satEffect[satEffIndex].decayChance )){
-							grid[i][j].matChange = mats[grid[i][j].mat].satEffect[satEffIndex].decayInto;
-							grid[i][j].satChange = mats[grid[i][j].mat].satEffect[satEffIndex].decaySatMat;
+					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i][j].sat){ // if this is the right saturation
+						//check for the right saturaion levels. if you don't have the right sat levels, just move on to the next satEffect. (continue)
+						if(grid[i][j].satLevel < mats[cMat].satEffect[satEffIndex].decaySatGTE || grid[i][j].satLevel > mats[cMat].satEffect[satEffIndex].decaySatLTE) continue;
+						
+						// roll for saturation-initiated decay 
+						if(roll_ht( mats[cMat].satEffect[satEffIndex].decayChance )){
+							grid[i][j].matChange = mats[cMat].satEffect[satEffIndex].decayInto;
+							grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].decaySatMat;
 						}
 					}
 				}

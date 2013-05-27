@@ -245,6 +245,8 @@ void apply_cell_sat_and_mat_changes(){
 
 void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMaterial *affMat){
 	
+	// if the affectMaterial will not do anything, return;
+	if(affMat->matAfter == M_no_change) return;
 	//don't do anything if you don't need to.
 	if(affMat->matBefore == M_air && affMat->matAfter == M_air) return;
 	static int newi,newj;
@@ -257,7 +259,8 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	// if there aren't any blocks to be changed, then move on to the next one.
 	if(affMat->changesPerEval == 0) return;
 	
-	if(affMat->satNeeded != M_dont_care){
+	//these checks inside this if() statements only apply if the saturation needed is a valid material saturation. i.e. not one of these flags.
+	if(affMat->satNeeded != M_dont_care && affMat->satNeeded != M_no_saturation){
 		//if the saturation here isn't right, return
 		if(grid[i][j].sat != affMat->satNeeded) return;
 		//if our material isn't saturated enough, return
@@ -265,6 +268,10 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 		//if our material is too saturated, return
 		if(grid[i][j].satLevel > affMat->satLTE) return;
 	}
+	//if there needs to be no saturation and there is some kind of saturation, then return;
+	if(affMat->satNeeded == M_no_saturation && grid[i][j].sat != M_no_saturation)
+		return;
+	
 	
 	//for each chance
 	for(c=0 ; c<8 ; c++){

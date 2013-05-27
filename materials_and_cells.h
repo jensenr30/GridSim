@@ -22,7 +22,7 @@ int CELL_SIZE = 8;
 short numberOfSatableMats;
 
 //this is how many different interactions any given material can have with other materials in neighboring cells.
-#define MAX_NUMBER_OF_MATERIAL_INTERACTIONS 4
+#define MAX_NUMBER_OF_MATERIAL_INTERACTIONS 6
 //this is how many different things a given material can be saturated with
 #define MAX_NUMBER_OF_SATURATION_EFFECTS 3
 
@@ -53,10 +53,7 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define M_grass			2
 #define M_water			3
 #define M_fire			4
-#define M_test			5
-#define M_test2			6
-
-
+#define M_tree_base	5
 
 
 #define M_rock			11
@@ -65,9 +62,20 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define M_mud			14
 #define M_grass_root	15
 
-#define M_scurge			21
-#define M_anti_scurge		22
-#define M_dead_scurge		23
+#define M_scurge		21
+#define M_anti_scurge	22
+#define M_dead_scurge	23
+
+//tree stuff
+#define M_tree_trunk		80
+#define M_tree_trunk_top	81
+#define M_tree_branch_left	82
+#define M_tree_branch_right 83
+#define M_tree_branch_end	84
+#define M_tree_leaves		85
+#define M_tree_leaves_end	86
+#define M_tree_fruit		87
+
 
 #define M_valid_but_null_material (MAX_NUMBER_OF_UNIQUE_MATERIALS-1)
 
@@ -138,6 +146,7 @@ struct affectMaterial{
 	
 };
 
+void copy_affMat( struct affectMaterial *, struct affectMaterial *);
 
 struct saturationEffect{
 	
@@ -233,15 +242,15 @@ void set_default_material_attributes(){
 			mats[i].satEffect[s].decaySatMat =	M_no_saturation; // the default saturation the material will have after decaying is nothing.
 			mats[i].satEffect[s].decaySatGTE = 1;
 			mats[i].satEffect[s].decaySatLTE = 8;
-			for(k=0 ; k<8 ; k++){ // set all the absorb chances to 100% be default
-				mats[i].satEffect[s].chance[k] = 100000; // 100%
+			for(k=0 ; k<8 ; k++){ // set all the absorb chances to 0% be default
+				mats[i].satEffect[s].chance[k] = 0; // 0%
 			}
 		}
 
 		// for every affect that our material can have on other materials, set it to default (default = air changes to air with a 0% chance. nothing happens.)
 		for(m=0 ; m<MAX_NUMBER_OF_MATERIAL_INTERACTIONS ; m++){
-			mats[i].affectMat[m].matBefore = M_air;// affects air.
-			mats[i].affectMat[m].matAfter = M_air; // turns air into air.
+			mats[i].affectMat[m].matBefore = M_dont_care;// affects everything
+			mats[i].affectMat[m].matAfter = M_no_change; // doesn't do anything to anything
 			mats[i].affectMat[m].satBefore = M_dont_care; // by default, it doesn't matter what the affected material had for saturation before the incident.
 			mats[i].affectMat[m].satAfter  = M_no_change; // by default, there is no change in saturation after the affectMat.
 			mats[i].affectMat[m].changesPerEval = 8; // by default, any material can affect the stuff around it all at once.
@@ -263,7 +272,7 @@ void init_material_attributes(void){
 	// all of the elements of the mats[M_air] structure are initialized in the set_default_material_attributes() function.
 	mats[M_air].name = "Air";
 	//DON'T YOU DARE CHANGE ANYTHING ABOUT AIR!
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_earth].name = "Earth";
 	mats[M_earth].color = 0x8b672d;
 	mats[M_earth].satEffect[0].satMat = M_water;    /// earth turns into mud when soaked
@@ -278,7 +287,7 @@ void init_material_attributes(void){
 	mats[M_earth].satEffect[0].chance[7] = 125;
 	mats[M_earth].satEffect[0].decayInto = M_mud;
 	mats[M_earth].satEffect[0].decayChance = 100000;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_grass].name = "Grass";
     mats[M_grass].color = 0x20e112;
     mats[M_grass].affectMat[0].matBefore = M_water; /// grass grows into water
@@ -301,11 +310,11 @@ void init_material_attributes(void){
 	mats[M_grass].affectMat[1].chance[5] = 4500;
 	mats[M_grass].affectMat[1].chance[6] = 4500;
 	mats[M_grass].affectMat[1].chance[7] = 4500;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_water].name = "Water";
 	mats[M_water].gravity = true;
     mats[M_water].color = 0x158ad4;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
     mats[M_spring].name = "Spring";
 	mats[M_spring].color = 0x97bcbb;
 	mats[M_spring].affectMat[0].matBefore = M_air;  /// spring generates water
@@ -318,7 +327,7 @@ void init_material_attributes(void){
 	mats[M_spring].affectMat[0].chance[5] = 700;
 	mats[M_spring].affectMat[0].chance[6] = 1000;
 	mats[M_spring].affectMat[0].chance[7] = 700;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_fire].name = "Fire";
 	mats[M_fire].decayInto = M_air;
     mats[M_fire].color = 0xd83313;
@@ -333,7 +342,7 @@ void init_material_attributes(void){
 	mats[M_fire].affectMat[0].chance[5] =  4500;
 	mats[M_fire].affectMat[0].chance[6] =  6500;
 	mats[M_fire].affectMat[0].chance[7] =  4500;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+/*//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[M_test].color = 0xccff00;
 	mats[M_test].satEffect[0].satMat = M_earth; /// when surrounded by rock, it turns into dirt.
@@ -342,7 +351,7 @@ void init_material_attributes(void){
 	mats[M_test].satEffect[0].decayInto = M_rock;
 	mats[M_test].satEffect[0].decaySatGTE = 3; // has to have at least 3 blocks around it
 	mats[M_test].satEffect[0].decaySatLTE = 5; // can have no more than 5 dirt around it
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[M_test2].color = 0x00ffcc;
 	mats[M_test2].affectMat[0].matBefore = M_air; /// test2 turns air into test
@@ -356,14 +365,51 @@ void init_material_attributes(void){
 	mats[M_test2].affectMat[1].matAfter  = M_test2;
 	mats[M_test2].affectMat[1].satGTE = 4;
 	mats[M_test2].affectMat[1].chance[1] = 5000;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+*///-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_rock].name = "Rock";
 	mats[M_rock].color = 0x5a5651;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_base].name = "Tree";	/// this is the start of the tree. this is what you palce and watch a tree grow.
+	mats[M_tree_base].color = 0x7B5126;
+	mats[M_tree_base].affectMat[0].matBefore = M_air;
+	mats[M_tree_base].affectMat[0].matAfter  = M_tree_trunk;
+	mats[M_tree_base].affectMat[0].chance[1] = 850;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_trunk].color = 0x7B5126;
+	mats[M_tree_trunk].satEffect[0].satMat = M_tree_trunk; /// tree_trunk can tell when there is tree_trunk around it.
+	mats[M_tree_trunk].satEffect[0].chance[1] = 100000;
+	mats[M_tree_trunk].affectMat[0].matBefore = M_air;  /// turns air into leaves only when there isn't a tree_trunk above it.
+	mats[M_tree_trunk].affectMat[0].matAfter  = M_tree_leaves_end;
+	mats[M_tree_trunk].affectMat[0].chance[0] = 350;
+	mats[M_tree_trunk].affectMat[0].chance[1] = 1000;
+	mats[M_tree_trunk].affectMat[0].chance[2] = 350;
+	mats[M_tree_trunk].affectMat[0].chance[3] = 500;
+	mats[M_tree_trunk].affectMat[0].chance[4] = 500;
+	mats[M_tree_trunk].affectMat[0].satNeeded = M_no_saturation;
+	copy_affMat(&mats[M_tree_trunk].affectMat[0], &mats[M_tree_trunk].affectMat[1]); /// tree trunk grows leaves when there is 
+	mats[M_tree_trunk].affectMat[2].matBefore = M_tree_leaves_end;		/// tree_trunk grows upwards into tree_leaves_end
+	mats[M_tree_trunk].affectMat[2].matAfter  = M_tree_trunk;
+	mats[M_tree_trunk].affectMat[2].chance[1] = 500;
+	mats[M_tree_trunk].affectMat[3].matBefore = M_tree_leaves_end;		/// tree trunk grows tree_trunk_end into tree_leaves_end
+	mats[M_tree_trunk].affectMat[3].matAfter  = M_tree_trunk_top;
+	mats[M_tree_trunk].affectMat[3].chance[1] = 140;
+	mats[M_tree_trunk].affectMat[4].matBefore = M_tree_leaves_end; /// once tree has grown, it sheds the leaves lower on it's trunk.
+	mats[M_tree_trunk].affectMat[4].matAfter  = M_air;
+	mats[M_tree_trunk].affectMat[4].chance[3] = 450;
+	mats[M_tree_trunk].affectMat[4].chance[4] = 450;
+	mats[M_tree_trunk].affectMat[4].satNeeded = M_tree_trunk;
+	
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_trunk_top].color = 0x7b5126; /// this is the top of the tree. the trunk will stop growing when this material is spawned.
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_leaves].color = 0x90AD53;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_leaves_end].color = 0x90AD53; /// tree_leaves_end make apples.
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_sand].name = "Sand";
 	mats[M_sand].gravity = 1;
 	mats[M_sand].color = 0xcfc1aa;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_mud].name = "Mud";
 	mats[M_mud].gravity = true;
 	mats[M_mud].color = 0x644310;
@@ -417,7 +463,7 @@ void init_material_attributes(void){
 	mats[M_mud].affectMat[0].chance[5] = 100;
 	mats[M_mud].affectMat[0].chance[6] = 175;
 	mats[M_mud].affectMat[0].chance[7] = 100;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_grass_root].name = "Grass Root";
 	mats[M_grass_root].color = 0xbfc69e;
 	mats[M_grass_root].affectMat[0].matBefore = M_mud;
@@ -440,7 +486,7 @@ void init_material_attributes(void){
 	mats[M_grass_root].affectMat[0].chance[5] = 400;
 	mats[M_grass_root].affectMat[0].chance[6] = 400;
 	mats[M_grass_root].affectMat[0].chance[7] = 400;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_scurge].name = "Scurge";
 	mats[M_scurge].color = 0x561377;
 	mats[M_scurge].affectMat[0].matBefore = M_air; /// scurge turns empty space into scurge.
@@ -451,7 +497,7 @@ void init_material_attributes(void){
 	mats[M_scurge].satEffect[0].decayInto = M_air;
 	mats[M_scurge].satEffect[0].decayChance = 100000;
 	set_chance( &mats[M_scurge].satEffect[0].chance[0], 3250);
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_anti_scurge].name = "Anti Scurge";
 	mats[M_anti_scurge].color = 0x0b94a0;
 	mats[M_anti_scurge].affectMat[0].matBefore = M_air; /// anti scurge turns empty space into anti scurge.
@@ -467,11 +513,11 @@ void init_material_attributes(void){
 	mats[M_anti_scurge].affectMat[1].changeOrigMat = M_dead_scurge;
 	mats[M_anti_scurge].affectMat[1].changesPerEval = 1;
 	set_chance( &mats[M_anti_scurge].affectMat[1].chance[0], 100000);
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_dead_scurge].name = NULL;		//dead scurge falls.
 	mats[M_dead_scurge].color = 0xa00b0b;
 	mats[M_dead_scurge].gravity = true;
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	
 	// find how many saturatable materials there are:
 	numberOfSatableMats = 0; // set this to 0 by default. it will get incremented in the for loop and brought to the correct value.
@@ -574,5 +620,20 @@ void randomize_grid(){
 	}
 }
 
+void copy_affMat( struct affectMaterial *source, struct affectMaterial *destination){
+	short c;
+	for(c=0 ; c<8 ; c++)
+		destination->chance[c] = source->chance[c];
+	destination->changeOrigMat = source->changeOrigMat;
+	destination->changeOrigSat = source->changeOrigSat;
+	destination->changesPerEval = source->changesPerEval;
+	destination->matAfter = source->matAfter;
+	destination->matBefore = source->matBefore;
+	destination->satAfter = source->satAfter;
+	destination->satBefore = source->satBefore;
+	destination->satGTE = source->satGTE;
+	destination->satLTE = source->satLTE;
+	destination->satNeeded = source->satNeeded;
+}
 
 

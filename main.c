@@ -7,7 +7,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, sleepTime = 64, paused = 0, countVar = 0, mouseStatus = CELL_SIZE;
+    int x, y, sleepTime = 64, paused = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;

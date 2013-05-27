@@ -7,3 +7,4 @@ bin/Release/GridSim.exe
 *stderr.txt
 *stdout.txt
 *.orig
+*Thumbs.db

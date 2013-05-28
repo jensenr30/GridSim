@@ -4,8 +4,9 @@ void setcell(int x, int y, int data)
 {
 	//make sure the user's cursor is inside the grid. (no negative values or values bigger than the grid size
 	if(x>=0 && x/CELL_SIZE<GRID_WIDTH && y>=0 && y/CELL_SIZE<GRID_HEIGHT && x<=SCREEN_WIDTH - 200 && y<= SCREEN_WIDTH){
-		cellMat[x/CELL_SIZE][y/CELL_SIZE] = data;
-		cellSat[x/CELL_SIZE][y/CELL_SIZE] = M_no_saturation;
+		grid[x/CELL_SIZE][y/CELL_SIZE].mat = data;
+		grid[x/CELL_SIZE][y/CELL_SIZE].sat = M_no_saturation;
+		grid[x/CELL_SIZE][y/CELL_SIZE].satLevel = 0;
 	}
 }
 
@@ -13,8 +14,9 @@ void deletecell(int x, int y, int data)
 {
 	//make sure the user's cursor is inside the grid. (no negative values or values bigger than the grid size
 	if(x>=0 && x/CELL_SIZE<GRID_WIDTH && y>=0 && y/CELL_SIZE<GRID_HEIGHT && x<=SCREEN_WIDTH - 200 && y<= SCREEN_WIDTH){
-		cellMat[x/CELL_SIZE][y/CELL_SIZE] = 0;
-		cellSat[x/CELL_SIZE][y/CELL_SIZE] = M_no_saturation;
+		grid[x/CELL_SIZE][y/CELL_SIZE].mat = 0;
+		grid[x/CELL_SIZE][y/CELL_SIZE].sat = M_no_saturation;
+		grid[x/CELL_SIZE][y/CELL_SIZE].satLevel = 0;
 	}
 }
 

@@ -3,7 +3,6 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
-#include "Windows.h"
 #include "time.h"
 
 //definitions
@@ -40,6 +39,9 @@ SDL_Color textColor = { 255, 255, 255 };
 //id for changing materials
 //3 = water
 int currentMat = 1;
+
+//mouse moddifier used for brushes
+short mouseModifier = 0;
 
 
 

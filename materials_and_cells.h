@@ -7,9 +7,8 @@
 /// if you want to make a cell empty, that means you are filling it with AIR.
 
 
-
 // this is how big each square cell is
-int CELL_SIZE = 16;
+int CELL_SIZE = 8;
 
 // this is how large the cell grid is.
 #define GRID_WIDTH SCREEN_WIDTH/CELL_SIZE
@@ -20,29 +19,26 @@ int CELL_SIZE = 16;
 
 //this holds the number of unique materials that have the ability to be saturated by something.
 // this value is detected and set in the set_default_material_attributes() function
-short numberOfMaterialsThatCanBeSaturated;
+short numberOfSatableMats;
 
 //this is how many different interactions any given material can have with other materials in neighboring cells.
-#define MAX_NUMBER_OF_MATERIAL_INTERACTIONS 4
+#define MAX_NUMBER_OF_MATERIAL_INTERACTIONS 6
 //this is how many different things a given material can be saturated with
 #define MAX_NUMBER_OF_SATURATION_EFFECTS 3
-//when a material is saturated with some other material, this is how many affects the material can have based on that particular saturation.
-//e.g. is grass is saturaed with fire, it may affect at most this many other material types:
-#define MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS 2
 
+struct cellData{
+	short mat; // the material in a cell. 	// default to M_air
+	short sat; // the saturaiton of a cell. // default to M_no_saturation
+	char satLevel;  // the saturation level of a cell. i.e. how saturated is it? (integer range 1-8) default to 1
+	
+	short matChange; // does the material need to change?
+	short satChange; // does the saturation need to change?
+	char satLevelChange; // does the saturationLevel need to change?
+};
+//this is the array of structures that the data for the grid is stored in.
+// your entire map exists in here.
+struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 
-//this array holds the data for each cell. An integer indicates what material is stored in that cell.
-// cellMat[0][0] refers to the top left cell (computer coordinates) NOT cartesian.
-short cellMat[SCREEN_WIDTH][SCREEN_HEIGHT];
-//this is what modifier the materials in each cell have. it is soaked? (modified by water) is it on fire? (modified by fire?)
-// if it is soaked, then cellSat = M_water. If it is on fire, then cellSat= M_fire.
-// being saturated with air does not mean the same thing as being saturated with nothing.
-// if there is no saturation, then use M_no_saturation.
-short cellSat[SCREEN_WIDTH][SCREEN_HEIGHT];
-
-//these are used to store temporary data concerning what we need to change in the cellMat and cellSat arrays.
-short cellMatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
-short cellSatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
 
 //this defines the material types. a material type is a
 //		signed short
@@ -57,10 +53,7 @@ short cellSatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define M_grass			2
 #define M_water			3
 #define M_fire			4
-#define M_test			5
-#define M_test2			6
-
-
+#define M_tree_base	5
 
 
 #define M_rock			11
@@ -69,7 +62,20 @@ short cellSatChanges[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define M_mud			14
 #define M_grass_root	15
 
-#define M_life			21
+#define M_scurge		21
+#define M_anti_scurge	22
+#define M_dead_scurge	23
+
+//tree stuff
+#define M_tree_trunk		80
+#define M_tree_trunk_top	81
+#define M_tree_branch_left	82
+#define M_tree_branch_right 83
+#define M_tree_branch_end	84
+#define M_tree_leaves		85
+#define M_tree_leaves_end	86
+#define M_tree_fruit		87
+
 
 #define M_valid_but_null_material (MAX_NUMBER_OF_UNIQUE_MATERIALS-1)
 
@@ -83,6 +89,21 @@ void set_chance(unsigned *, unsigned);
 
 
 struct affectMaterial{
+	
+	//this is the type of saturation our material needs to have in order to carry out the desired affect.
+	//default to M_dont_care
+	short satNeeded;
+	
+	// this is how much the saturation level must be in order to do the desired affect to be carried out.
+	// saturaiton Greater Than or Equal
+	//default to 1 (no minumum)
+	char satGTE;
+	//this is the highest yoru saturation level can be in order for the desired affect to be caried our.
+	//saturation Less Than or Equal
+	//default to 8 (no maximum)
+	char satLTE;
+	
+	
 	
 	// the type of material will be affected by the material in the current cell.
 	// default to M_air
@@ -98,7 +119,6 @@ struct affectMaterial{
 	// this is the type of saturation the material will have after the affectMat
 	// default to M_no_change
 	short satAfter;
-	
 	
 	
 	//the maximum number of changes to nearby materials that can occur per cell_evaluate() cycle.
@@ -126,6 +146,7 @@ struct affectMaterial{
 	
 };
 
+void copy_affMat( struct affectMaterial *, struct affectMaterial *);
 
 struct saturationEffect{
 	
@@ -144,23 +165,21 @@ struct saturationEffect{
 	//		3 M 4
 	//		5 6 7
 	// chance of 0-100000. 0 = never 100000 = always
-	// default to each space around our material to have a 100% chance (satChance[0 thru 7] = 100000)
-	unsigned satChance[8];
+	// default to each space around our material to have a 100% chance (chance[0 thru 7] = 100000)
+	unsigned chance[8];
 
 	// the chance that our saturated material will decay into something else.
 	// from 0-100000
 	unsigned decayChance;
-	
+	//the minimum saturation level needed to decay. default 1
+	char decaySatGTE;
+	//the maximum saturation level that will allow decay. default 8
+	char decaySatLTE;
 	// the thing that our saturated material may decay into now that it is saturated.
 	short decayInto;
-	
 	// what will the saturation be after the block decays?
 	// set to M_no_saturation by default.
 	short decaySatMat;
-
-	// these are other materials that our saturated material can affect now that it is saturated.
-	// start with affectMat[0]. If you want to add another, put that effect in affectMat[1] then affectMat[2] and affectMat[3] (etc...)
-	struct affectMaterial affectMat[MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS];
 };
 
 
@@ -204,7 +223,7 @@ struct material {
 ///so basically, if you don't specify a material's behavior, it will basically be air.
 ///if you want to make a material, but you don't want it to appear in the menu, give it a NULL for its mats[].name value.
 void set_default_material_attributes(){
-	int i,j,k,l;
+	int i,s,k,m;
 
 	//DEFAULT MATERIAL VALUES:
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
@@ -215,40 +234,33 @@ void set_default_material_attributes(){
 		mats[i].decayInto = M_air;	 // decay into air (this is irrelevant because there is a 0% decayChance anyway)
 
 		 // for every saturation effect, set it to the default of not being able to be saturated by anything.
-		for(j=0 ; j<MAX_NUMBER_OF_SATURATION_EFFECTS ; j++){
-			mats[i].satEffect[j].satMat = M_no_saturation; // by default, nothing can be saturated with anything.
-			mats[i].satEffect[j].absorb = 0; // does not absorb by default.
-			mats[i].satEffect[j].decayChance = 0; // be default, nothing saturated will decay into anything.
-			mats[i].satEffect[j].decayInto =	M_air; // default decay into air. kind of irrelevant because the chance of decay is already 0. oh well. better safe than sorry.
-			mats[i].satEffect[j].decaySatMat =	M_no_saturation; // the default saturation the material will have after decaying is nothing.
-			for(l=0 ; l<8 ; l++){ // set all the absorb chances to 100% be default
-				mats[i].satEffect[j].satChance[l] = 100000; // 100%
-			}
-			for(k=0; k<MAX_NUMBER_OF_SATURATION_EFFECT_INTERACTIONS ; k++){ // for every interaction a saturated material can have with another material.
-				mats[i].satEffect[j].affectMat[k].matBefore = M_air;// affects air
-				mats[i].satEffect[j].affectMat[k].matAfter  = M_air; // turns air into air
-				mats[i].satEffect[j].affectMat[k].satBefore  = M_dont_care; // by default, the saturation before doesn't matter in an affectMat.
-				mats[i].satEffect[j].affectMat[k].satAfter   = M_no_change; // by default, the saturation afterwards doesn't chance in an affectMat.
-				mats[i].satEffect[j].affectMat[k].changesPerEval = 8; // by default, any material can affect the stuff around it all at once.
-				mats[i].satEffect[j].affectMat[k].changeOrigMat = M_no_change; // by default, the original material will not change after affecting the material around it.
-				mats[i].satEffect[j].affectMat[k].changeOrigSat  = M_no_change; // by default, the material that the original material turns into will have the same saturation.
-				for(l=0 ; l<8 ; l++){
-					mats[i].satEffect[j].affectMat[k].chance[l] = 0; // no chance of affecting anything (so it never affects air. it never will actually go through the process of turning air into air)
-				}
+		for(s=0 ; s<MAX_NUMBER_OF_SATURATION_EFFECTS ; s++){
+			mats[i].satEffect[s].satMat = M_no_saturation; // by default, nothing can be saturated with anything.
+			mats[i].satEffect[s].absorb = 0; // does not absorb by default.
+			mats[i].satEffect[s].decayChance = 0; // be default, nothing saturated will decay into anything.
+			mats[i].satEffect[s].decayInto =	M_air; // default decay into air. kind of irrelevant because the chance of decay is already 0. oh well. better safe than sorry.
+			mats[i].satEffect[s].decaySatMat =	M_no_saturation; // the default saturation the material will have after decaying is nothing.
+			mats[i].satEffect[s].decaySatGTE = 1;
+			mats[i].satEffect[s].decaySatLTE = 8;
+			for(k=0 ; k<8 ; k++){ // set all the absorb chances to 0% be default
+				mats[i].satEffect[s].chance[k] = 0; // 0%
 			}
 		}
 
 		// for every affect that our material can have on other materials, set it to default (default = air changes to air with a 0% chance. nothing happens.)
-		for(k=0 ; k<MAX_NUMBER_OF_MATERIAL_INTERACTIONS ; k++){
-			mats[i].affectMat[k].matBefore = M_air;// affects air.
-			mats[i].affectMat[k].matAfter = M_air; // turns air into air.
-			mats[i].affectMat[k].satBefore = M_dont_care; // by default, it doesn't matter what the affected material had for saturation before the incident.
-			mats[i].affectMat[k].satAfter  = M_no_change; // by default, there is no change in saturation after the affectMat.
-			mats[i].affectMat[k].changesPerEval = 8; // by default, any material can affect the stuff around it all at once.
-			mats[i].affectMat[k].changeOrigMat = M_no_change; // by default, doesn't change the original block type.
-			mats[i].affectMat[k].changeOrigSat = M_no_change; // by default, the original materials saturation does not change.
-			for(l=0 ; l<8 ; l++){
-				mats[i].affectMat[k].chance[l] = 0; // no chance of affecting anything (so it never affects air. it never will actually go through the process of turning air into air)
+		for(m=0 ; m<MAX_NUMBER_OF_MATERIAL_INTERACTIONS ; m++){
+			mats[i].affectMat[m].matBefore = M_dont_care;// affects everything
+			mats[i].affectMat[m].matAfter = M_no_change; // doesn't do anything to anything
+			mats[i].affectMat[m].satBefore = M_dont_care; // by default, it doesn't matter what the affected material had for saturation before the incident.
+			mats[i].affectMat[m].satAfter  = M_no_saturation; // by default, there is no change in saturation after the affectMat.
+			mats[i].affectMat[m].changesPerEval = 8; // by default, any material can affect the stuff around it all at once.
+			mats[i].affectMat[m].satNeeded = M_dont_care; // by default, there is no required saturation.
+			mats[i].affectMat[m].satGTE = 1;	// the Saturation can be Greater Than or Equal to 1.
+			mats[i].affectMat[m].satLTE = 8;	// the Saturation can be Less Than or Equal to 8.
+			mats[i].affectMat[m].changeOrigMat = M_no_change; // by default, doesn't change the original block type.
+			mats[i].affectMat[m].changeOrigSat = M_no_change; // by default, the original materials saturation does not change.
+			for(k=0 ; k<8 ; k++){
+				mats[i].affectMat[m].chance[k] = 0; // no chance of affecting anything (so it never affects air. it never will actually go through the process of turning air into air)
 			}
 		}
 	}
@@ -259,24 +271,23 @@ void init_material_attributes(void){
 	// I don't need to specify anything for air because air doesn't do anything.
 	// all of the elements of the mats[M_air] structure are initialized in the set_default_material_attributes() function.
 	mats[M_air].name = "Air";
-	
+	//DON'T YOU DARE CHANGE ANYTHING ABOUT AIR!
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_earth].name = "Earth";
 	mats[M_earth].color = 0x8b672d;
 	mats[M_earth].satEffect[0].satMat = M_water;    /// earth turns into mud when soaked
 	mats[M_earth].satEffect[0].absorb = 1;
-	mats[M_earth].satEffect[0].satChance[0] = 125;
-	mats[M_earth].satEffect[0].satChance[1] = 125;
-	mats[M_earth].satEffect[0].satChance[2] = 125;
-	mats[M_earth].satEffect[0].satChance[3] = 125;
-	mats[M_earth].satEffect[0].satChance[4] = 125;
-	mats[M_earth].satEffect[0].satChance[5] = 125;
-	mats[M_earth].satEffect[0].satChance[6] = 125;
-	mats[M_earth].satEffect[0].satChance[7] = 125;
+	mats[M_earth].satEffect[0].chance[0] = 125;
+	mats[M_earth].satEffect[0].chance[1] = 125;
+	mats[M_earth].satEffect[0].chance[2] = 125;
+	mats[M_earth].satEffect[0].chance[3] = 125;
+	mats[M_earth].satEffect[0].chance[4] = 125;
+	mats[M_earth].satEffect[0].chance[5] = 125;
+	mats[M_earth].satEffect[0].chance[6] = 125;
+	mats[M_earth].satEffect[0].chance[7] = 125;
 	mats[M_earth].satEffect[0].decayInto = M_mud;
 	mats[M_earth].satEffect[0].decayChance = 100000;
-	
-	
-	
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_grass].name = "Grass";
     mats[M_grass].color = 0x20e112;
     mats[M_grass].affectMat[0].matBefore = M_water; /// grass grows into water
@@ -299,11 +310,11 @@ void init_material_attributes(void){
 	mats[M_grass].affectMat[1].chance[5] = 4500;
 	mats[M_grass].affectMat[1].chance[6] = 4500;
 	mats[M_grass].affectMat[1].chance[7] = 4500;
-	
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_water].name = "Water";
-	mats[M_water].gravity = 1;
+	mats[M_water].gravity = true;
     mats[M_water].color = 0x158ad4;
-	
+//-------------------------------------------------------------------------------------------------------------------------------
     mats[M_spring].name = "Spring";
 	mats[M_spring].color = 0x97bcbb;
 	mats[M_spring].affectMat[0].matBefore = M_air;  /// spring generates water
@@ -316,7 +327,7 @@ void init_material_attributes(void){
 	mats[M_spring].affectMat[0].chance[5] = 700;
 	mats[M_spring].affectMat[0].chance[6] = 1000;
 	mats[M_spring].affectMat[0].chance[7] = 700;
-	
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_fire].name = "Fire";
 	mats[M_fire].decayInto = M_air;
     mats[M_fire].color = 0xd83313;
@@ -331,77 +342,144 @@ void init_material_attributes(void){
 	mats[M_fire].affectMat[0].chance[5] =  4500;
 	mats[M_fire].affectMat[0].chance[6] =  6500;
 	mats[M_fire].affectMat[0].chance[7] =  4500;
-	
-	mats[M_test].name = NULL; // the material that jensen tests evaluate_grid() with
+/*//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[M_test].color = 0xccff00;
-	mats[M_test].affectMat[0].matBefore = M_air;
-	mats[M_test].affectMat[0].matAfter  = M_test;
-	mats[M_test].affectMat[0].changeOrigMat = M_air;
-	mats[M_test].affectMat[0].changesPerEval = 1;		/// this material consumes all the air it can get.
-	mats[M_test].affectMat[0].chance[0] = 100000;
-	mats[M_test].affectMat[0].chance[1] = 100000;
-	mats[M_test].affectMat[0].chance[2] = 100000;
-	mats[M_test].affectMat[0].chance[3] = 100000;
-	mats[M_test].affectMat[0].chance[4] = 100000;
-	mats[M_test].affectMat[0].chance[5] = 100000;
-	mats[M_test].affectMat[0].chance[6] = 100000;
-	mats[M_test].affectMat[0].chance[7] = 100000;
-	
-	mats[M_test2].name = NULL; // the material that jensen tests evaluate_grid() with
+	mats[M_test].satEffect[0].satMat = M_earth; /// when surrounded by rock, it turns into dirt.
+	set_chance(mats[M_test].satEffect[0].chance, 100000);
+	mats[M_test].satEffect[0].decayChance = 100000;
+	mats[M_test].satEffect[0].decayInto = M_rock;
+	mats[M_test].satEffect[0].decaySatGTE = 3; // has to have at least 3 blocks around it
+	mats[M_test].satEffect[0].decaySatLTE = 5; // can have no more than 5 dirt around it
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[M_test2].color = 0x00ffcc;
-	mats[M_test2].satEffect[0].absorb = 1;
-	set_chance(&mats[M_test2].satEffect[0].satChance[0], 100000);
-	mats[M_test2].satEffect[0].satMat = M_earth;
-	mats[M_test2].satEffect[0].affectMat[0].matBefore = M_air;
-	mats[M_test2].satEffect[0].affectMat[0].matAfter  = M_test2;
-	mats[M_test2].satEffect[0].affectMat[0].satAfter   = mats[M_test2].satEffect[0].satMat;
-	mats[M_test2].satEffect[0].affectMat[0].changeOrigMat = M_air;
-	mats[M_test2].satEffect[0].affectMat[0].changesPerEval = 1;	/// this material moves itself around once per grid evaluation.
-	mats[M_test2].satEffect[0].affectMat[0].chance[0] = 100000;
-	mats[M_test2].satEffect[0].affectMat[0].chance[1] = 100000;
-	mats[M_test2].satEffect[0].affectMat[0].chance[2] = 100000;
-	mats[M_test2].satEffect[0].affectMat[0].chance[3] = 100000;
-	mats[M_test2].satEffect[0].affectMat[0].chance[4] = 100000;
-	mats[M_test2].satEffect[0].affectMat[0].chance[5] = 100000;
-	mats[M_test2].satEffect[0].affectMat[0].chance[6] = 100000;
-	mats[M_test2].satEffect[0].affectMat[0].chance[7] = 100000;
-	
+	mats[M_test2].affectMat[0].matBefore = M_air; /// test2 turns air into test
+	mats[M_test2].affectMat[0].matAfter  = M_test;
+	mats[M_test2].affectMat[0].changesPerEval = 1;
+	set_chance( mats[M_test2].affectMat[0].chance, 12500);
+	mats[M_test2].satEffect[0].absorb = 0;
+	set_chance(&mats[M_test2].satEffect[0].chance[0], 100000); /// test2 turns the test above it into test2. it grows upwards into test.
+	mats[M_test2].satEffect[0].satMat = M_test;
+	mats[M_test2].affectMat[1].matBefore = M_test;
+	mats[M_test2].affectMat[1].matAfter  = M_test2;
+	mats[M_test2].affectMat[1].satGTE = 4;
+	mats[M_test2].affectMat[1].chance[1] = 5000;
+*///-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_rock].name = "Rock";
 	mats[M_rock].color = 0x5a5651;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_base].name = "Tree";	/// this is the start of the tree. this is what you palce and watch a tree grow.
+	mats[M_tree_base].color = 0x7B5126;
+	mats[M_tree_base].affectMat[0].matBefore = M_air;
+	mats[M_tree_base].affectMat[0].matAfter  = M_tree_trunk;
+	mats[M_tree_base].affectMat[0].chance[1] = 850;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_trunk].color = 0x7B5126;
 	
+	mats[M_tree_trunk].satEffect[0].satMat = M_tree_trunk; /// tree_trunk can tell when there is tree_trunk around it.
+	mats[M_tree_trunk].satEffect[0].chance[1] = 100000;
+	
+	mats[M_tree_trunk].affectMat[0].matBefore = M_air;  /// turns air into leaves only when there isn't a tree_trunk above it.
+	mats[M_tree_trunk].affectMat[0].matAfter  = M_tree_leaves_end;
+	mats[M_tree_trunk].affectMat[0].chance[0] = 350;
+	mats[M_tree_trunk].affectMat[0].chance[1] = 1000;
+	mats[M_tree_trunk].affectMat[0].chance[2] = 350;
+	mats[M_tree_trunk].affectMat[0].chance[3] = 500;
+	mats[M_tree_trunk].affectMat[0].chance[4] = 500;
+	mats[M_tree_trunk].affectMat[0].satNeeded = M_no_saturation;
+	copy_affMat(&mats[M_tree_trunk].affectMat[0], &mats[M_tree_trunk].affectMat[1]);
+	
+	mats[M_tree_trunk].affectMat[2].matBefore = M_tree_leaves_end;		/// tree_trunk grows upwards into tree_leaves_end
+	mats[M_tree_trunk].affectMat[2].matAfter  = M_tree_trunk;
+	mats[M_tree_trunk].affectMat[2].chance[1] = 500;
+	
+	mats[M_tree_trunk].affectMat[3].matBefore = M_tree_leaves_end;		/// tree trunk grows tree_trunk_end into tree_leaves_end
+	mats[M_tree_trunk].affectMat[3].matAfter  = M_tree_trunk_top;
+	mats[M_tree_trunk].affectMat[3].chance[1] = 200;
+	
+	mats[M_tree_trunk].affectMat[4].matBefore = M_tree_leaves_end; /// once tree has grown, it sheds the leaves lower on it's trunk.
+	mats[M_tree_trunk].affectMat[4].matAfter  = M_air;
+	mats[M_tree_trunk].affectMat[4].satBefore = M_tree_trunk;		/// tree_trunk can only remove leaves that are saturated with tree_trunk.
+	mats[M_tree_trunk].affectMat[4].chance[3] = 450;				/// if end_leaves are saturated with tree_trunk_top, they are not removed.
+	mats[M_tree_trunk].affectMat[4].chance[4] = 450;
+	mats[M_tree_trunk].affectMat[4].satNeeded = M_tree_trunk;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_trunk_top].color = 0x7b5126; /// this is the top of the tree. the trunk will stop growing when this material is spawned.
+	
+	mats[M_tree_trunk_top].affectMat[0].matBefore = M_air;		///turns air into leaves_end
+	mats[M_tree_trunk_top].affectMat[0].matAfter  = M_tree_leaves_end;
+	mats[M_tree_trunk_top].affectMat[0].chance[0] =  350;
+	mats[M_tree_trunk_top].affectMat[0].chance[1] = 1000;
+	mats[M_tree_trunk_top].affectMat[0].chance[2] =  350;
+	
+	mats[M_tree_trunk_top].satEffect[0].satMat = M_tree_branch_right; /// gets saturated by tree_branch_right on its right side.
+	mats[M_tree_trunk_top].satEffect[0].chance[2] = 100000;
+	mats[M_tree_trunk_top].satEffect[0].chance[4] = 100000;
+	
+	mats[M_tree_trunk_top].satEffect[1].satMat = M_tree_branch_left; /// gets saturated by tree_branch_left on its left side.
+	mats[M_tree_trunk_top].satEffect[1].chance[0] = 100000;
+	mats[M_tree_trunk_top].satEffect[1].chance[3] = 100000;
+	
+	mats[M_tree_trunk_top].affectMat[1].matBefore = M_tree_leaves_end;
+	mats[M_tree_trunk_top].affectMat[1].satNeeded = M_dont_care;
+	mats[M_tree_trunk_top].affectMat[1].satLTE = 0;
+	mats[M_tree_trunk_top].affectMat[1].chance[2] = 250;		/// spawns tree_branch_right on its rght side.
+	mats[M_tree_trunk_top].affectMat[1].chance[4] = 250;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_leaves].color = 0x90AD53;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_leaves_end].color = 0x708D23;
+	
+	mats[M_tree_leaves_end].satEffect[0].satMat = M_tree_trunk;		/// tree_leaves_end can be saturated by both tree_trunk 
+	set_chance(mats[M_tree_leaves_end].satEffect[0].chance, 100000);
+	
+	mats[M_tree_leaves_end].satEffect[1].satMat = M_tree_trunk_top; /// and tree_trunk_end.
+	set_chance(mats[M_tree_leaves_end].satEffect[1].chance, 100000);
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_sand].name = "Sand";
 	mats[M_sand].gravity = 1;
 	mats[M_sand].color = 0xcfc1aa;
-	
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_mud].name = "Mud";
-	mats[M_mud].gravity = 1;
+	mats[M_mud].gravity = true;
 	mats[M_mud].color = 0x644310;
 	mats[M_mud].satEffect[0].absorb = 1;
 	mats[M_mud].satEffect[0].satMat = M_water;
-	mats[M_mud].satEffect[0].satChance[0] = 1000; /// mud absorbs water
-	mats[M_mud].satEffect[0].satChance[1] = 1100;
-	mats[M_mud].satEffect[0].satChance[2] = 1000;
-	mats[M_mud].satEffect[0].satChance[3] = 500;
-	mats[M_mud].satEffect[0].satChance[4] = 500;
-	mats[M_mud].satEffect[0].satChance[5] = 150;
-	mats[M_mud].satEffect[0].satChance[6] = 200;
-	mats[M_mud].satEffect[0].satChance[7] = 150;
-	mats[M_mud].satEffect[0].affectMat[0].changesPerEval = 1; /// when mud is saturated with water, it will leak water into other mud that is NOT saturated with water.
-	mats[M_mud].satEffect[0].affectMat[0].changeOrigSat = M_no_saturation;
-	mats[M_mud].satEffect[0].affectMat[0].matBefore = M_mud;
-	mats[M_mud].satEffect[0].affectMat[0].matAfter = M_mud;
-	mats[M_mud].satEffect[0].affectMat[0].satBefore = M_no_saturation;
-	mats[M_mud].satEffect[0].affectMat[0].satAfter = M_water;
-	mats[M_mud].satEffect[0].affectMat[0].chance[6] = 400;
-	mats[M_mud].satEffect[0].affectMat[0].chance[6] = 400;
-	mats[M_mud].satEffect[0].affectMat[0].chance[6] = 500;
-	mats[M_mud].satEffect[0].affectMat[0].chance[6] = 950;
-	mats[M_mud].satEffect[0].affectMat[0].chance[6] = 500;
-	mats[M_mud].satEffect[0].affectMat[1].changesPerEval = 1; 	/// mud leaks water into dry earth.
-	mats[M_mud].satEffect[0].affectMat[1].changeOrigSat = M_no_saturation;
-	mats[M_mud].satEffect[0].affectMat[1].matBefore = M_earth;
-	mats[M_mud].satEffect[0].affectMat[1].matAfter = M_mud;
-	mats[M_mud].satEffect[0].affectMat[1].satBefore = M_no_saturation;
+	mats[M_mud].satEffect[0].chance[0] = 1000; /// mud absorbs water
+	mats[M_mud].satEffect[0].chance[1] = 1100;
+	mats[M_mud].satEffect[0].chance[2] = 1000;
+	mats[M_mud].satEffect[0].chance[3] = 500;
+	mats[M_mud].satEffect[0].chance[4] = 500;
+	mats[M_mud].satEffect[0].chance[5] = 150;
+	mats[M_mud].satEffect[0].chance[6] = 200;
+	mats[M_mud].satEffect[0].chance[7] = 150;
+	mats[M_mud].affectMat[1].changesPerEval = 1; /// when mud is saturated with water, it will leak water into other mud that is NOT saturated with water.
+	mats[M_mud].affectMat[1].changeOrigSat = M_no_saturation;
+	mats[M_mud].affectMat[1].satNeeded = M_water;
+	mats[M_mud].affectMat[1].matBefore = M_mud;
+	mats[M_mud].affectMat[1].matAfter = M_mud;
+	mats[M_mud].affectMat[1].satBefore = M_no_saturation;
+	mats[M_mud].affectMat[1].satAfter = M_water;
+	mats[M_mud].affectMat[1].chance[3] = 400;
+	mats[M_mud].affectMat[1].chance[4] = 400;
+	mats[M_mud].affectMat[1].chance[5] = 700;
+	mats[M_mud].affectMat[1].chance[6] = 950;
+	mats[M_mud].affectMat[1].chance[7] = 700;
+	mats[M_mud].affectMat[2].changesPerEval = 1; 	/// mud leaks water into dry earth.
+	mats[M_mud].affectMat[2].satNeeded = M_water;
+	mats[M_mud].affectMat[2].changeOrigSat = M_no_saturation;
+	mats[M_mud].affectMat[2].matBefore = M_earth;
+	mats[M_mud].affectMat[2].matAfter = M_mud;
+	mats[M_mud].affectMat[2].satBefore = M_no_saturation;
+	mats[M_mud].affectMat[1].chance[0] = 45;
+	mats[M_mud].affectMat[1].chance[1] = 70;
+	mats[M_mud].affectMat[1].chance[2] = 45;
+	mats[M_mud].affectMat[1].chance[3] = 150;
+	mats[M_mud].affectMat[1].chance[4] = 150;
+	mats[M_mud].affectMat[1].chance[5] = 325;
+	mats[M_mud].affectMat[1].chance[6] = 650;
+	mats[M_mud].affectMat[1].chance[7] = 325;
 	mats[M_mud].affectMat[0].changeOrigMat = M_earth;		/// mud turns into dirt if it can make the dirt below it turn into earth.
 	mats[M_mud].affectMat[0].changesPerEval = 1;
 	mats[M_mud].affectMat[0].satBefore = M_no_saturation;
@@ -416,7 +494,7 @@ void init_material_attributes(void){
 	mats[M_mud].affectMat[0].chance[5] = 100;
 	mats[M_mud].affectMat[0].chance[6] = 175;
 	mats[M_mud].affectMat[0].chance[7] = 100;
-	
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_grass_root].name = "Grass Root";
 	mats[M_grass_root].color = 0xbfc69e;
 	mats[M_grass_root].affectMat[0].matBefore = M_mud;
@@ -439,34 +517,53 @@ void init_material_attributes(void){
 	mats[M_grass_root].affectMat[0].chance[5] = 400;
 	mats[M_grass_root].affectMat[0].chance[6] = 400;
 	mats[M_grass_root].affectMat[0].chance[7] = 400;
-	
-	mats[M_life].name = "Life";
-	mats[M_life].color = 0x561377;
-	mats[M_life].affectMat[0].matBefore = M_air; /// life turns empty space into life.
-	mats[M_life].affectMat[0].matAfter = M_life;
-	mats[M_life].affectMat[0].changesPerEval = 1;
-	set_chance( &mats[M_life].affectMat[0].chance[0], 100000 );
-	
-	mats[M_life].satEffect[0].satMat = M_life; /// life turns other life into empty space
-	mats[M_life].satEffect[0].decayInto = M_air;
-	mats[M_life].satEffect[0].decayChance = 100000;
-	set_chance( &mats[M_life].satEffect[0].satChance[0], 5000);
-	
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_scurge].name = "Scurge";
+	mats[M_scurge].color = 0x561377;
+	mats[M_scurge].affectMat[0].matBefore = M_air; /// scurge turns empty space into scurge.
+	mats[M_scurge].affectMat[0].matAfter = M_scurge;
+	mats[M_scurge].affectMat[0].changesPerEval = 1;
+	set_chance( &mats[M_scurge].affectMat[0].chance[0], 100000 );
+	mats[M_scurge].satEffect[0].satMat = M_scurge; /// scurge turns other scurge into empty space
+	mats[M_scurge].satEffect[0].decayInto = M_air;
+	mats[M_scurge].satEffect[0].decayChance = 100000;
+	set_chance( &mats[M_scurge].satEffect[0].chance[0], 8700);
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_anti_scurge].name = "Anti Scurge";
+	mats[M_anti_scurge].color = 0x0b94a0;
+	mats[M_anti_scurge].affectMat[0].matBefore = M_air; /// anti scurge turns empty space into anti scurge.
+	mats[M_anti_scurge].affectMat[0].matAfter = M_anti_scurge;
+	mats[M_anti_scurge].affectMat[0].changesPerEval = 1;
+	set_chance( &mats[M_anti_scurge].affectMat[0].chance[0], 100000 );
+	mats[M_anti_scurge].satEffect[0].satMat = M_anti_scurge; /// anti scurge turns other anti scurge into empty space
+	mats[M_anti_scurge].satEffect[0].decayInto = M_air;
+	mats[M_anti_scurge].satEffect[0].decayChance = 100000;
+	set_chance( &mats[M_anti_scurge].satEffect[0].chance[0], mats[M_scurge].satEffect[0].chance[0]); // make the anti scuge survive just as well as the scurge
+	mats[M_anti_scurge].affectMat[1].matBefore = M_scurge;		/// anti scurge will fight the scurge to the death
+	mats[M_anti_scurge].affectMat[1].matAfter = M_dead_scurge;
+	mats[M_anti_scurge].affectMat[1].changeOrigMat = M_dead_scurge;
+	mats[M_anti_scurge].affectMat[1].changesPerEval = 1;
+	set_chance( &mats[M_anti_scurge].affectMat[1].chance[0], 100000);
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_dead_scurge].name = NULL;		//dead scurge falls.
+	mats[M_dead_scurge].color = 0xa00b0b;
+	mats[M_dead_scurge].gravity = true;
+//-------------------------------------------------------------------------------------------------------------------------------
 	
 	// find how many saturatable materials there are:
-	numberOfMaterialsThatCanBeSaturated = 0; // set this to 0 by default. it will get incremented in the for loop and brought to the correct value.
+	numberOfSatableMats = 0; // set this to 0 by default. it will get incremented in the for loop and brought to the correct value.
 	int i;
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
 		// if the saturationMaterial is an invalid choice (like M_no_saturation or M_no_change) skip and move on.
 		if(mats[i].satEffect[0].satMat == M_no_saturation) continue;
 		
-		matSatOrder[numberOfMaterialsThatCanBeSaturated] = i; // put the material type into the array at the right point.
+		matSatOrder[numberOfSatableMats] = i; // put the material type into the array at the right point.
 		
-		printf("matSatOrder[%d] = %d\n", numberOfMaterialsThatCanBeSaturated, matSatOrder[numberOfMaterialsThatCanBeSaturated]);
+		printf("matSatOrder[%d] = %d\n", numberOfSatableMats, matSatOrder[numberOfSatableMats]);
 		
-		numberOfMaterialsThatCanBeSaturated++; // increment the number of materials that be saturated that we have.
+		numberOfSatableMats++; // increment the number of materials that be saturated that we have.
 	}
-	printf("numberOfMaterialsThatCanBeSaturated = %d\n\n\n\n\n", numberOfMaterialsThatCanBeSaturated);
+	printf("numberOfSatableMats = %d\n\n\n\n\n", numberOfSatableMats);
 }
 
 
@@ -477,10 +574,12 @@ void reset_cells(void){
 
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			cellMat[i][j] = M_air;
-			cellSat[i][j]  = M_no_saturation;
-			cellMatChanges[i][j] = M_no_change;
-			cellSatChanges[i][j] = M_no_change;
+			grid[i][j].mat = M_air;
+			grid[i][j].sat  = M_no_saturation;
+			grid[i][j].satLevel = 0;
+			grid[i][j].matChange = M_no_change;
+			grid[i][j].satChange = M_no_change;
+			grid[i][j].satLevelChange = M_no_change;
 		}
 	}
 }
@@ -499,10 +598,18 @@ void init_cell_stuff(void){
 void print_saturation_data(){
 	int i,j; // indexes
 	static int printTime = 1;
-	printf("printTime = %d\n",printTime);
+	printf("printTime = %d\n\nSaturation:\n\n",printTime);
 	for(j=0 ; j<GRID_HEIGHT ; j++){
 		for(i=0 ; i<GRID_WIDTH ; i++){
-			if(cellSat[i][j] >= 0)printf("%2d ",cellSat[i][j]);
+			if(grid[i][j].sat >= 0)printf("%2d ",grid[i][j].sat);
+			else printf(" . ");
+		}
+		printf("\n");
+	}
+	printf("\n\nSaturation Level:\n\n");
+	for(j=0 ; j<GRID_HEIGHT ; j++){
+		for(i=0 ; i<GRID_WIDTH ; i++){
+			if(grid[i][j].satLevel > 0)printf("%2d ",grid[i][j].satLevel);
 			else printf(" . ");
 		}
 		printf("\n");
@@ -532,24 +639,38 @@ void randomize_grid(){
 	int i, j, temp;
 	for(i=0 ; i<SCREEN_WIDTH ; i++){
 		for(j=0 ; j<SCREEN_HEIGHT ; j++){
-				
+			if(get_rand(1,10) < 10){
+				grid[i][j].mat = M_air;
+				continue;
+			}
 			//get random material
 			temp = M_valid_but_null_material;
 			while(mats[temp].name == NULL){
 				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
+				//don't do scurge. that shit is cancer
+				if(temp == M_scurge || temp == M_anti_scurge)
+					temp = M_air;
 			}
-			cellMat[i][j] = temp;
-			
-			//get random 
-			temp = M_valid_but_null_material;
-			while(mats[temp].name == NULL){
-				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
-			}
-			cellSat[i][j] = temp;
+			grid[i][j].mat = temp;
 		
 		}
 	}
 }
 
+void copy_affMat( struct affectMaterial *source, struct affectMaterial *destination){
+	short c;
+	for(c=0 ; c<8 ; c++)
+		destination->chance[c] = source->chance[c];
+	destination->changeOrigMat = source->changeOrigMat;
+	destination->changeOrigSat = source->changeOrigSat;
+	destination->changesPerEval = source->changesPerEval;
+	destination->matAfter = source->matAfter;
+	destination->matBefore = source->matBefore;
+	destination->satAfter = source->satAfter;
+	destination->satBefore = source->satBefore;
+	destination->satGTE = source->satGTE;
+	destination->satLTE = source->satLTE;
+	destination->satNeeded = source->satNeeded;
+}
 
 

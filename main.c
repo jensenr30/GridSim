@@ -12,13 +12,6 @@ int main( int argc, char* args[] )
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
 
-    //cursor rectangle
-    SDL_Rect cursorRectangle;
-	cursorRectangle.x = 0;
-	cursorRectangle.y = 0;
-	cursorRectangle.w = CELL_SIZE;
-	cursorRectangle.h = CELL_SIZE;
-
 	//make sure the program waits for a quit
 	int quit = false;
 
@@ -42,9 +35,9 @@ int main( int argc, char* args[] )
     for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			if(j>4 && j<12) continue;
-			if(j==4) cellMat[i][j] = M_spring;
+			if(j==4) grid[i][j].mat = M_spring;
 			else
-				cellMat[i][j] = M_earth;
+				grid[i][j].mat = M_earth;
 		}
     }
     */
@@ -109,16 +102,18 @@ int main( int argc, char* args[] )
 
     	} // end while(event)
 		//no more events to handle at the moment.
-        if(mouseStatusLeft == 1){
+		
+		//checks if the mouse is held or not
+        if(mouseStatusLeft == 1 && mouseModifier == 0){
             setcell(x, y, currentMat);
             }
 
-        else if(mouseStatusRight == 1){
+        else if(mouseStatusRight == 1 && mouseModifier == 0){
             deletecell(x, y, currentMat);
         }
-
-        countVar++;
+        
         //speed of gameplay
+        countVar++;
         if(sleepTime <= 0)
         {
             sleepTime = 0;
@@ -135,17 +130,16 @@ int main( int argc, char* args[] )
 
         //displays selection gui
         selectionGUI(x, y, mouseStatusLeft);
-
-        //print recagle for cursor
-        cursorRectangle.x = x - CELL_SIZE/2;
-        cursorRectangle.y = y - CELL_SIZE/2;
-        cursorRectangle.w = cursorRectangle.h = CELL_SIZE;
-        SDL_FillRect( screen , &cursorRectangle , mats[currentMat].color);
+        
+        //displays brushes and misc gui
+        brushesGUI(x, y, mouseStatusLeft);
+        
+        //displays cursor
+        cursorDisplay(x, y);
 
         //updates the screen
         SDL_Flip( screen );
 
-        //Sleep(sleepTime);
     }// end while(quit == false)
 
 

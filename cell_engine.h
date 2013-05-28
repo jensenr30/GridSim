@@ -272,6 +272,7 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	if(affMat->satNeeded == M_no_saturation && grid[i][j].sat != M_no_saturation) return;
 	
 	
+	
 	//for each chance
 	for(c=0 ; c<8 ; c++){
 			

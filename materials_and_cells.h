@@ -252,7 +252,7 @@ void set_default_material_attributes(){
 			mats[i].affectMat[m].matBefore = M_dont_care;// affects everything
 			mats[i].affectMat[m].matAfter = M_no_change; // doesn't do anything to anything
 			mats[i].affectMat[m].satBefore = M_dont_care; // by default, it doesn't matter what the affected material had for saturation before the incident.
-			mats[i].affectMat[m].satAfter  = M_no_change; // by default, there is no change in saturation after the affectMat.
+			mats[i].affectMat[m].satAfter  = M_no_saturation; // by default, there is no change in saturation after the affectMat.
 			mats[i].affectMat[m].changesPerEval = 8; // by default, any material can affect the stuff around it all at once.
 			mats[i].affectMat[m].satNeeded = M_dont_care; // by default, there is no required saturation.
 			mats[i].affectMat[m].satGTE = 1;	// the Saturation can be Greater Than or Equal to 1.
@@ -376,8 +376,10 @@ void init_material_attributes(void){
 	mats[M_tree_base].affectMat[0].chance[1] = 850;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_trunk].color = 0x7B5126;
+	
 	mats[M_tree_trunk].satEffect[0].satMat = M_tree_trunk; /// tree_trunk can tell when there is tree_trunk around it.
 	mats[M_tree_trunk].satEffect[0].chance[1] = 100000;
+	
 	mats[M_tree_trunk].affectMat[0].matBefore = M_air;  /// turns air into leaves only when there isn't a tree_trunk above it.
 	mats[M_tree_trunk].affectMat[0].matAfter  = M_tree_leaves_end;
 	mats[M_tree_trunk].affectMat[0].chance[0] = 350;
@@ -386,25 +388,54 @@ void init_material_attributes(void){
 	mats[M_tree_trunk].affectMat[0].chance[3] = 500;
 	mats[M_tree_trunk].affectMat[0].chance[4] = 500;
 	mats[M_tree_trunk].affectMat[0].satNeeded = M_no_saturation;
-	copy_affMat(&mats[M_tree_trunk].affectMat[0], &mats[M_tree_trunk].affectMat[1]); /// tree trunk grows leaves when there is 
+	copy_affMat(&mats[M_tree_trunk].affectMat[0], &mats[M_tree_trunk].affectMat[1]);
+	
 	mats[M_tree_trunk].affectMat[2].matBefore = M_tree_leaves_end;		/// tree_trunk grows upwards into tree_leaves_end
 	mats[M_tree_trunk].affectMat[2].matAfter  = M_tree_trunk;
 	mats[M_tree_trunk].affectMat[2].chance[1] = 500;
+	
 	mats[M_tree_trunk].affectMat[3].matBefore = M_tree_leaves_end;		/// tree trunk grows tree_trunk_end into tree_leaves_end
 	mats[M_tree_trunk].affectMat[3].matAfter  = M_tree_trunk_top;
-	mats[M_tree_trunk].affectMat[3].chance[1] = 140;
+	mats[M_tree_trunk].affectMat[3].chance[1] = 200;
+	
 	mats[M_tree_trunk].affectMat[4].matBefore = M_tree_leaves_end; /// once tree has grown, it sheds the leaves lower on it's trunk.
 	mats[M_tree_trunk].affectMat[4].matAfter  = M_air;
-	mats[M_tree_trunk].affectMat[4].chance[3] = 450;
+	mats[M_tree_trunk].affectMat[4].satBefore = M_tree_trunk;		/// tree_trunk can only remove leaves that are saturated with tree_trunk.
+	mats[M_tree_trunk].affectMat[4].chance[3] = 450;				/// if end_leaves are saturated with tree_trunk_top, they are not removed.
 	mats[M_tree_trunk].affectMat[4].chance[4] = 450;
 	mats[M_tree_trunk].affectMat[4].satNeeded = M_tree_trunk;
-	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_trunk_top].color = 0x7b5126; /// this is the top of the tree. the trunk will stop growing when this material is spawned.
+	
+	mats[M_tree_trunk_top].affectMat[0].matBefore = M_air;		///turns air into leaves_end
+	mats[M_tree_trunk_top].affectMat[0].matAfter  = M_tree_leaves_end;
+	mats[M_tree_trunk_top].affectMat[0].chance[0] =  350;
+	mats[M_tree_trunk_top].affectMat[0].chance[1] = 1000;
+	mats[M_tree_trunk_top].affectMat[0].chance[2] =  350;
+	
+	mats[M_tree_trunk_top].satEffect[0].satMat = M_tree_branch_right; /// gets saturated by tree_branch_right on its right side.
+	mats[M_tree_trunk_top].satEffect[0].chance[2] = 100000;
+	mats[M_tree_trunk_top].satEffect[0].chance[4] = 100000;
+	
+	mats[M_tree_trunk_top].satEffect[1].satMat = M_tree_branch_left; /// gets saturated by tree_branch_left on its left side.
+	mats[M_tree_trunk_top].satEffect[1].chance[0] = 100000;
+	mats[M_tree_trunk_top].satEffect[1].chance[3] = 100000;
+	
+	mats[M_tree_trunk_top].affectMat[1].matBefore = M_tree_leaves_end;
+	mats[M_tree_trunk_top].affectMat[1].satNeeded = M_dont_care;
+	mats[M_tree_trunk_top].affectMat[1].satLTE = 0;
+	mats[M_tree_trunk_top].affectMat[1].chance[2] = 250;		/// spawns tree_branch_right on its rght side.
+	mats[M_tree_trunk_top].affectMat[1].chance[4] = 250;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_leaves].color = 0x90AD53;
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[M_tree_leaves_end].color = 0x90AD53; /// tree_leaves_end make apples.
+	mats[M_tree_leaves_end].color = 0x708D23;
+	
+	mats[M_tree_leaves_end].satEffect[0].satMat = M_tree_trunk;		/// tree_leaves_end can be saturated by both tree_trunk 
+	set_chance(mats[M_tree_leaves_end].satEffect[0].chance, 100000);
+	
+	mats[M_tree_leaves_end].satEffect[1].satMat = M_tree_trunk_top; /// and tree_trunk_end.
+	set_chance(mats[M_tree_leaves_end].satEffect[1].chance, 100000);
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_sand].name = "Sand";
 	mats[M_sand].gravity = 1;
@@ -496,7 +527,7 @@ void init_material_attributes(void){
 	mats[M_scurge].satEffect[0].satMat = M_scurge; /// scurge turns other scurge into empty space
 	mats[M_scurge].satEffect[0].decayInto = M_air;
 	mats[M_scurge].satEffect[0].decayChance = 100000;
-	set_chance( &mats[M_scurge].satEffect[0].chance[0], 3250);
+	set_chance( &mats[M_scurge].satEffect[0].chance[0], 8700);
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_anti_scurge].name = "Anti Scurge";
 	mats[M_anti_scurge].color = 0x0b94a0;
@@ -608,11 +639,17 @@ void randomize_grid(){
 	int i, j, temp;
 	for(i=0 ; i<SCREEN_WIDTH ; i++){
 		for(j=0 ; j<SCREEN_HEIGHT ; j++){
-				
+			if(get_rand(1,10) < 10){
+				grid[i][j].mat = M_air;
+				continue;
+			}
 			//get random material
 			temp = M_valid_but_null_material;
 			while(mats[temp].name == NULL){
 				temp = get_rand(0, MAX_NUMBER_OF_UNIQUE_MATERIALS-1);
+				//don't do scurge. that shit is cancer
+				if(temp == M_scurge || temp == M_anti_scurge)
+					temp = M_air;
 			}
 			grid[i][j].mat = temp;
 		

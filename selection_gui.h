@@ -6,8 +6,8 @@ SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 //main button controls
 #define firstColumn 190
 #define firstRow 80
-#define widthButton 22
-#define heightButton 22
+#define widthButton 20
+#define heightButton 20
 #define rowSpacingMultiplier 1.45
 #define columnSpacingMultiplier 1.618
 #define selectionBoxSize 3

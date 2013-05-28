@@ -269,8 +269,7 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 		if(grid[i][j].satLevel > affMat->satLTE) return;
 	}
 	//if there needs to be no saturation and there is some kind of saturation, then return;
-	if(affMat->satNeeded == M_no_saturation && grid[i][j].sat != M_no_saturation)
-		return;
+	if(affMat->satNeeded == M_no_saturation && grid[i][j].sat != M_no_saturation) return;
 	
 	
 	//for each chance
@@ -309,6 +308,8 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 					grid[i][j].matChange = affMat->changeOrigMat; // change the material
 				if(affMat->changeOrigSat != M_no_change) // if the saturation of our material changes after our material affects neighboring cells
 					grid[i][j].satChange = affMat->changeOrigSat; // change the saturation of our material.
+				grid[newi][newj].satLevelChange = 0;
+					
 			}
 		}
 	}

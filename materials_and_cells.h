@@ -462,10 +462,39 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_branch_right].color = mats[M_tree_base].color;
 	
+	mats[M_tree_branch_right].satEffect[0].satMat = M_tree_branch_right; /// can be saturated by tree_branch_right
+	mats[M_tree_branch_right].satEffect[0].chance[1] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[2] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[4] = 100000;
+	
+	mats[M_tree_branch_right].satEffect[0].satMat = M_tree_branch_end;  /// can be saturated by tree_branch_end
+	mats[M_tree_branch_right].satEffect[0].chance[1] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[2] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[4] = 100000;
+	
 	mats[M_tree_branch_right].affectMat[0].matBefore = M_air;			/// tree_branch_right makes leaves around it.
 	mats[M_tree_branch_right].affectMat[0].matAfter  = M_tree_leaves;
 	set_chance( &mats[M_tree_branch_right].affectMat[0].chance[0], 433);
+	mats[M_tree_branch_right].affectMat[0].satNeeded = M_no_saturation;
 	
+	mats[M_tree_branch_right].affectMat[0].matBefore = M_air;			/// tree_branch_right makes leaves_end around it.
+	mats[M_tree_branch_right].affectMat[0].matAfter  = M_tree_leaves_end;
+	set_chance( &mats[M_tree_branch_right].affectMat[0].chance[0], 650);
+	mats[M_tree_branch_right].affectMat[0].satNeeded = M_no_saturation;
+	
+	mats[M_tree_branch_right].affectMat[1].matBefore = M_tree_leaves;
+	mats[M_tree_branch_right].affectMat[1].matAfter  = M_tree_branch_right;
+	mats[M_tree_branch_right].affectMat[1].chance[1] = 100;
+	mats[M_tree_branch_right].affectMat[1].chance[2] = 300;
+	mats[M_tree_branch_right].affectMat[1].chance[4] = 60;
+	mats[M_tree_branch_right].affectMat[1].satNeeded = M_no_saturation;
+	
+	mats[M_tree_branch_right].affectMat[2].matBefore = M_tree_leaves;
+	mats[M_tree_branch_right].affectMat[2].matAfter  = M_tree_branch_end;
+	mats[M_tree_branch_right].affectMat[2].chance[7] = 150;
+	mats[M_tree_branch_right].affectMat[2].chance[0] = 75;
+	mats[M_tree_branch_right].affectMat[2].satNeeded = M_no_saturation
+
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_branch_left].color = mats[M_tree_base].color;
 	

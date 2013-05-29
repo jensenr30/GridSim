@@ -55,7 +55,9 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define M_water			3
 #define M_fire			4
 #define M_tree_base		5
-#define M_test			6
+
+#define M_test			7
+#define M_test2			8
 
 #define M_rock			11
 #define M_spring		12
@@ -283,6 +285,7 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_earth].name = "Earth";
 	mats[M_earth].color = 0x8b672d;
+	
 	mats[M_earth].satEffect[0].satMat = M_water;    /// earth turns into mud when soaked
 	mats[M_earth].satEffect[0].absorb = 1;
 	mats[M_earth].satEffect[0].chance[0] = 125;
@@ -355,22 +358,26 @@ void init_material_attributes(void){
 	mats[M_test].color = 0xccff00;
 	mats[M_test].affectMat[0].chance[1] = 100000;
 	mats[M_test].affectMat[0].matBefore = M_air;
-	mats[M_test].affectMat[0].matAfter  = M_tree_branch_right;
-/*/-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_test].affectMat[0].matAfter  = M_test2;
+	mats[M_test].affectMat[0].satAfter  = M_rock;
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[M_test2].color = 0x00ffcc;
-	mats[M_test2].affectMat[0].matBefore = M_air; /// test2 turns air into test
-	mats[M_test2].affectMat[0].matAfter  = M_test;
+	
+	mats[M_test2].satEffect[0].satMat = M_rock; /// saturated by earth
+	mats[M_test2].satEffect[0].satMem = true;
+	mats[M_test2].satEffect[0].absorb = true;
+	set_chance( mats[M_test2].satEffect[0].chance, 100000);
+	
+	mats[M_test2].affectMat[0].matBefore = M_air;
+	mats[M_test2].affectMat[0].matAfter  = M_test2;
+	mats[M_test2].affectMat[0].satAfter  = M_rock;
+	mats[M_test2].affectMat[0].satNeeded = M_rock;
+	mats[M_test2].affectMat[0].changeOrigMat = M_air;
+	mats[M_test2].affectMat[0].changeOrigSat = M_no_saturation;
 	mats[M_test2].affectMat[0].changesPerEval = 1;
-	set_chance( mats[M_test2].affectMat[0].chance, 12500);
-	mats[M_test2].satEffect[0].absorb = 0;
-	set_chance(&mats[M_test2].satEffect[0].chance[0], 100000); /// test2 turns the test above it into test2. it grows upwards into test.
-	mats[M_test2].satEffect[0].satMat = M_test;
-	mats[M_test2].affectMat[1].matBefore = M_test;
-	mats[M_test2].affectMat[1].matAfter  = M_test2;
-	mats[M_test2].affectMat[1].satGTE = 4;
-	mats[M_test2].affectMat[1].chance[1] = 5000;
-*///-------------------------------------------------------------------------------------------------------------------------------
+	set_chance(mats[M_test2].affectMat[0].chance, 100000);
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_rock].name = "Rock";
 	mats[M_rock].color = 0x5a5651;
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -534,6 +541,7 @@ void init_material_attributes(void){
 	mats[M_mud].color = 0x644310;
 	mats[M_mud].satEffect[0].absorb = 1;
 	mats[M_mud].satEffect[0].satMat = M_water;
+	mats[M_mud].satEffect[0].satMem = true;
 	mats[M_mud].satEffect[0].chance[0] = 1000; /// mud absorbs water
 	mats[M_mud].satEffect[0].chance[1] = 1100;
 	mats[M_mud].satEffect[0].chance[2] = 1000;
@@ -542,6 +550,7 @@ void init_material_attributes(void){
 	mats[M_mud].satEffect[0].chance[5] = 150;
 	mats[M_mud].satEffect[0].chance[6] = 200;
 	mats[M_mud].satEffect[0].chance[7] = 150;
+	
 	mats[M_mud].affectMat[1].changesPerEval = 1; /// when mud is saturated with water, it will leak water into other mud that is NOT saturated with water.
 	mats[M_mud].affectMat[1].changeOrigSat = M_no_saturation;
 	mats[M_mud].affectMat[1].satNeeded = M_water;

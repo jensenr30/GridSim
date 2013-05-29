@@ -97,8 +97,21 @@ void evaluate_grid(){
 					
 					//make sure the current cell has the current material, cMat, in it!! if not, continue;
 					if(cMat != grid[i][j].mat) continue;
-					// this is set to M_no_change. it will change if need be.
-					grid[i][j].satLevelChange = M_no_change;
+					
+					//check for saturation memory
+					if(mats[cMat].satEffect[satEffIndex].satMem == false){ // if there is no saturation memory
+						// if there is no memory, evaluate the satuation level each time.
+						grid[i][j].satLevelChange = 0;
+						// it needs to be saturated each cycle of evaluate_grid() when there is no memory.
+						grid[i][j].satChange = M_no_saturation;
+					}
+					else{ // if there is saturation memory
+						// there is no change in the saturation level.
+						grid[i][j].satLevelChange = M_no_change;
+						// there is no change in the saturation
+						grid[i][j].satChange = M_no_change;
+					}
+						
 					//for every cell around our cell [i][j], evaluate whether or not it gets saturated
 					//  	0 1 2
 					//  	3 M 4
@@ -131,7 +144,8 @@ void evaluate_grid(){
 							
 							if(roll_ht(mats[cMat].satEffect[satEffIndex].chance[c])){ // determine if it will become saturated based on roll_ht function.
 								grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
-								if(mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = M_air; // absorbs the material if required.
+								// absorbs the material if required. it only absorbs if it isn't already saturated.
+								if(grid[i][j].sat != grid[newi][newj].mat && mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = M_air;
 							}
 							// increment the satLevel if needed.
 							if(grid[i][j].satLevelChange == M_no_change)
@@ -203,7 +217,7 @@ void reset_grid_changes(){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			grid[i][j].matChange = M_no_change;
 			grid[i][j].satChange = M_no_change;
-			//grid[i][j].satLevelChange = M_no_change;
+			grid[i][j].satLevelChange = M_no_change;
 		}
 	}
 }
@@ -257,10 +271,11 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	
 	static bool *testVector;
 	
-	//generate a testvector for the cells around the cell being evaluated.
-	testVector = generate_near_by_cell_test_vector(affMat->changesPerEval);
 	// if there aren't any blocks to be changed, then move on to the next one.
 	if(affMat->changesPerEval == 0) return;
+	
+	//generate a testvector for the cells around the cell being evaluated.
+	testVector = generate_near_by_cell_test_vector(affMat->changesPerEval);
 	
 	//these checks inside this if() statements only apply if the saturation needed is a valid material saturation. i.e. not one of these flags.
 	switch(affMat->satNeeded){
@@ -297,19 +312,6 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 		break;
 	}
 	
-	/*
-	if(affMat->satNeeded != M_dont_care && affMat->satNeeded != M_no_saturation){
-		//if the saturation here isn't right, return
-		if(grid[i][j].sat != affMat->satNeeded) return;
-		//if our material isn't saturated enough, return
-		if(grid[i][j].satLevel < affMat->satGTE) return;
-		//if our material is too saturated, return
-		if(grid[i][j].satLevel > affMat->satLTE) return;
-	}
-	*/
-	
-	
-	
 	//for each chance
 	for(c=0 ; c<8 ; c++){
 			
@@ -338,8 +340,11 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 			if(roll_ht(affMat->chance[c])){
 				//change the material only if it needs changing.
 				if(affMat->matAfter != M_no_change) grid[newi][newj].matChange = affMat->matAfter;
-				//change the saturation only if it needs changing.
-				if(affMat->satAfter != M_no_change) grid[newi][newj].satChange = affMat->satAfter;
+				//change the saturation only if it needs changing. also change the saturation level to a default of 1
+				if(affMat->satAfter != M_no_change) {
+						grid[newi][newj].satChange = affMat->satAfter;
+						grid[newi][newj].satLevelChange = 1;
+				}
 				
 				//check to see if the original material will change because of it having completed an affectMat
 				if(affMat->changeOrigMat != M_no_change) // if the material changes after it affects neighboring cells

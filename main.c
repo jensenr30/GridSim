@@ -42,15 +42,16 @@ int main( int argc, char* args[] )
 ///--------------------------------------
 
     //While the user hasn't quit
-    while( quit == false ){
+    while(1){
 
     	//While there's an event to handle
     	while( SDL_PollEvent( &event ) ){
 
     		//If the user has Xed out the window
-    		if( event.type == SDL_QUIT ){
+    		if( event.type == SDL_QUIT || quit == true ){
 				//Quit the program
-				quit = true;
+				clean_up();
+				return 0;
 			}
 
 

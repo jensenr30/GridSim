@@ -3,7 +3,7 @@
 
 //used for temporarily storing changes to the cellMat[][] and cellSat[][] arrays.
 
-void apply_cell_sat_and_mat_changes();
+void apply_grid_changes();
 bool *generate_near_by_cell_test_vector(unsigned short);
 void evaluate_affectMaterial(unsigned short, unsigned short, struct affectMaterial *);
 void reset_grid_changes();
@@ -86,7 +86,7 @@ void evaluate_grid(){
 			
 		cMat = matSatOrder[matIndex]; // get correct material
 		
-		for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATION_EFFECTS ; satEffIndex++){
+		for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
 					
 			// if there is no saturation effect at the satEffIndex-th saturation effect, then there aren't any more by definition.
 			//break out of this look and move on the the next material that may have saturation effects.
@@ -144,7 +144,7 @@ void evaluate_grid(){
 			}
 		}
 	}
-	apply_cell_sat_and_mat_changes(); // apply changes from the SATURATION APPLY part of this function.
+	apply_grid_changes(); // apply changes from the SATURATION APPLY part of this function.
 	
 	
 	
@@ -154,7 +154,7 @@ void evaluate_grid(){
 			if(grid[i][j].sat != -2){ // if there is a valid saturation here
 				//store current material here for convenience
 				cMat = grid[i][j].mat;
-				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATION_EFFECTS ; satEffIndex++){
+				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
 					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i][j].sat){ // if this is the right saturation
 						//check for the right saturaion levels. if you don't have the right sat levels, just move on to the next satEffect. (continue)
 						if(grid[i][j].satLevel < mats[cMat].satEffect[satEffIndex].decaySatGTE || grid[i][j].satLevel > mats[cMat].satEffect[satEffIndex].decaySatLTE) continue;
@@ -169,7 +169,7 @@ void evaluate_grid(){
 			}
 		}
 	}
-	apply_cell_sat_and_mat_changes(); // apply changes from the SATURATION AFFECTS AND DECAY part of this function.
+	apply_grid_changes(); // apply changes from the SATURATION AFFECTS AND DECAY part of this function.
 	
 	
 	
@@ -188,7 +188,7 @@ void evaluate_grid(){
 			}
 		}
 	}
-	apply_cell_sat_and_mat_changes(); // apply changes from the AFFECTS AND DECAY and decay part of this function.
+	apply_grid_changes(); // apply changes from the AFFECTS AND DECAY and decay part of this function.
 	
 }/// end evaluate_grid()
 
@@ -211,7 +211,7 @@ void reset_grid_changes(){
 
 
 
-void apply_cell_sat_and_mat_changes(){
+void apply_grid_changes(){
 	int i,j;
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
@@ -250,7 +250,10 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	//don't do anything if you don't need to.
 	if(affMat->matBefore == M_air && affMat->matAfter == M_air) return;
 	static int newi,newj;
+	// c is used to increment through all either chance[] elements.
+	//c is also used to check if a material is saturated by any of its saturations
 	static short c;
+	static bool validSat;
 	
 	static bool *testVector;
 	
@@ -260,6 +263,41 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	if(affMat->changesPerEval == 0) return;
 	
 	//these checks inside this if() statements only apply if the saturation needed is a valid material saturation. i.e. not one of these flags.
+	switch(affMat->satNeeded){
+	case M_dont_care:
+		break;
+	case M_no_saturation:
+		if(grid[i][j].sat != M_no_saturation) return;
+		break;
+	case M_any_of_my_sats:
+		validSat = false; // by default, we have not yet detected a valid saturation.
+		for(c=0 ; c<MAX_NUMBER_OF_SATURATIONS ; c++){
+			if(mats[grid[i][j].mat].satEffect[c].satMat == M_no_saturation) // if you have reached an null satEffect...
+				break; // ...break out of the for(c) loop
+				
+			// if there is a valid saturation, set validSat true and break out of the for(c) loop.
+			if(grid[i][j].sat == mats[grid[i][j].mat].satEffect[c].satMat){
+					validSat = true;
+				break;
+			}
+		}
+		if(validSat == false) return; // false condition. if this material is not saturated with one of its valid saturations, then quit this affectMat.
+		//if our material isn't saturated enough, return
+		if(grid[i][j].satLevel < affMat->satGTE) return;
+		//if our material is too saturated, return
+		if(grid[i][j].satLevel > affMat->satLTE) return;
+		break;
+	default: // default conditions. there is a single saturation we are looking for. and we have to be the saturation range.
+		//if the saturation here isn't right, return
+		if(grid[i][j].sat != affMat->satNeeded) return;
+		//if our material isn't saturated enough, return
+		if(grid[i][j].satLevel < affMat->satGTE) return;
+		//if our material is too saturated, return
+		if(grid[i][j].satLevel > affMat->satLTE) return;
+		break;
+	}
+	
+	/*
 	if(affMat->satNeeded != M_dont_care && affMat->satNeeded != M_no_saturation){
 		//if the saturation here isn't right, return
 		if(grid[i][j].sat != affMat->satNeeded) return;
@@ -268,8 +306,7 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 		//if our material is too saturated, return
 		if(grid[i][j].satLevel > affMat->satLTE) return;
 	}
-	//if there needs to be no saturation and there is some kind of saturation, then return;
-	if(affMat->satNeeded == M_no_saturation && grid[i][j].sat != M_no_saturation) return;
+	*/
 	
 	
 	

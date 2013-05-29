@@ -24,7 +24,7 @@ short numberOfSatableMats;
 //this is how many different interactions any given material can have with other materials in neighboring cells.
 #define MAX_NUMBER_OF_MATERIAL_INTERACTIONS 6
 //this is how many different things a given material can be saturated with
-#define MAX_NUMBER_OF_SATURATION_EFFECTS 3
+#define MAX_NUMBER_OF_SATURATIONS 3
 
 struct cellData{
 	short mat; // the material in a cell. 	// default to M_air
@@ -45,16 +45,17 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 //negative values are not actual materials, but rather flags for conditions used in evaluating the grid.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[M_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
-#define M_dont_care		-3  // this is used to show that we don't care what the material is.
-#define M_no_saturation -2  // this is used to signify that a material in a cell has no saturation
-#define M_no_change 	-1	// this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid.
+#define M_any_of_my_sats	-4	// this is used when checking affectMat[].satNeeded to see if a material has ANY of its valid saturations. if it does have any, then evaluate_affectMaterial() will allow the affect to occur.
+#define M_dont_care			-3  // this is used to show that we don't care what the material is.
+#define M_no_saturation 	-2  // this is used to signify that a material in a cell has no saturation
+#define M_no_change 		-1	// this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid.
 #define M_air			0
 #define M_earth			1
 #define M_grass			2
 #define M_water			3
 #define M_fire			4
-#define M_tree_base	5
-
+#define M_tree_base		5
+#define M_test			6
 
 #define M_rock			11
 #define M_spring		12
@@ -195,7 +196,7 @@ struct material {
 	// you must enter them in order starting at the 0th element. i.e. satEffect[0]. once the cell evalutator finds a default saturation effect, it breaks from the saturation effect checking loop.
 	// basically, if you want to make a saturation effect for a material, you have to put it in the satEffect[0] spot. if you want to make another, put it in the satEffect[1] spot. and so on and so forth.
 	// once the grid evaluator finds a saturation effect that is the default (does nothing)
-	struct saturationEffect satEffect[MAX_NUMBER_OF_SATURATION_EFFECTS];
+	struct saturationEffect satEffect[MAX_NUMBER_OF_SATURATIONS];
 
 	// the color of the material
 	unsigned int color;
@@ -234,7 +235,7 @@ void set_default_material_attributes(){
 		mats[i].decayInto = M_air;	 // decay into air (this is irrelevant because there is a 0% decayChance anyway)
 
 		 // for every saturation effect, set it to the default of not being able to be saturated by anything.
-		for(s=0 ; s<MAX_NUMBER_OF_SATURATION_EFFECTS ; s++){
+		for(s=0 ; s<MAX_NUMBER_OF_SATURATIONS ; s++){
 			mats[i].satEffect[s].satMat = M_no_saturation; // by default, nothing can be saturated with anything.
 			mats[i].satEffect[s].absorb = 0; // does not absorb by default.
 			mats[i].satEffect[s].decayChance = 0; // be default, nothing saturated will decay into anything.
@@ -342,16 +343,13 @@ void init_material_attributes(void){
 	mats[M_fire].affectMat[0].chance[5] =  4500;
 	mats[M_fire].affectMat[0].chance[6] =  6500;
 	mats[M_fire].affectMat[0].chance[7] =  4500;
-/*//-------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[M_test].color = 0xccff00;
-	mats[M_test].satEffect[0].satMat = M_earth; /// when surrounded by rock, it turns into dirt.
-	set_chance(mats[M_test].satEffect[0].chance, 100000);
-	mats[M_test].satEffect[0].decayChance = 100000;
-	mats[M_test].satEffect[0].decayInto = M_rock;
-	mats[M_test].satEffect[0].decaySatGTE = 3; // has to have at least 3 blocks around it
-	mats[M_test].satEffect[0].decaySatLTE = 5; // can have no more than 5 dirt around it
-//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_test].affectMat[0].chance[1] = 100000;
+	mats[M_test].affectMat[0].matBefore = M_air;
+	mats[M_test].affectMat[0].matAfter  = M_tree_branch_right;
+/*/-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[M_test2].color = 0x00ffcc;
 	mats[M_test2].affectMat[0].matBefore = M_air; /// test2 turns air into test
@@ -370,12 +368,12 @@ void init_material_attributes(void){
 	mats[M_rock].color = 0x5a5651;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_base].name = "Tree";	/// this is the start of the tree. this is what you palce and watch a tree grow.
-	mats[M_tree_base].color = 0x7B5126;
+	mats[M_tree_base].color = 0x7b5126;
 	mats[M_tree_base].affectMat[0].matBefore = M_air;
 	mats[M_tree_base].affectMat[0].matAfter  = M_tree_trunk;
 	mats[M_tree_base].affectMat[0].chance[1] = 850;
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[M_tree_trunk].color = 0x7B5126;
+	mats[M_tree_trunk].color = mats[M_tree_base].color;
 	
 	mats[M_tree_trunk].satEffect[0].satMat = M_tree_trunk; /// tree_trunk can tell when there is tree_trunk around it.
 	mats[M_tree_trunk].satEffect[0].chance[1] = 100000;
@@ -405,37 +403,74 @@ void init_material_attributes(void){
 	mats[M_tree_trunk].affectMat[4].chance[4] = 450;
 	mats[M_tree_trunk].affectMat[4].satNeeded = M_tree_trunk;
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[M_tree_trunk_top].color = 0x7b5126; /// this is the top of the tree. the trunk will stop growing when this material is spawned.
+	mats[M_tree_trunk_top].color = mats[M_tree_base].color; /// this is the top of the tree. the trunk will stop growing when this material is spawned.
 	
 	mats[M_tree_trunk_top].affectMat[0].matBefore = M_air;		///turns air into leaves_end
 	mats[M_tree_trunk_top].affectMat[0].matAfter  = M_tree_leaves_end;
-	mats[M_tree_trunk_top].affectMat[0].chance[0] =  350;
-	mats[M_tree_trunk_top].affectMat[0].chance[1] = 1000;
-	mats[M_tree_trunk_top].affectMat[0].chance[2] =  350;
-	
-	mats[M_tree_trunk_top].satEffect[0].satMat = M_tree_branch_right; /// gets saturated by tree_branch_right on its right side.
-	mats[M_tree_trunk_top].satEffect[0].chance[2] = 100000;
-	mats[M_tree_trunk_top].satEffect[0].chance[4] = 100000;
-	
-	mats[M_tree_trunk_top].satEffect[1].satMat = M_tree_branch_left; /// gets saturated by tree_branch_left on its left side.
-	mats[M_tree_trunk_top].satEffect[1].chance[0] = 100000;
-	mats[M_tree_trunk_top].satEffect[1].chance[3] = 100000;
+	mats[M_tree_trunk_top].affectMat[0].chance[0] = 500;
+	mats[M_tree_trunk_top].affectMat[0].chance[1] = 750;
+	mats[M_tree_trunk_top].affectMat[0].chance[2] = 500;
 	
 	mats[M_tree_trunk_top].affectMat[1].matBefore = M_tree_leaves_end;
-	mats[M_tree_trunk_top].affectMat[1].satNeeded = M_dont_care;
-	mats[M_tree_trunk_top].affectMat[1].satLTE = 0;
+	mats[M_tree_trunk_top].affectMat[1].matAfter  = M_tree_branch_right;
 	mats[M_tree_trunk_top].affectMat[1].chance[2] = 250;		/// spawns tree_branch_right on its rght side.
-	mats[M_tree_trunk_top].affectMat[1].chance[4] = 250;
+	
+	mats[M_tree_trunk_top].affectMat[2].matBefore = M_tree_leaves_end;
+	mats[M_tree_trunk_top].affectMat[2].matAfter  = M_tree_branch_left;
+	mats[M_tree_trunk_top].affectMat[2].chance[0] = 250;		/// spawns tree_branch_right on its rght side.
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[M_tree_leaves].color = 0x90AD53;
+	mats[M_tree_leaves].color = 0x708D23;
+	
+	mats[M_tree_leaves].satEffect[0].satMat = M_tree_branch_left; /// tree_leaves saturated by tree_branches_right
+	set_chance(mats[M_tree_leaves].satEffect[0].chance, 100000);
+	
+	mats[M_tree_leaves].satEffect[1].satMat = M_tree_branch_right;/// and tree_leaves saturated by tree_branches_right
+	set_chance(mats[M_tree_leaves].satEffect[1].chance, 100000);
+	
+	mats[M_tree_leaves].affectMat[0].matBefore = M_air;
+	mats[M_tree_leaves].affectMat[0].matAfter  = M_tree_leaves;
+	mats[M_tree_leaves].affectMat[0].satNeeded = M_any_of_my_sats;
+	mats[M_tree_leaves].affectMat[0].chance[1] = 100;
+	mats[M_tree_leaves].affectMat[0].chance[0] = 
+	mats[M_tree_leaves].affectMat[0].chance[2] = 54;
+	mats[M_tree_leaves].affectMat[0].chance[3] = 
+	mats[M_tree_leaves].affectMat[0].chance[4] = 40;
+	mats[M_tree_leaves].affectMat[0].chance[5] = 
+	mats[M_tree_leaves].affectMat[0].chance[7] = 35;
+	mats[M_tree_leaves].affectMat[0].chance[6] = 20;
+	
+	
+	mats[M_tree_leaves].affectMat[1].matBefore = M_air;
+	mats[M_tree_leaves].affectMat[1].matAfter  = M_tree_leaves_end;
+	mats[M_tree_leaves].affectMat[1].chance[1] = 350;
+	mats[M_tree_leaves].affectMat[1].chance[0] = 
+	mats[M_tree_leaves].affectMat[1].chance[2] = 250;
+	mats[M_tree_leaves].affectMat[1].chance[3] = 
+	mats[M_tree_leaves].affectMat[1].chance[4] = 200;
+	mats[M_tree_leaves].affectMat[1].chance[5] = 
+	mats[M_tree_leaves].affectMat[1].chance[7] = 165;
+	mats[M_tree_leaves].affectMat[1].chance[6] = 100;
+	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_leaves_end].color = 0x708D23;
 	
 	mats[M_tree_leaves_end].satEffect[0].satMat = M_tree_trunk;		/// tree_leaves_end can be saturated by both tree_trunk 
 	set_chance(mats[M_tree_leaves_end].satEffect[0].chance, 100000);
 	
-	mats[M_tree_leaves_end].satEffect[1].satMat = M_tree_trunk_top; /// and tree_trunk_end.
+	mats[M_tree_leaves_end].satEffect[1].satMat = M_tree_trunk_top; /// and tree_trunk_top.
 	set_chance(mats[M_tree_leaves_end].satEffect[1].chance, 100000);
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_branch_right].color = mats[M_tree_base].color;
+	
+	mats[M_tree_branch_right].affectMat[0].matBefore = M_air;			/// tree_branch_right makes leaves around it.
+	mats[M_tree_branch_right].affectMat[0].matAfter  = M_tree_leaves;
+	set_chance( &mats[M_tree_branch_right].affectMat[0].chance[0], 433);
+	
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_branch_left].color = mats[M_tree_base].color;
+	
+	/// tree_branch_left makes leaves around it as well
+	copy_affMat(&mats[M_tree_branch_right].affectMat[0], &mats[M_tree_branch_left].affectMat[0]);
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_sand].name = "Sand";
 	mats[M_sand].gravity = 1;

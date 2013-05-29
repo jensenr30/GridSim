@@ -31,16 +31,14 @@ int main( int argc, char* args[] )
 
 ///-------------------------------------
 ///putting test materials into grid
-    /*int i,j;
-    for(i=0 ; i<GRID_WIDTH ; i++){
-		for(j=0 ; j<GRID_HEIGHT ; j++){
-			if(j>4 && j<12) continue;
-			if(j==4) grid[i][j].mat = M_spring;
-			else
-				grid[i][j].mat = M_earth;
+    int i,j;
+    for(i=7 ; i<GRID_WIDTH ; i+=15){
+		for(j=26 ; j<GRID_HEIGHT ; j+=20){
+			grid[i][j].mat = M_tree_base;
 		}
     }
-    */
+    
+    sleepTime = 0;
 ///--------------------------------------
 
     //While the user hasn't quit

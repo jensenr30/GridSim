@@ -155,6 +155,12 @@ struct saturationEffect{
 	//default to M_no_saturation
 	//if satMat == M_no_saturation for a given material, that means there is no saturation effect for that material.
 	short satMat;
+	
+	// this tells us if the saturation has memory or not.
+	// if satMem == true, the saturation will stay even if the saturating material is removed.
+	// if satMem == false, the saturation will be in the material in our cell so long as the saturating material stays in proximity of our cell. 
+	/// IMPORTANT NOTE: If a satEffect absorbs the saturating material (see the absorb element of this structure), satMem will automatically be set to true.
+	bool satMem;
 
 	// does the saturation material get absorbed (i.e. turn into air) when our material gets saturated by it? or is it not affected by saturating our material?
 	// 1 = gets absorbed
@@ -237,6 +243,7 @@ void set_default_material_attributes(){
 		 // for every saturation effect, set it to the default of not being able to be saturated by anything.
 		for(s=0 ; s<MAX_NUMBER_OF_SATURATIONS ; s++){
 			mats[i].satEffect[s].satMat = M_no_saturation; // by default, nothing can be saturated with anything.
+			mats[i].satEffect[s].satMem = false; // by default, there is no memory in saturation. If a satEffect absorbs the saturating material, satMem will auto matically be set to true.
 			mats[i].satEffect[s].absorb = 0; // does not absorb by default.
 			mats[i].satEffect[s].decayChance = 0; // be default, nothing saturated will decay into anything.
 			mats[i].satEffect[s].decayInto =	M_air; // default decay into air. kind of irrelevant because the chance of decay is already 0. oh well. better safe than sorry.
@@ -462,15 +469,61 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_branch_right].color = mats[M_tree_base].color;
 	
+	mats[M_tree_branch_right].satEffect[0].satMat = M_tree_branch_right; /// can be saturated by tree_branch_right
+	mats[M_tree_branch_right].satEffect[0].chance[1] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[2] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[4] = 100000;
+	
+	mats[M_tree_branch_right].satEffect[0].satMat = M_tree_branch_end;  /// can be saturated by tree_branch_end
+	mats[M_tree_branch_right].satEffect[0].chance[1] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[2] = 100000;
+	mats[M_tree_branch_right].satEffect[0].chance[4] = 100000;
+	
 	mats[M_tree_branch_right].affectMat[0].matBefore = M_air;			/// tree_branch_right makes leaves around it.
 	mats[M_tree_branch_right].affectMat[0].matAfter  = M_tree_leaves;
 	set_chance( &mats[M_tree_branch_right].affectMat[0].chance[0], 433);
+	//mats[M_tree_branch_right].affectMat[0].satNeeded = M_no_saturation;
 	
+	mats[M_tree_branch_right].affectMat[1].matBefore = M_air;			/// tree_branch_right makes leaves_end around it.
+	mats[M_tree_branch_right].affectMat[1].matAfter  = M_tree_leaves_end;
+	set_chance( &mats[M_tree_branch_right].affectMat[1].chance[0], 150);
+	//mats[M_tree_branch_right].affectMat[1].satNeeded = M_no_saturation;
+	
+	mats[M_tree_branch_right].affectMat[2].matBefore = M_tree_leaves;		/// tree_branch_right spawns tree_branch end in these locations.
+	mats[M_tree_branch_right].affectMat[2].matAfter  = M_tree_branch_end;
+	mats[M_tree_branch_right].affectMat[2].chance[7] = 80;
+	mats[M_tree_branch_right].affectMat[2].chance[2] = 180;
+	mats[M_tree_branch_right].affectMat[2].chance[0] = 75;
+	mats[M_tree_branch_right].affectMat[2].satNeeded = M_no_saturation;
+	mats[M_tree_branch_right].affectMat[2].changesPerEval = 1; // only one branch per evaluation
+	
+	mats[M_tree_branch_right].affectMat[3].matBefore = M_tree_leaves;		/// tree_branch_right grows more right/up
+	mats[M_tree_branch_right].affectMat[3].matAfter  = M_tree_branch_right;
+	mats[M_tree_branch_right].affectMat[3].chance[1] = 170;
+	mats[M_tree_branch_right].affectMat[3].chance[2] = 400;
+	mats[M_tree_branch_right].affectMat[3].chance[4] = 70;
+	mats[M_tree_branch_right].affectMat[3].satNeeded = M_no_saturation;
+	mats[M_tree_branch_right].affectMat[3].changesPerEval = 1; // only one branch per evaluation
+
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_tree_branch_left].color = mats[M_tree_base].color;
 	
 	/// tree_branch_left makes leaves around it as well
 	copy_affMat(&mats[M_tree_branch_right].affectMat[0], &mats[M_tree_branch_left].affectMat[0]);
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[M_tree_branch_end].color = mats[M_tree_base].color;
+	
+	mats[M_tree_branch_end].affectMat[0].matBefore = M_tree_leaves;
+	mats[M_tree_branch_end].affectMat[0].matAfter  = M_tree_leaves_end;
+	set_chance(mats[M_tree_branch_end].affectMat[0].chance, 100000); // instantly changes into end leaves.
+	
+	mats[M_tree_branch_end].affectMat[1].matBefore = M_air;
+	mats[M_tree_branch_end].affectMat[1].matAfter  = M_tree_leaves_end;
+	set_chance(mats[M_tree_branch_end].affectMat[1].chance, 150); // instantly changes into end leaves.
+	
+	mats[M_tree_branch_end].affectMat[2].matBefore = M_air;
+	mats[M_tree_branch_end].affectMat[2].matAfter  = M_tree_leaves;
+	set_chance(mats[M_tree_branch_end].affectMat[2].chance, 30); // instantly changes into end leaves.
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[M_sand].name = "Sand";
 	mats[M_sand].gravity = 1;
@@ -585,6 +638,16 @@ void init_material_attributes(void){
 	mats[M_dead_scurge].gravity = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	
+	
+	//make it so that any materials that absorb other materials have memory of absorbing them. (satMem = true)
+	unsigned short m,s;
+	for(m=0 ; m<MAX_NUMBER_OF_UNIQUE_MATERIALS ; m++){
+		for(s=0 ; s<MAX_NUMBER_OF_SATURATIONS ; s++){
+			if(mats[m].satEffect[s].absorb == true)
+				mats[m].satEffect[s].satMem = true;
+		}
+	}
+	
 	// find how many saturatable materials there are:
 	numberOfSatableMats = 0; // set this to 0 by default. it will get incremented in the for loop and brought to the correct value.
 	int i;
@@ -633,7 +696,15 @@ void init_cell_stuff(void){
 void print_saturation_data(){
 	int i,j; // indexes
 	static int printTime = 1;
-	printf("printTime = %d\n\nSaturation:\n\n",printTime);
+	printf("printTime = %d\n\nMaterials:\n\n",printTime);
+	for(j=0 ; j<GRID_HEIGHT ; j++){
+		for(i=0 ; i<GRID_WIDTH ; i++){
+			if(grid[i][j].mat > 0)printf("%2d ",grid[i][j].mat);
+			else printf(" . ");
+		}
+		printf("\n");
+	}
+	printf("Saturation:\n\n");
 	for(j=0 ; j<GRID_HEIGHT ; j++){
 		for(i=0 ; i<GRID_WIDTH ; i++){
 			if(grid[i][j].sat >= 0)printf("%2d ",grid[i][j].sat);

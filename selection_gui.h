@@ -4,8 +4,8 @@
 SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
 //main button controls
-#define firstColumn 190
-#define firstRow 80
+#define XPosForGUISelectionStart 190
+#define YPosFromGUISide 80
 #define widthButton 20
 #define heightButton 20
 #define rowSpacingMultiplier 2
@@ -13,14 +13,14 @@ SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 #define selectionBoxSize 3
 
 //main gui variables
-#define xPos SCREEN_WIDTH - 200
-#define yPos 0
-#define wPos 200
-#define hPos SCREEN_HEIGHT
+#define GUI_X SCREEN_WIDTH - 200
+#define GUI_Y 0
+#define GUI_W 200
+#define GUI_H SCREEN_HEIGHT
 
 //selection box positions
 //compiler is GAY so you have to keep these as number values
-short xSel = SCREEN_WIDTH - firstColumn - selectionBoxSize, ySel = firstRow - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
+short xSel = SCREEN_WIDTH - XPosForGUISelectionStart - selectionBoxSize, ySel = YPosFromGUISide - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
 
 //displays gui
 void selectionGUI(int x, int y, int mouse)
@@ -30,8 +30,8 @@ void selectionGUI(int x, int y, int mouse)
     
     //steps through the array and sets the icons of each material
     //varaibles for keeping track of were to put the icons
-    j = xPos + widthButton/2;
-    k = firstRow;
+    j = GUI_X + widthButton/2;
+    k = YPosFromGUISide;
     for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
         if(j < SCREEN_WIDTH){
             //sets icons
@@ -44,7 +44,7 @@ void selectionGUI(int x, int y, int mouse)
             //reduces i by 1 so that it doesn't skip a material
             i--;
             //resets j
-            j = xPos + widthButton/2;
+            j = GUI_X + widthButton/2;
             //increases k for the next line
             k = k + heightButton * columnSpacingMultiplier;
         }
@@ -58,10 +58,10 @@ void selectionGUI(int x, int y, int mouse)
     text = TTF_RenderText_Blended( font, mats[currentMat].name , textColor );
 
     //main window
-	guiRectangle.x = xPos;
-	guiRectangle.y = yPos;
-	guiRectangle.w = wPos;
-	guiRectangle.h = hPos;
+	guiRectangle.x = GUI_X;
+	guiRectangle.y = GUI_Y;
+	guiRectangle.w = GUI_W;
+	guiRectangle.h = GUI_H;
     SDL_FillRect( screen , &guiRectangle , 0x181818);
     
     //box under text color
@@ -118,6 +118,7 @@ void selectionGUI(int x, int y, int mouse)
 
 int oldx = 0;
 int oldy = 0;
+int BrushSize = 1;
 
 //brushes structure
 struct Brushes
@@ -126,10 +127,6 @@ struct Brushes
     int x;
     int y;
 }Brushes[MAX_BRUSHES];
-
-
-//brushes struct array
-//BrushTypes Brushes[MAX_BRUSHES];
 
 //brushs and speed control
 void brushesGUI(int x, int y, int mouse)
@@ -152,7 +149,7 @@ void brushesGUI(int x, int y, int mouse)
     //main window
 	brushesRectangle.x = 0;
 	brushesRectangle.y = 0;
-	brushesRectangle.w = xPos;
+	brushesRectangle.w = GUI_X;
 	brushesRectangle.h = 50;
     SDL_FillRect( screen , &brushesRectangle , 0x181818);
     
@@ -192,7 +189,7 @@ void brushesGUI(int x, int y, int mouse)
             }
         }
     }
-    
+       
     //brushes
     if(mouse == 1)
     {
@@ -233,6 +230,26 @@ void brushesGUI(int x, int y, int mouse)
                 setcell(x+CELL_SIZE,y-CELL_SIZE,currentMat);
                 setcell(x-CELL_SIZE,y+CELL_SIZE,currentMat);
                 break;
+            case 4:
+                setcell(x,y,currentMat);
+                //setcell(x+CELL_SIZE,y,currentMat);
+                //setcell(x,y+CELL_SIZE,currentMat);
+                //setcell(x-CELL_SIZE,y,currentMat);
+                //setcell(x,y-CELL_SIZE,currentMat);
+                setcell(x-(BrushSize/CELL_SIZE),y,currentMat);
+                setcell(x,y-(BrushSize/CELL_SIZE),currentMat);
+                setcell(x-CELL_SIZE+(BrushSize/CELL_SIZE),y,currentMat);
+                setcell(x,y-CELL_SIZE+(BrushSize/CELL_SIZE),currentMat);
+                //setcell(x+CELL_SIZE,y-CELL_SIZE,currentMat);
+                //setcell(x-CELL_SIZE,y+CELL_SIZE,currentMat);
+                //setcell(x+CELL_SIZE,y+CELL_SIZE,currentMat);
+                //setcell(x-CELL_SIZE,y-CELL_SIZE,currentMat);
+                break;
+            case 5:
+                BrushSize++;
+                mouseModifier = 4;
+                break;
+                /*
             //vertical line
             case 4:
                 setcell(x,y,currentMat);
@@ -249,19 +266,18 @@ void brushesGUI(int x, int y, int mouse)
                 setcell(x,y+CELL_SIZE*2,currentMat);
                 setcell(x,y-CELL_SIZE*2,currentMat);
                 break;
+                */
             //line tool
             case 6:
-                /*
-                if(){
+                if(x == 1){
                     setcell(x, y, currentMat);
                 }
                 oldx = x;
                 oldy = y;
                 setcell((oldx + x),(oldy + y),currentMat);
-                */
                 break;
-                
             default:
+                setcell(x,y,currentMat);
                 break;
         }
     }

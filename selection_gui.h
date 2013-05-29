@@ -83,7 +83,7 @@ void selectionGUI(int x, int y, int mouse)
     SDL_FillRect( screen , &selectionBox , 0xffffff);
     
     //prints a rectangle for each material icon
-    for( i = M_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
+    for( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
         if(mats[i].name == NULL) {continue;}
         guiRectangle.x = matIcon[i].x;
         guiRectangle.y = matIcon[i].y;
@@ -93,7 +93,7 @@ void selectionGUI(int x, int y, int mouse)
     }
     
     //checks for mouse clicks over material icons
-    for ( i = M_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
+    for ( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
 
         if( ( x > matIcon[i].x ) && ( x < matIcon[i].x + widthButton ) && ( y > matIcon[i].y ) && ( y < matIcon[i].y + heightButton ) )
         {

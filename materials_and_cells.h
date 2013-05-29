@@ -246,7 +246,7 @@ void set_default_material_attributes(){
 		for(s=0 ; s<MAX_NUMBER_OF_SATURATIONS ; s++){
 			mats[i].satEffect[s].satMat = M_no_saturation; // by default, nothing can be saturated with anything.
 			mats[i].satEffect[s].satMem = false; // by default, there is no memory in saturation. If a satEffect absorbs the saturating material, satMem will auto matically be set to true.
-			mats[i].satEffect[s].absorb = 0; // does not absorb by default.
+			mats[i].satEffect[s].absorb = false; // does not absorb by default.
 			mats[i].satEffect[s].decayChance = 0; // be default, nothing saturated will decay into anything.
 			mats[i].satEffect[s].decayInto =	M_air; // default decay into air. kind of irrelevant because the chance of decay is already 0. oh well. better safe than sorry.
 			mats[i].satEffect[s].decaySatMat =	M_no_saturation; // the default saturation the material will have after decaying is nothing.
@@ -400,7 +400,8 @@ void init_material_attributes(void){
 	mats[M_tree_trunk].affectMat[0].chance[3] = 500;
 	mats[M_tree_trunk].affectMat[0].chance[4] = 500;
 	mats[M_tree_trunk].affectMat[0].satNeeded = M_no_saturation;
-	copy_affMat(&mats[M_tree_trunk].affectMat[0], &mats[M_tree_trunk].affectMat[1]);
+	
+	//copy_affMat(&mats[M_tree_trunk].affectMat[0], &mats[M_tree_trunk].affectMat[1]);
 	
 	mats[M_tree_trunk].affectMat[2].matBefore = M_tree_leaves_end;		/// tree_trunk grows upwards into tree_leaves_end
 	mats[M_tree_trunk].affectMat[2].matAfter  = M_tree_trunk;
@@ -412,8 +413,8 @@ void init_material_attributes(void){
 	
 	mats[M_tree_trunk].affectMat[4].matBefore = M_tree_leaves_end; /// once tree has grown, it sheds the leaves lower on it's trunk.
 	mats[M_tree_trunk].affectMat[4].matAfter  = M_air;
-	mats[M_tree_trunk].affectMat[4].satBefore = M_tree_trunk;		/// tree_trunk can only remove leaves that are saturated with tree_trunk.
-	mats[M_tree_trunk].affectMat[4].chance[3] = 450;				/// if end_leaves are saturated with tree_trunk_top, they are not removed.
+	//mats[M_tree_trunk].affectMat[4].satBefore = M_tree_trunk;		// tree_trunk can only remove leaves that are saturated with tree_trunk.
+	mats[M_tree_trunk].affectMat[4].chance[3] = 450;				// if end_leaves are saturated with tree_trunk_top, they are not removed.
 	mats[M_tree_trunk].affectMat[4].chance[4] = 450;
 	mats[M_tree_trunk].affectMat[4].satNeeded = M_tree_trunk;
 //-------------------------------------------------------------------------------------------------------------------------------

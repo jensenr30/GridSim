@@ -26,7 +26,6 @@
 SDL_Surface *screen = 	NULL;
 SDL_Surface *text = 	NULL;
 //SDL_Surface *image = 	NULL;
-/// DON'T FORGET TO ADD THESE SURFACES TO "void clean_up"!
 //The event structure that will be used
 SDL_Event event;
 

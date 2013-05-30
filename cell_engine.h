@@ -196,10 +196,10 @@ void evaluate_grid(){
 				
 				//evaluate the affectMaterial structure (this will apply correct changes to the cellMat array)
 				evaluate_affectMaterial(i, j, &mats[grid[i][j].mat].affectMat[a] );
-				// check for decay.
-				if(roll_ht( mats[ grid[i][j].mat ].decayChance) ) grid[i][j].matChange = mats[ grid[i][j].mat ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 				
 			}
+			// check for decay.
+			if(roll_ht( mats[ grid[i][j].mat ].decayChance) ) grid[i][j].matChange = mats[ grid[i][j].mat ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
 		}
 	}
 	apply_grid_changes(); // apply changes from the AFFECTS AND DECAY and decay part of this function.

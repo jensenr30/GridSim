@@ -89,6 +89,7 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 short matSatOrder[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
 void set_chance(unsigned *, unsigned);
+void set_chance_symmetrical(unsigned *chance, unsigned c1, unsigned c02, unsigned c34, unsigned c57, unsigned c6);
 
 
 struct affectMaterial{
@@ -301,6 +302,20 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_grass].name = "Grass";
     mats[m_grass].color = 0x20e112;
+    
+    mats[m_grass].satEffect[0].satMat = m_fire;		/// grass startrs to burn when it is next to fire
+    mats[m_grass].satEffect[0].absorb = true;
+    mats[m_grass].satEffect[0].satMem = true;
+    set_chance_symmetrical(mats[m_grass].satEffect[0].chance, 500, 150, 1000, 2500, 6000);
+    mats[m_grass].satEffect[0].decayChance = 
+    
+    mats[m_grass].affectMat[2].matBefore = m_air;	/// burning grass spreads fire
+    mats[m_grass].affectMat[2].matAfter  = m_fire;
+    set_chance_symmetrical(mats[m_grass].affectMat[2].chance, 1000, 300, 50, 25, 5);
+    mats[m_grass].affectMat[2].chance[0] = 100000;
+    mats[m_grass].affectMat[2].satNeeded = m_fire;
+    mats[m_grass].affectMat[2].changesPerEval = 1;
+    
     mats[m_grass].affectMat[0].matBefore = m_water; /// grass grows into water
 	mats[m_grass].affectMat[0].matAfter  = m_grass;
 	mats[m_grass].affectMat[0].chance[0] = 1000;
@@ -311,6 +326,7 @@ void init_material_attributes(void){
 	mats[m_grass].affectMat[0].chance[5] = 1000;
 	mats[m_grass].affectMat[0].chance[6] = 1000;
 	mats[m_grass].affectMat[0].chance[7] = 1000;
+	
 	mats[m_grass].affectMat[1].matBefore = m_mud; /// grass grows grass_roots into into mud
 	mats[m_grass].affectMat[1].matAfter  = m_grass_root;
 	mats[m_grass].affectMat[1].chance[0] = 1000;
@@ -340,20 +356,10 @@ void init_material_attributes(void){
 	mats[m_spring].affectMat[0].chance[6] = 1000;
 	mats[m_spring].affectMat[0].chance[7] = 700;
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_fire].name = "Fire";
+	mats[m_fire].name = "Fire"; 
 	mats[m_fire].decayInto = m_air;
     mats[m_fire].color = 0xd83313;
-	mats[m_fire].decayChance = 9000;
-	mats[m_fire].affectMat[0].matBefore = m_grass; /// fire burns grass
-	mats[m_fire].affectMat[0].matAfter  = m_fire;
-	mats[m_fire].affectMat[0].chance[0] = 12000;
-	mats[m_fire].affectMat[0].chance[1] = 15000;
-	mats[m_fire].affectMat[0].chance[2] = 12000;
-	mats[m_fire].affectMat[0].chance[3] =  9000;
-	mats[m_fire].affectMat[0].chance[4] =  9000;
-	mats[m_fire].affectMat[0].chance[5] =  4500;
-	mats[m_fire].affectMat[0].chance[6] =  6500;
-	mats[m_fire].affectMat[0].chance[7] =  4500;
+	mats[m_fire].decayChance = 2500;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[m_test].color = 0xccff00;
@@ -790,4 +796,22 @@ void copy_affMat( struct affectMaterial *source, struct affectMaterial *destinat
 	destination->satNeeded = source->satNeeded;
 }
 
-
+///this will set a chance array (8 elements) symmetrically.
+// diagram of the arrangement of chance elements.
+// 0 1 2
+// 3 m 4
+// 5 6 7
+//-----arguments--------------------------------------
+// chance	pointer to beginning of the chance array
+// c1		chance[1]					// top center
+// c02		chance[0] and chance[2]		// top sides
+// c34		chance[3] and chance[4]		// middle sides
+// c57		chance[5] and chance[7]		//bottom sides
+// 6		chance[6]					//bottom center
+void set_chance_symmetrical(unsigned *chance, unsigned c1, unsigned c02, unsigned c34, unsigned c57, unsigned c6){
+	chance[1] = c1;
+	chance[0] = chance[2] = c02;
+	chance[3] = chance[4] = c34;
+	chance[5] = chance[7] = c57;
+	chance[6] = c6;
+}

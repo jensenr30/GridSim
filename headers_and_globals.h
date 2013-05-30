@@ -18,8 +18,8 @@
 #define TRUE 1
 
 //The attributes of the screen
-#define SCREEN_WIDTH 900
-#define SCREEN_HEIGHT 540
+#define SCREEN_WIDTH 896
+#define SCREEN_HEIGHT 576
 #define SCREEN_BPP 32
 
 //The surfaces that will be used

@@ -186,10 +186,10 @@ struct saturationEffect{
 	//the maximum saturation level that will allow decay. default 8
 	char decaySatLTE;
 	// the thing that our saturated material may decay into now that it is saturated.
-	short decayInto;
+	short decayIntoMat;
 	// what will the saturation be after the block decays?
 	// set to m_no_saturation by default.
-	short decaySatMat;
+	short decayIntoSat;
 };
 
 
@@ -215,7 +215,7 @@ struct material {
 	unsigned decayChance;
 	
 	//this is the type of material that the current material may decay into.
-	short decayInto;
+	short decayIntoMat;
 
 	// 0 = no gravity. 1 = material is subject to gravity.
 	int gravity;
@@ -241,7 +241,7 @@ void set_default_material_attributes(){
 		mats[i].gravity = 0; // is not affected by gravity
 		mats[i].color = 0x000000;//default color is black
 		mats[i].decayChance = 0; // 0% chance to decay.
-		mats[i].decayInto = m_air;	 // decay into air (this is irrelevant because there is a 0% decayChance anyway)
+		mats[i].decayIntoMat = m_air;	 // decay into air (this is irrelevant because there is a 0% decayChance anyway)
 
 		 // for every saturation effect, set it to the default of not being able to be saturated by anything.
 		for(s=0 ; s<MAX_NUMBER_OF_SATURATIONS ; s++){
@@ -249,8 +249,8 @@ void set_default_material_attributes(){
 			mats[i].satEffect[s].satMem = false; // by default, there is no memory in saturation. If a satEffect absorbs the saturating material, satMem will auto matically be set to true.
 			mats[i].satEffect[s].absorb = false; // does not absorb by default.
 			mats[i].satEffect[s].decayChance = 0; // be default, nothing saturated will decay into anything.
-			mats[i].satEffect[s].decayInto =	m_air; // default decay into air. kind of irrelevant because the chance of decay is already 0. oh well. better safe than sorry.
-			mats[i].satEffect[s].decaySatMat =	m_no_saturation; // the default saturation the material will have after decaying is nothing.
+			mats[i].satEffect[s].decayIntoMat =	m_air; // default decay into air. kind of irrelevant because the chance of decay is already 0. oh well. better safe than sorry.
+			mats[i].satEffect[s].decayIntoSat =	m_no_saturation; // the default saturation the material will have after decaying is nothing.
 			mats[i].satEffect[s].decaySatGTE = 1;
 			mats[i].satEffect[s].decaySatLTE = 8;
 			for(k=0 ; k<8 ; k++){ // set all the absorb chances to 0% be default
@@ -297,7 +297,7 @@ void init_material_attributes(void){
 	mats[m_earth].satEffect[0].chance[5] = 125;
 	mats[m_earth].satEffect[0].chance[6] = 125;
 	mats[m_earth].satEffect[0].chance[7] = 125;
-	mats[m_earth].satEffect[0].decayInto = m_mud;
+	mats[m_earth].satEffect[0].decayIntoMat = m_mud;
 	mats[m_earth].satEffect[0].decayChance = 100000;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_grass].name = "Grass";
@@ -306,15 +306,17 @@ void init_material_attributes(void){
     mats[m_grass].satEffect[0].satMat = m_fire;		/// grass startrs to burn when it is next to fire
     mats[m_grass].satEffect[0].absorb = true;
     mats[m_grass].satEffect[0].satMem = true;
-    set_chance_symmetrical(mats[m_grass].satEffect[0].chance, 500, 150, 1000, 2500, 6000);
-    mats[m_grass].satEffect[0].decayChance = 
+    set_chance(mats[m_grass].satEffect[0].chance, 97000);
+    mats[m_grass].satEffect[0].decayChance = 4000;
+    mats[m_grass].satEffect[0].decayIntoMat = m_fire;
     
     mats[m_grass].affectMat[2].matBefore = m_air;	/// burning grass spreads fire
     mats[m_grass].affectMat[2].matAfter  = m_fire;
-    set_chance_symmetrical(mats[m_grass].affectMat[2].chance, 1000, 300, 50, 25, 5);
+    set_chance_symmetrical(mats[m_grass].affectMat[2].chance, 6000,5000, 3500, 2000, 1000);
     mats[m_grass].affectMat[2].chance[0] = 100000;
     mats[m_grass].affectMat[2].satNeeded = m_fire;
     mats[m_grass].affectMat[2].changesPerEval = 1;
+    
     
     mats[m_grass].affectMat[0].matBefore = m_water; /// grass grows into water
 	mats[m_grass].affectMat[0].matAfter  = m_grass;
@@ -341,6 +343,10 @@ void init_material_attributes(void){
 	mats[m_water].name = "Water";
 	mats[m_water].gravity = true;
     mats[m_water].color = 0x158ad4;
+    
+    mats[m_water].affectMat[0].matBefore = m_fire;
+    mats[m_water].affectMat[0].matAfter  = m_air;
+    set_chance(mats[m_water].affectMat[0].chance, 100000);
 //-------------------------------------------------------------------------------------------------------------------------------
     mats[m_spring].name = "Spring";
 	mats[m_spring].color = 0x97bcbb;
@@ -357,18 +363,18 @@ void init_material_attributes(void){
 	mats[m_spring].affectMat[0].chance[7] = 700;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_fire].name = "Fire"; 
-	mats[m_fire].decayInto = m_air;
+	mats[m_fire].decayIntoMat = m_air;
     mats[m_fire].color = 0xd83313;
 	mats[m_fire].decayChance = 2500;
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
+	//mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[m_test].color = 0xccff00;
 	mats[m_test].affectMat[0].chance[1] = 100000;
 	mats[m_test].affectMat[0].matBefore = m_air;
 	mats[m_test].affectMat[0].matAfter  = m_test2;
 	mats[m_test].affectMat[0].satAfter  = m_rock;
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
+	//mats[m_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[m_test2].color = 0x00ffcc;
 	
 	mats[m_test2].satEffect[0].satMat = m_rock; /// saturated by earth
@@ -630,7 +636,7 @@ void init_material_attributes(void){
 	mats[m_scurge].affectMat[0].changesPerEval = 1;
 	set_chance( &mats[m_scurge].affectMat[0].chance[0], 100000 );
 	mats[m_scurge].satEffect[0].satMat = m_scurge; /// scurge turns other scurge into empty space
-	mats[m_scurge].satEffect[0].decayInto = m_air;
+	mats[m_scurge].satEffect[0].decayIntoMat = m_air;
 	mats[m_scurge].satEffect[0].decayChance = 100000;
 	set_chance( &mats[m_scurge].satEffect[0].chance[0], 8700);
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -641,7 +647,7 @@ void init_material_attributes(void){
 	mats[m_anti_scurge].affectMat[0].changesPerEval = 1;
 	set_chance( &mats[m_anti_scurge].affectMat[0].chance[0], 100000 );
 	mats[m_anti_scurge].satEffect[0].satMat = m_anti_scurge; /// anti scurge turns other anti scurge into empty space
-	mats[m_anti_scurge].satEffect[0].decayInto = m_air;
+	mats[m_anti_scurge].satEffect[0].decayIntoMat = m_air;
 	mats[m_anti_scurge].satEffect[0].decayChance = 100000;
 	set_chance( &mats[m_anti_scurge].satEffect[0].chance[0], mats[m_scurge].satEffect[0].chance[0]); // make the anti scuge survive just as well as the scurge
 	mats[m_anti_scurge].affectMat[1].matBefore = m_scurge;		/// anti scurge will fight the scurge to the death

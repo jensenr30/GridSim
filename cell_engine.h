@@ -175,8 +175,8 @@ void evaluate_grid(){
 						
 						// roll for saturation-initiated decay 
 						if(roll_ht( mats[cMat].satEffect[satEffIndex].decayChance )){
-							grid[i][j].matChange = mats[cMat].satEffect[satEffIndex].decayInto;
-							grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].decaySatMat;
+							grid[i][j].matChange = mats[cMat].satEffect[satEffIndex].decayIntoMat;
+							grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].decayIntoSat;
 						}
 					}
 				}
@@ -199,7 +199,7 @@ void evaluate_grid(){
 				
 			}
 			// check for decay.
-			if(roll_ht( mats[ grid[i][j].mat ].decayChance) ) grid[i][j].matChange = mats[ grid[i][j].mat ].decayInto; // if, by chance, it is time to decay, then decay into your proper type.
+			if(roll_ht( mats[ grid[i][j].mat ].decayChance) ) grid[i][j].matChange = mats[ grid[i][j].mat ].decayIntoMat; // if, by chance, it is time to decay, then decay into your proper type.
 		}
 	}
 	apply_grid_changes(); // apply changes from the AFFECTS AND DECAY and decay part of this function.

@@ -55,6 +55,7 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define m_water			3
 #define m_fire			4
 #define m_tree_base		5
+#define m_smoke			6
 
 #define m_test			7
 #define m_test2			8
@@ -284,6 +285,21 @@ void init_material_attributes(void){
 	mats[m_air].name = "Air";
 	//DON'T YOU DARE CHANGE ANYTHING ABOUT AIR!
 //-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_smoke].name = "Ass";
+	mats[m_smoke].color = 0xa3a3a3;
+	
+	mats[m_smoke].affectMat[0].matBefore = m_air;  /// smoke wafts upwards
+	mats[m_smoke].affectMat[0].matAfter = m_smoke;
+	mats[m_smoke].affectMat[0].changeOrigMat = m_air;
+	mats[m_smoke].affectMat[0].chance[0] = 12500;
+	mats[m_smoke].affectMat[0].chance[1] = 12500;
+	mats[m_smoke].affectMat[0].chance[2] = 12500;
+	mats[m_smoke].affectMat[0].chance[3] = 5000;
+	mats[m_smoke].affectMat[0].chance[4] = 5000;
+	mats[m_smoke].affectMat[0].changesPerEval = 1;
+	mats[m_smoke].decayChance = 400;
+	mats[m_smoke].decayIntoMat = m_water;
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_earth].name = "Earth";
 	mats[m_earth].color = 0x8b672d;
 	
@@ -331,14 +347,14 @@ void init_material_attributes(void){
 	
 	mats[m_grass].affectMat[1].matBefore = m_mud; /// grass grows grass_roots into into mud
 	mats[m_grass].affectMat[1].matAfter  = m_grass_root;
-	mats[m_grass].affectMat[1].chance[0] = 1000;
-	mats[m_grass].affectMat[1].chance[1] = 1000;
-	mats[m_grass].affectMat[1].chance[2] = 1000;
-	mats[m_grass].affectMat[1].chance[3] = 3000;
-	mats[m_grass].affectMat[1].chance[4] = 3000;
-	mats[m_grass].affectMat[1].chance[5] = 4500;
-	mats[m_grass].affectMat[1].chance[6] = 4500;
-	mats[m_grass].affectMat[1].chance[7] = 4500;
+	mats[m_grass].affectMat[1].chance[0] = 100;
+	mats[m_grass].affectMat[1].chance[1] = 100;
+	mats[m_grass].affectMat[1].chance[2] = 100;
+	mats[m_grass].affectMat[1].chance[3] = 300;
+	mats[m_grass].affectMat[1].chance[4] = 300;
+	mats[m_grass].affectMat[1].chance[5] = 450;
+	mats[m_grass].affectMat[1].chance[6] = 450;
+	mats[m_grass].affectMat[1].chance[7] = 450;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";
 	mats[m_water].gravity = true;
@@ -366,6 +382,12 @@ void init_material_attributes(void){
 	mats[m_fire].decayIntoMat = m_air;
     mats[m_fire].color = 0xd83313;
 	mats[m_fire].decayChance = 2500;
+	
+	mats[m_fire].affectMat[0].matBefore = m_air;		/// fire makes smoke
+	mats[m_fire].affectMat[0].matAfter  = m_smoke;
+	mats[m_fire].affectMat[0].chance[0] =  100;
+	mats[m_fire].affectMat[0].chance[1] = 1000;
+	mats[m_fire].affectMat[0].chance[2] =  100;
 //-------------------------------------------------------------------------------------------------------------------------------
 	//mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[m_test].color = 0xccff00;
@@ -577,6 +599,7 @@ void init_material_attributes(void){
 	mats[m_mud].affectMat[1].chance[5] = 700;
 	mats[m_mud].affectMat[1].chance[6] = 950;
 	mats[m_mud].affectMat[1].chance[7] = 700;
+	
 	mats[m_mud].affectMat[2].changesPerEval = 1; 	/// mud leaks water into dry earth.
 	mats[m_mud].affectMat[2].satNeeded = m_water;
 	mats[m_mud].affectMat[2].changeOrigSat = m_no_saturation;
@@ -591,6 +614,7 @@ void init_material_attributes(void){
 	mats[m_mud].affectMat[1].chance[5] = 325;
 	mats[m_mud].affectMat[1].chance[6] = 650;
 	mats[m_mud].affectMat[1].chance[7] = 325;
+	
 	mats[m_mud].affectMat[0].changeOrigMat = m_earth;		/// mud turns into dirt if it can make the dirt below it turn into earth.
 	mats[m_mud].affectMat[0].changesPerEval = 1;
 	mats[m_mud].affectMat[0].satBefore = m_no_saturation;

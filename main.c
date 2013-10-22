@@ -7,7 +7,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, sleepTime = 64, paused = 0, countVar = 0, mouseStatus = CELL_SIZE;
+    int x, y, sleepTime = 64, paused = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -28,31 +28,32 @@ int main( int argc, char* args[] )
     init_cell_stuff();
 
 
-
+	int i,j;
 ///-------------------------------------
-///putting test materials into grid
-    /*int i,j;
-    for(i=0 ; i<GRID_WIDTH ; i++){
-		for(j=0 ; j<GRID_HEIGHT ; j++){
-			if(j>4 && j<12) continue;
-			if(j==4) grid[i][j].mat = M_spring;
-			else
-				grid[i][j].mat = M_earth;
+ //putting test materials into grid
+    
+    for(i=7 ; i<GRID_WIDTH ; i+=15){
+		for(j=26 ; j<GRID_HEIGHT ; j+=20){
+			grid[i][j].mat = m_tree_base;
 		}
     }
-    */
-///--------------------------------------
+    
+    sleepTime = 0;
+ //--------------------------------------
+	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
+	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_grass;
 
     //While the user hasn't quit
-    while( quit == false ){
+    while(1){
 
     	//While there's an event to handle
     	while( SDL_PollEvent( &event ) ){
 
     		//If the user has Xed out the window
-    		if( event.type == SDL_QUIT ){
+    		if( event.type == SDL_QUIT || quit == true ){
 				//Quit the program
-				quit = true;
+				clean_up();
+				return 0;
 			}
 
 

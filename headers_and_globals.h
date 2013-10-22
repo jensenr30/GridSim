@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include "Windows.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
@@ -18,15 +18,14 @@
 #define TRUE 1
 
 //The attributes of the screen
-#define SCREEN_WIDTH 900
-#define SCREEN_HEIGHT 540
+#define SCREEN_WIDTH 896
+#define SCREEN_HEIGHT 576
 #define SCREEN_BPP 32
 
 //The surfaces that will be used
 SDL_Surface *screen = 	NULL;
 SDL_Surface *text = 	NULL;
 //SDL_Surface *image = 	NULL;
-/// DON'T FORGET TO ADD THESE SURFACES TO "void clean_up"!
 //The event structure that will be used
 SDL_Event event;
 

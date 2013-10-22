@@ -51,7 +51,7 @@ int init(){
 	//Set the window caption
 	SDL_WM_SetCaption( "GridSim 0.1 - working copy", NULL );
 	
-	//SDL_WM_SetIcon( icon ); // sets the icon of the windows and taskbar item
+	//SDL_Wm_SetIcon( icon ); // sets the icon of the windows and taskbar item
 	
 	//If everything initialized fine
 	return true;
@@ -91,8 +91,8 @@ int load_files(){
 void clean_up(){
 	//free the image
 	//SDL_FreeSurface( image );
-	SDL_FreeSurface( text );
-	SDL_FreeSurface( screen );
+	//SDL_FreeSurface( text );
+	//SDL_FreeSurface( screen );
 	
 	//Quit SDL
 	SDL_Quit();
@@ -115,6 +115,6 @@ int get_rand(lowBound, highBound){
 /// then there is a 5000/100000 chance (5%) that roll_ht will return a 1.
 /// "roll_ht" means, "roll hundred thousand"
 int roll_ht(int chance){
-	if(chance > get_rand(0,99999)) return 1; // return 1 if the number the user gave you is greater than a random number between 0 and 9999.
+	if(chance > get_rand(0,99999)) return 1; // return 1 if the number the user gave you is greater than a random number between 0 and 99999.
 	return 0; // otherwise, return 0
 }

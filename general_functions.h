@@ -102,10 +102,15 @@ void clean_up(){
 /// i.e. if you call:
 ///		get_rand(3,7);
 /// then you could get: 3, 4, 5, 6, 7 as a return value.
+#define get_rand(lowBound, highBound) (rand()%(highBound - lowBound + 1) + lowBound)
+/*
 int get_rand(lowBound, highBound){
 	int diff = highBound - lowBound;
 	return ( rand() % (diff+1) ) + lowBound;
 }
+*/
+
+
 
 
 /// when you call this function, it returns a 1 or a 0.

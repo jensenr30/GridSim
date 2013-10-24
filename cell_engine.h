@@ -260,9 +260,8 @@ void apply_grid_changes(){
 void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMaterial *affMat){
 	
 	// if the affectMaterial will not do anything, return;
-	if(affMat->matAfter == m_no_change) return;
-	//don't do anything if you don't need to.
-	if(affMat->matBefore == m_air && affMat->matAfter == m_air) return;
+	if(affMat->matAfter == m_no_change && affMat->satAfter == m_no_change && affMat->changeOrigSat == m_no_change && affMat->changeOrigMat == m_no_change) return;
+	
 	static int newi,newj;
 	// c is used to increment through all either chance[] elements.
 	//c is also used to check if a material is saturated by any of its saturations
@@ -314,49 +313,52 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	
 	//for each chance
 	for(c=0 ; c<8 ; c++){
-			
-		switch(c){
-		case 0: newi = i-1;	newj = j-1;
-			break;
-		case 1: newi = i;	newj = j-1;
-			break;
-		case 2: newi = i+1;	newj = j-1;
-			break;
-		case 3: newi = i-1;	newj = j;
-			break;
-		case 4: newi = i+1;	newj = j;
-			break;
-		case 5: newi = i-1;	newj = j+1;
-			break;
-		case 6: newi = i;	newj = j+1;
-			break;
-		case 7: newi = i+1;	newj = j+1;
-			break;
-		}
-		// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell (continue;)
-		if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
 		
 		// if test vector is true
 		if(testVector[c] == true){
-			//if there is a valid material || if you don't care
+			
+			//generate correct test coordinates. newi and newj are used to index into a neighboring cell and get information about it.
+			// newi and newj are used in the myriad of if() statements below...
+			switch(c){
+			case 0: newi = i-1;	newj = j-1;
+				break;
+			case 1: newi = i;	newj = j-1;
+				break;
+			case 2: newi = i+1;	newj = j-1;
+				break;
+			case 3: newi = i-1;	newj = j;
+				break;
+			case 4: newi = i+1;	newj = j;
+				break;
+			case 5: newi = i-1;	newj = j+1;
+				break;
+			case 6: newi = i;	newj = j+1;
+				break;
+			case 7: newi = i+1;	newj = j+1;
+				break;
+			}
+			// if newi and newj are in UNACCEPTABLE places, continue to the next neighboring cell
+			if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
+		
+			// if there is a valid material or if you can use any material
 			if( affMat->matBefore == grid[newi][newj].mat || affMat->matBefore == m_dont_care){
-				//if there is a valid saturation || if you don't care
+				// if there is a valid saturation or if you can use any saturation
 				if( affMat->satBefore == grid[newi][newj].sat || affMat->satBefore == m_dont_care){
-					//rolling
+					// rolling
 					if(roll_ht(affMat->chance[c])){
-						//change the material only if it needs changing.
+						// change the material only if it needs changing.
 						if(affMat->matAfter != m_no_change) grid[newi][newj].matChange = affMat->matAfter;
-						//change the saturation only if it needs changing. also change the saturation level to a default of 1
+						// change the saturation only if it needs changing. also change the saturation level to a default of 1
 						if(affMat->satAfter != m_no_change) {
 								grid[newi][newj].satChange = affMat->satAfter;
 								grid[newi][newj].satLevelChange = 1;
 						}
 						
-						//check to see if the original material will change because of it having completed an affectMat
-						if(affMat->changeOrigMat != m_no_change) // if the material changes after it affects neighboring cells
-							grid[i][j].matChange = affMat->changeOrigMat; // change the material
-						if(affMat->changeOrigSat != m_no_change) // if the saturation of our material changes after our material affects neighboring cells
-							grid[i][j].satChange = affMat->changeOrigSat; // change the saturation of our material.
+						// check to see if the original material will change because of it having completed an affectMat
+						if(affMat->changeOrigMat != m_no_change) 			// if the material changes after it affects neighboring cells
+							grid[i][j].matChange = affMat->changeOrigMat; 		// change the material
+						if(affMat->changeOrigSat != m_no_change) 			// if the saturation of our material changes after our material affects neighboring cells
+							grid[i][j].satChange = affMat->changeOrigSat; 		// change the saturation of our material.
 					}
 				}
 			}

@@ -8,7 +8,7 @@
 
 
 // this is how big each square cell is
-int CELL_SIZE = 8;
+int CELL_SIZE = 4;
 
 // this is how large the cell grid is.
 #define GRID_WIDTH SCREEN_WIDTH/CELL_SIZE
@@ -69,6 +69,7 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define m_scurge		21
 #define m_anti_scurge	22
 #define m_dead_scurge	23
+#define m_bottom_feeder	24
 
 //tree stuff
 #define m_tree_trunk		80
@@ -169,6 +170,7 @@ struct saturationEffect{
 	// does the saturation material get absorbed (i.e. turn into air) when our material gets saturated by it? or is it not affected by saturating our material?
 	// 1 = gets absorbed
 	// 0 = doesn't get absorbed
+	/// if absorb is set to true, satMem will automatically be set to true.
 	unsigned short absorb;
 
 	// chance of our material getting saturated by the surrounding material in these locations:
@@ -182,9 +184,9 @@ struct saturationEffect{
 	// the chance that our saturated material will decay into something else.
 	// from 0-100000
 	unsigned decayChance;
-	//the minimum saturation level needed to decay. default 1
+	//the minimum saturation level needed to decay. default 1 (GTE = greater than or equal to)
 	char decaySatGTE;
-	//the maximum saturation level that will allow decay. default 8
+	//the maximum saturation level that will allow decay. default 8 (LTE = less than or equal to)
 	char decaySatLTE;
 	// the thing that our saturated material may decay into now that it is saturated.
 	short decayIntoMat;
@@ -264,7 +266,7 @@ void set_default_material_attributes(){
 			mats[i].affectMat[m].matBefore = m_dont_care;// affects everything
 			mats[i].affectMat[m].matAfter = m_no_change; // doesn't do anything to anything
 			mats[i].affectMat[m].satBefore = m_dont_care; // by default, it doesn't matter what the affected material had for saturation before the incident.
-			mats[i].affectMat[m].satAfter  = m_no_saturation; // by default, there is no change in saturation after the affectMat.
+			mats[i].affectMat[m].satAfter  = m_no_change; // by default, there is no change in saturation after the affectMat.
 			mats[i].affectMat[m].changesPerEval = 8; // by default, any material can affect the stuff around it all at once.
 			mats[i].affectMat[m].satNeeded = m_dont_care; // by default, there is no required saturation.
 			mats[i].affectMat[m].satGTE = 1;	// the Saturation can be Greater Than or Equal to 1.
@@ -285,7 +287,7 @@ void init_material_attributes(void){
 	mats[m_air].name = "Air";
 	//DON'T YOU DARE CHANGE ANYTHING ABOUT AIR!
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_smoke].name = "Ass";
+	mats[m_smoke].name = "Smoke";
 	mats[m_smoke].color = 0xa3a3a3;
 	
 	mats[m_smoke].affectMat[0].matBefore = m_air;  /// smoke wafts upwards
@@ -664,7 +666,7 @@ void init_material_attributes(void){
 	mats[m_scurge].satEffect[0].decayChance = 100000;
 	set_chance( &mats[m_scurge].satEffect[0].chance[0], 8700);
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_anti_scurge].name = "Anti Scurge";
+	mats[m_anti_scurge].name = "Anti-Scurge";
 	mats[m_anti_scurge].color = 0x0b94a0;
 	mats[m_anti_scurge].affectMat[0].matBefore = m_air; /// anti scurge turns empty space into anti scurge.
 	mats[m_anti_scurge].affectMat[0].matAfter = m_anti_scurge;
@@ -680,9 +682,43 @@ void init_material_attributes(void){
 	mats[m_anti_scurge].affectMat[1].changesPerEval = 1;
 	set_chance( &mats[m_anti_scurge].affectMat[1].chance[0], 100000);
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_dead_scurge].name = NULL;		//dead scurge falls.
+	//mats[m_dead_scurge].name = NULL;		
 	mats[m_dead_scurge].color = 0xa00b0b;
-	mats[m_dead_scurge].gravity = true;
+	mats[m_dead_scurge].gravity = true;			///dead scurge falls. that's really it...
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_bottom_feeder].name = "Bottom Feeder";
+	mats[m_bottom_feeder].color = 0xff6400;
+	mats[m_bottom_feeder].affectMat[0].matBefore = m_scurge;			/// bottom feeders eat scurge
+	mats[m_bottom_feeder].affectMat[0].matAfter  = m_bottom_feeder;
+	set_chance( &mats[m_bottom_feeder].affectMat[0].chance[0], 100000 );
+	mats[m_bottom_feeder].affectMat[0].changesPerEval = 8;
+	mats[m_bottom_feeder].affectMat[1].matBefore = m_anti_scurge;		/// bottom feeders also eat anti-scurge
+	mats[m_bottom_feeder].affectMat[1].matAfter  = m_bottom_feeder;
+	set_chance( &mats[m_bottom_feeder].affectMat[1].chance[0], 100000 );
+	mats[m_bottom_feeder].affectMat[1].changesPerEval = 8;
+	//mats[m_bottom_feeder].decayChance = 8000;
+	mats[m_bottom_feeder].affectMat[2].matBefore = m_air;				/// bottom feeders waltz around in search of food
+	mats[m_bottom_feeder].affectMat[2].matAfter = m_bottom_feeder;
+	mats[m_bottom_feeder].affectMat[2].changesPerEval = 1;
+	mats[m_bottom_feeder].affectMat[2].changeOrigMat = m_air;
+	set_chance(mats[m_bottom_feeder].affectMat[2].chance, 100000);
+	mats[m_bottom_feeder].satEffect[0].satMat = m_air;					/// if bottom feeders are completely surrounded by air, then they have a chance of dying
+	set_chance(mats[m_bottom_feeder].satEffect[0].chance, 100000);
+	mats[m_bottom_feeder].satEffect[0].decaySatGTE = 8; // must be completely surrounded by air to decay
+	mats[m_bottom_feeder].satEffect[0].decayIntoMat = m_air;
+	mats[m_bottom_feeder].satEffect[0].decayChance = 1000;
+	mats[m_bottom_feeder].affectMat[3].matBefore = m_bottom_feeder;
+	mats[m_bottom_feeder].affectMat[3].matAfter  = m_air;
+	mats[m_bottom_feeder].affectMat[3].changeOrigMat = m_air;
+	
+//-------------------------------------------------------------------------------------------------------------------------------
+	
+//-------------------------------------------------------------------------------------------------------------------------------
+	
+//-------------------------------------------------------------------------------------------------------------------------------
+	
+//-------------------------------------------------------------------------------------------------------------------------------
+	
 //-------------------------------------------------------------------------------------------------------------------------------
 	
 	
@@ -695,18 +731,19 @@ void init_material_attributes(void){
 		}
 	}
 	
-	// find how many saturatable materials there are:
+	/// find how many saturatable materials there are and stick them into a nice organized array.
 	numberOfSatableMats = 0; // set this to 0 by default. it will get incremented in the for loop and brought to the correct value.
 	int i;
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
 		// if the saturationMaterial is an invalid choice (like m_no_saturation or m_no_change) skip and move on.
 		if(mats[i].satEffect[0].satMat == m_no_saturation) continue;
-		
-		matSatOrder[numberOfSatableMats] = i; // put the material type into the array at the right point.
-		
-		printf("matSatOrder[%d] = %d\n", numberOfSatableMats, matSatOrder[numberOfSatableMats]);
-		
-		numberOfSatableMats++; // increment the number of materials that be saturated that we have.
+		// put the material type into the array at the right point.
+		matSatOrder[numberOfSatableMats] = i;
+		#if(debug)
+			printf("matSatOrder[%d] = %d\n", numberOfSatableMats, matSatOrder[numberOfSatableMats]); // print to the output debug file
+		#endif //debug
+		// increment the number of materials that be saturated that we have.
+		numberOfSatableMats++;
 	}
 	printf("numberOfSatableMats = %d\n\n\n\n\n", numberOfSatableMats);
 }

@@ -34,7 +34,7 @@ int main( int argc, char* args[] )
     
     for(i=7 ; i<GRID_WIDTH ; i+=15){
 		for(j=26 ; j<GRID_HEIGHT ; j+=20){
-			grid[i][j].mat = m_tree_base;
+			grid[i][j].mat = m_anti_scurge;
 		}
     }
     

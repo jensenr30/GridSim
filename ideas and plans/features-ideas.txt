@@ -12,89 +12,11 @@ e.g. when you place fire, it doesn't replace rock. it only gets placed in places
 
 ------------------------------------------------------------------------------------------------------
 
-make a array of "cell" structures for the cell data.
-
-struct cell{
-	//the material our cell is made up of
-	short m;
-	// the material that our cell is saturated with
-	short s;
-	// the level of saturation the material has. if the material is completely surreounded by fire, the l = 8. if there is only one fire block, then the level would be l = 1.
-	char l;
-} cells[SCREEN_WIDTH][SCREEN_HEIGHT];
-
-then change ALL OF THE PARTS IN THE CODE where it uses "cellData[][]" to this: "cells[][].m"
-
-------------------------------------------------------------------------------------------------------
-
 PREFORMANCE INCREASE
 modify the print_cells to only print cells that have changed. i.e. only print the elements in the grid[][].matChanged that are NOT M_no_change
+# update #
+this would no longer work because gravity doesn't fuck around with matChanged.
 
-------------------------------------------------------------------------------------------------------
-
-fire spreading leaves holes in grass. making the spreading based on modifying the grass with fire when fire is next to it might be a good idea.
-that might make things look more organic.
-
-do this by saturating grass with fire.
-
-make grass spreading based on how much water there is around the grass...? or maybe just add gravity to water... this can be achieved through saturation if I add levels of saturation.
-
-Ideas ideas ideas...
-
-------------------------------------------------------------------------------------------------------
-
-Make different grades of gravity. for instance,
-make it so that water seeks TRUELY it's own level by checking for any open spots just below its level.
-make it so that salt stacks at a 45 degree angle like so:
-		#
-	   ###
-	  #####
-	 #######
-	#########
-   ###########
-  #############
- ###############
-#################
-
-	make gradeLength
-	and  gradeDepth
-in the materials structure.
-
-	gradeLength tells you how far away an air cell can be for the block to fill that air cell
-	gradeDepth tells you how deep the hole must be in order for the material to fill it.
-	
-To make a 45 degree angle like the salt stack shown above, simply set both to 1.
-that would mean that the air hole must be at least 1 cell below the cell that holds the material trying to move and...
-the air hole can be no more than 1 cell away.
-
-if you had:
-	gradeLength = 3;
-	gradeDepth  = 1;
-then the stack would look something like this:
-
-		 #
-	  #######
-   #############
-###################
-
-if you made the gradeLength really really big, something might act like water and seek it's own level
-
-##########################################
-
-if you had
-	gradeLength = 1;
-	gradeDepth  = 2;
-your stack of materials might look something like this:
-
-		#
-		#
-	   ###
-	   ###
-	  #####
-	  #####
-	 #######
-	 #######
-	 
 ------------------------------------------------------------------------------------------------------
 
 make rippling water. (low priority)
@@ -106,7 +28,7 @@ They eat grass.
 when they feast on grass, there is some chance that they will give disgusting animal birth to another wild beast.
 humans can eat them.
 these animals and humans would probably not be materials.
-I would have to make a seperate thing like an "entity" or a "mob" basiclaly.
+I would have to make a seperate thing like an "entity" that can have more complex behavioral rules.
 
 
 ------------------------------------------------------------------------------------------------------
@@ -145,23 +67,6 @@ From fastest burning to slowest burning:
 leaves_end have a very very very small chance of spawning fruit in the air around them.
 once the fruit is spawned, it then saturates the leaves with it's fruitiness and the leaves can no longer spawn fruit.
 
-All of the above materials can be burnt.
-However, they should burn for different lengths of time.
-From fastest burning to slowest burning:
-
-	slow->	leaves_end
-			leaves
-			wood_end
-			wood_branch
-	fast->	wood
-
-------------------------------------------------------------------------------------------------------
-
-HIGH PRIORITY
-
-make it so mud can get saturated with water. that water is then passed to another mud/dirt block below it.
-in this way, water can saturate more than just the top of a pile of dirt.
- 
 ------------------------------------------------------------------------------------------------------
  
  HIGH priority
@@ -217,7 +122,11 @@ make the GRID_SIZE based on the gui width. that way we can achieve maximum effic
 
 ------------------------------------------------------------------------------------------------------
 
+add a search bar in the selection gui.
+allow the user to search through all the materials by name.
 
+also allow the user to filter the materials by category:
+	allow the user to only show block with/without gravity (and maybe allow to specifically search by gravity grade)
 
 ------------------------------------------------------------------------------------------------------
 

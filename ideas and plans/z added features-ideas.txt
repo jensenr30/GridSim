@@ -20,3 +20,90 @@ i.e. for grass:
 	}
 
 ------------------------------------------------------------------------------------------------------
+
+make a array of "cell" structures for the cell data.
+
+struct cell{
+	//the material our cell is made up of
+	short m;
+	// the material that our cell is saturated with
+	short s;
+	// the level of saturation the material has. if the material is completely surreounded by fire, the l = 8. if there is only one fire block, then the level would be l = 1.
+	char l;
+} cells[SCREEN_WIDTH][SCREEN_HEIGHT];
+
+then change ALL OF THE PARTS IN THE CODE where it uses "cellData[][]" to this: "cells[][].m"
+
+------------------------------------------------------------------------------------------------------
+
+Make different grades of gravity. for instance,
+make it so that water seeks TRUELY it's own level by checking for any open spots just below its level.
+make it so that salt stacks at a 45 degree angle like so:
+		#
+	   ###
+	  #####
+	 #######
+	#########
+   ###########
+  #############
+ ###############
+#################
+
+	make gradeLength
+	and  gradeDepth
+in the materials structure.
+
+	gradeLength tells you how far away an air cell can be for the block to fill that air cell
+	gradeDepth tells you how deep the hole must be in order for the material to fill it.
+	
+To make a 45 degree angle like the salt stack shown above, simply set both to 1.
+that would mean that the air hole must be at least 1 cell below the cell that holds the material trying to move and...
+the air hole can be no more than 1 cell away.
+
+if you had:
+	gradeLength = 3;
+	gradeDepth  = 1;
+then the stack would look something like this:
+
+		 #
+	  #######
+   #############
+###################
+
+if you made the gradeLength really really big, something might act like water and seek it's own level
+
+##########################################
+
+if you had
+	gradeLength = 1;
+	gradeDepth  = 2;
+your stack of materials might look something like this:
+
+		#
+		#
+	   ###
+	   ###
+	  #####
+	  #####
+	 #######
+	 #######
+
+------------------------------------------------------------------------------------------------------
+
+fire spreading leaves holes in grass. making the spreading based on modifying the grass with fire when fire is next to it might be a good idea.
+that might make things look more organic.
+
+do this by saturating grass with fire.
+
+make grass spreading based on how much water there is around the grass...? or maybe just add gravity to water... this can be achieved through saturation if I add levels of saturation.
+
+Ideas ideas ideas...
+
+------------------------------------------------------------------------------------------------------
+
+HIGH PRIORITY
+
+make it so mud can get saturated with water. that water is then passed to another mud/dirt block below it.
+in this way, water can saturate more than just the top of a pile of dirt.
+ 
+------------------------------------------------------------------------------------------------------

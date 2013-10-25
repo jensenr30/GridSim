@@ -26,6 +26,12 @@ int main( int argc, char* args[] )
 
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to air
     init_cell_stuff();
+    
+    //this sets up some surfaces that the selection gui needs to run efficiently
+    if( init_selection_gui() == false){
+		MessageBox(NULL, "Couldn't Initialize selection gui surface: tempGuiScreen", "Error", MB_OK);
+		return -4;
+    }
 
 
 	int i;

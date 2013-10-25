@@ -1,9 +1,9 @@
-//all the code for displaying the gui that allows you to selection your material
+// all the code for displaying the gui that allows you to selection your material
 
-//material icon structure and delcarations
+// material icon structure and delcarations
 SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
-//main button controls
+// main button controls
 #define firstColumn 190
 #define firstRow 80
 #define widthButton 20
@@ -12,101 +12,130 @@ SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 #define columnSpacingMultiplier 1.618
 #define selectionBoxSize 3
 
-//main gui variables
-#define xPos SCREEN_WIDTH - 200
+// main gui variables
+#define xPos (SCREEN_WIDTH - 200)
 #define yPos 0
 #define wPos 200
 #define hPos SCREEN_HEIGHT
 
-//selection box positions
-//compiler is GAY so you have to keep these as number values
-short xSel = SCREEN_WIDTH - firstColumn - selectionBoxSize, ySel = firstRow - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
+// selection box positions
+// you have to keep these as number values
+short 	xSel = SCREEN_WIDTH - firstColumn - selectionBoxSize,
+		ySel = firstRow - selectionBoxSize,
+		wSel = widthButton + selectionBoxSize * 2,
+		hSel = heightButton + selectionBoxSize * 2;
 
-//displays gui
+
+// this is where the gui is stored graphically to save processing power.
+SDL_Surface *tempGuiScreen;
+// this sets up the selection gui temp surface.
+bool init_selection_gui(){
+	tempGuiScreen = create_surface(wPos,hPos);
+	if(tempGuiScreen == NULL) return false;
+	else return true;
+}
+
+
+// displays gui
 void selectionGUI(int x, int y, int mouse)
 {
-    //variables to step through array
-    int i, j, k;
-    
-    //steps through the array and sets the icons of each material
-    //varaibles for keeping track of were to put the icons
-    j = xPos + widthButton/2;
-    k = firstRow;
-    for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
-        if(j + widthButton < SCREEN_WIDTH){
-            //sets icons
-            matIcon[i].x = j;
-            matIcon[i].y = k;
-            //updates value for the next icon
-            j = j + (widthButton * rowSpacingMultiplier);
-        }
-        else{
-            //reduces i by 1 so that it doesn't skip a material
-            i--;
-            //resets j
-            j = xPos + widthButton/2;
-            //increases k for the next line
-            k = k + heightButton * columnSpacingMultiplier;
-        }
-    }
-    
-    //define rectangles
-    SDL_Rect guiRectangle;
-    SDL_Rect selectionBox;
-    
-    //prints names of material
-    text = TTF_RenderText_Blended( font, mats[currentMat].name , textColor );
+	static bool firstTimeThrough = true;
+	// only re-print the gui if the user has clicked inside it.
+	if((x>=xPos && x<=xPos+wPos && y>yPos && y<yPos+hPos && mouse)||firstTimeThrough){
+		if(firstTimeThrough) firstTimeThrough = false;
+		// variables to step through array
+		int i, j, k;
+		
+		// steps through the array and sets the icons of each material
+		// varaibles for keeping track of were to put the icons
+		j = xPos + widthButton/2;
+		k = firstRow;
+		for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
+			if(j + widthButton < SCREEN_WIDTH){
+				// sets icons
+				matIcon[i].x = j;
+				matIcon[i].y = k;
+				// updates value for the next icon
+				j = j + (widthButton * rowSpacingMultiplier);
+			}
+			else{
+				// reduces i by 1 so that it doesn't skip a material
+				i--;
+				// resets j
+				j = xPos + widthButton/2;
+				// increases k for the next line
+				k = k + heightButton * columnSpacingMultiplier;
+			}
+		}
+		
+		// define rectangles
+		SDL_Rect guiRectangle;
+		SDL_Rect selectionBox;
+		
+		// main window
+		guiRectangle.x = 0;
+		guiRectangle.y = 0;
+		guiRectangle.w = wPos;
+		guiRectangle.h = hPos;
+		SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , 0x181818);
+		
+		// box under text color
+		guiRectangle.x = 0;
+		guiRectangle.y = 0;
+		guiRectangle.w = 200;
+		guiRectangle.h = 50;
+		SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[currentMat].color);
+		
+		// decide what color the materials name will be: black or white based on the brightness of the color of the material.
+		SDL_Color matNameColor;
+		// this gets some kind of average brightness of the material color
+		unsigned short matBrightness = ( (mats[currentMat].color&0xFF0000)/0x10000 + (mats[currentMat].color&0xFF00)/0x100 + (mats[currentMat].color&0xFF) )/3;
+		// if the material is bright, make the text black.
+		if(matBrightness > 0x7F)
+			matNameColor.r = matNameColor.g = matNameColor.b = 0x00;
+		//if the material is dark, make the text white
+		else
+			matNameColor.r = matNameColor.g = matNameColor.b = 0xFF;
+		// prints names of material
+		text = TTF_RenderText_Blended( font, mats[currentMat].name , matNameColor );
+		// apply text to tempGuiScreen
+		apply_surface( 10, 4, text, /*screen*/tempGuiScreen );
+		SDL_FreeSurface( text );
+		
+		// selection box
+		selectionBox.x = xSel - xPos;
+		selectionBox.y = ySel - yPos;
+		selectionBox.w = wSel;
+		selectionBox.h = hSel;
+		SDL_FillRect( /*screen*/tempGuiScreen , &selectionBox , 0xffffff);
+		
+		// prints a rectangle for each material icon
+		for( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
+			if(mats[i].name == NULL) {continue;}
+			guiRectangle.x = matIcon[i].x - xPos;
+			guiRectangle.y = matIcon[i].y - yPos;
+			guiRectangle.w = widthButton;
+			guiRectangle.h = heightButton;
+			SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[i].color);
+		}
+		
+		// checks for mouse clicks over material icons
+		for ( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
 
-    //main window
-	guiRectangle.x = xPos;
-	guiRectangle.y = yPos;
-	guiRectangle.w = wPos;
-	guiRectangle.h = hPos;
-    SDL_FillRect( screen , &guiRectangle , 0x181818);
-    
-    //box under text color
-    guiRectangle.x = SCREEN_WIDTH - 200;
-	guiRectangle.y = 0;
-	guiRectangle.w = 200;
-	guiRectangle.h = 50;
-    SDL_FillRect( screen , &guiRectangle , mats[currentMat].color);
-    
-    //apply text to screen
-    apply_surface( xPos+10, 4, text, screen );
-    SDL_FreeSurface( text );
-
-    //selection box
-    selectionBox.x = xSel;
-	selectionBox.y = ySel;
-	selectionBox.w = wSel;
-	selectionBox.h = hSel;
-    SDL_FillRect( screen , &selectionBox , 0xffffff);
-    
-    //prints a rectangle for each material icon
-    for( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
-        if(mats[i].name == NULL) {continue;}
-        guiRectangle.x = matIcon[i].x;
-        guiRectangle.y = matIcon[i].y;
-        guiRectangle.w = widthButton;
-        guiRectangle.h = heightButton;
-        SDL_FillRect( screen , &guiRectangle , mats[i].color);
-    }
-    
-    //checks for mouse clicks over material icons
-    for ( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
-
-        if( ( x > matIcon[i].x ) && ( x < matIcon[i].x + widthButton ) && ( y > matIcon[i].y ) && ( y < matIcon[i].y + heightButton ) )
-        {
-            if(mouse == 1)
-            {
-                if(mats[i].name == NULL) {continue;}
-                //changes material
-                currentMat = i;
-                //changes selection box to be under current material
-                xSel = matIcon[i].x - selectionBoxSize, ySel = matIcon[i].y - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
-            }
-        }
-    }
+			if( ( x > matIcon[i].x ) && ( x < matIcon[i].x + widthButton ) && ( y > matIcon[i].y ) && ( y < matIcon[i].y + heightButton ) )
+			{
+				if(mouse == 1)
+				{
+					if(mats[i].name == NULL) {continue;}
+					// changes material
+					currentMat = i;
+					// changes selection box to be under current material
+					xSel = matIcon[i].x - selectionBoxSize, ySel = matIcon[i].y - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
+				}
+			}
+		}
+	}
+	apply_surface(xPos,yPos, tempGuiScreen, screen);
 }
 
 #define MAX_BRUSHES 7

@@ -8,6 +8,13 @@ bool *generate_near_by_cell_test_vector(unsigned short);
 void evaluate_affectMaterial(unsigned short, unsigned short, struct affectMaterial *);
 void reset_grid_changes();
 
+//these are definitions for use with the gravity evaluation code in part 1 of the evaluate grid function.
+#define SLOPE_NONE   0
+#define SLOPE_RIGHT  1
+#define SLOPE_LEFT   2
+#define SLOPE_EITHER 3
+
+
 // this will evaluate the grid. It will run a simulation for the number of generations you tell it to.
 void evaluate_grid(){
 	/// 0. VARIABLES - this is where all the variables used heavily in the loops are declared.
@@ -24,14 +31,15 @@ void evaluate_grid(){
 	
 	
 	
-	
+	/// OLD GRAVITY
+	/*
 	/// 1. GRAVITY - this is where the gravity gets CHECKED and APPLIED.
 	for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
 		for(i=0 ; i<GRID_WIDTH ; i++){
 
 			// if gravity affects this material...
 			if(mats[grid[i][j].mat].gravity){
-				//dissapears through the bottom
+				// dissapears through the bottom
 				if(j >= GRID_HEIGHT-1){ // if the gravity material is at the bottom of the screen, get rid of it.
 					grid[i][j].mat = m_air;
 				}
@@ -40,7 +48,6 @@ void evaluate_grid(){
 					grid[i][j+1].mat = grid[i][j].mat;
 					grid[i][j].mat = m_air;
 				}
-				
 				// if the material could EITHER fall to the LEFT or the RIGHT
 				else if( i>0 && grid[i-1][j].mat == m_air && grid[i-1][j+1].mat == m_air   &&   i<GRID_WIDTH-1 && grid[i+1][j].mat == m_air && grid[i+1][j+1].mat == m_air ){
 					// randomly choose whether to...
@@ -63,11 +70,103 @@ void evaluate_grid(){
 					grid[i+1][j+1].mat = grid[i][j].mat; // go to the right.
 					grid[i][j].mat = m_air;
 				}
-			}
-		}
-	}
+			} // if gravity
+		} // for columns
+	} // for rows
+	*/
 	
 	
+	/* variables used in Gravity:
+	 * j			: used to index through the rows
+	 * i			: used to index through the columns
+	 * jg			: used to index through the rows when checking positive gravity (slopes with magnitude greater than 1)
+	 * ig			: used to index through the columns when checking negtive gravity (slopes with magnitude less than 1)
+	 * matGrav		: used to temporarily store the gravity value of the material
+	 * validSlope	: used to determine if the slope is valid.
+					:	SLOPE_NONE   = 0 = no slope to fall down.
+					:	SLOPE_RIGHT  = 1 = the material can fall down the right side of the slope
+					:	SLOPE_LEFT   = 2 = the material can fall down the  left side of the slope
+					:	SLOPE_EITHER = 3 = the material can fall down    either side of the slope ( this is SLOPE_RIGHT | SLOPE_LEFT ) the bitwise OR operator.
+	*/
+	int currentMat;
+	char currentGrav;
+	char jg, ig;
+	char validSlope;
+	char invalidSlope;
+	
+	/// 1. NEW GRAVITY
+	for(j=GRID_HEIGHT-1; j>=0; j--){ // cycle through the rows
+		for(i=0; i<GRID_WIDTH; i++){ // cycle through each column for a single row
+			
+			// temporarily store the values of the gravity and material for the current cell
+			currentMat = grid[i][j].mat;
+			currentGrav = mats[currentMat].gravity;
+			
+			// if gravity affects this material
+			if(currentGrav){
+				// material falls out of the bottom of the screen
+				if(j >= GRID_HEIGHT-1){
+					grid[i][j].mat = m_air;
+				}
+				// material falls a single cell
+				else if(grid[i][j+1].mat == m_air){
+					grid[i][j+1].mat = currentMat;
+					grid[i][j].mat = m_air;
+				}
+				// the material cannot fall directly down. it has to fall down a slope.
+				else if(grid[i+1][j].mat == m_air || grid[i-1][j].mat == m_air){
+					// set the validity of the slope to none as default.
+					validSlope = SLOPE_NONE;
+					invalidSlope = SLOPE_NONE;
+					// the minimum slope that the material can fall down is a 1/1 or steeper
+					if(currentGrav > 0){
+						
+					}
+					// the minimum slope that the material can fall down is a 1/1 or less steeper
+					else{
+						for(ig=1; (-ig>=currentGrav); ig++){
+							// if the material can fall to the right and has not yet been shown to be an invalid path
+							if( (i+ig<GRID_WIDTH) && (grid[i+ig][j].mat==m_air)  &&  !(invalidSlope&SLOPE_RIGHT) ){
+								if(grid[i+ig][j+1].mat == m_air)
+									validSlope |= SLOPE_RIGHT;
+							}
+							else invalidSlope |= SLOPE_RIGHT;
+							// if the material can fall to the left and has not yet been shown to be an invalid path
+							if( (i-ig>=0) && (grid[i-ig][j].mat==m_air)  &&  !(invalidSlope&SLOPE_LEFT) ){
+								if(grid[i-ig][j+1].mat == m_air)
+									validSlope |= SLOPE_LEFT;
+							}
+							else invalidSlope |= SLOPE_LEFT;
+							if(invalidSlope == SLOPE_EITHER)		//if the slope is invalid in both directions, quit trying to evaluate the slope.
+								break;
+							if(validSlope == SLOPE_RIGHT){			//if the material has a valid slope on the right
+								grid[i][j].mat = m_air; 				// remove the material from its current location
+								grid[i+ig][j+1].mat = currentMat; 		// place the material in its new location to the right
+								break;
+							}
+							else if(validSlope == SLOPE_LEFT){		//if the material has a valid slope on the left
+								grid[i][j].mat = m_air; 				// remove the material from its current location
+								grid[i-ig][j+1].mat = currentMat; 		// place the material in its new location to the left
+								break;
+							}
+							else if(validSlope == SLOPE_EITHER){	//if the material has a valid slope on either side
+								if(get_rand(0,1)){					// goes to the right
+									grid[i][j].mat = m_air;
+									grid[i+ig][j+1].mat = currentMat;
+									break;
+								}
+								else{								// goes to the left
+									grid[i][j].mat = m_air;
+									grid[i-ig][j+1].mat = currentMat;
+									break;
+								}
+							}
+						}
+					}
+				}// if (checking cells around the material)
+			} // if gravity
+		} // for i
+	} // for j
 	
 	reset_grid_changes();
 	

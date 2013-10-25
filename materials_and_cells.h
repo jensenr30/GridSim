@@ -220,8 +220,23 @@ struct material {
 	//this is the type of material that the current material may decay into.
 	short decayIntoMat;
 
-	// 0 = no gravity. 1 = material is subject to gravity.
-	int gravity;
+	// 0 = no gravity. any other value means the object is subject to gravity.
+	// POSITIVE numbers 1,2,3,... make the material need a steep slope to fall down.
+	// for instance, if the material has a gravity of 2, that means the material must have an empty space two cells below it and one cell to the right or the left of it.
+	// so relative coordinates would be y-2, x+-1
+	//
+	// NEGATIVE numbers -1,-2,-3,... make the material need at minimum a more gradual slope to fall down.
+	// for instance, if the material has a gravity of -3, that means the material must have an empty space one cell beneath it and three blocks to the right or the left of it.
+	// the relative coordinates would be y-1 x+-3
+	//
+	// of course, these two examples represent the minimum slope the material must have.
+	// A material can travel down slopes that are steeper than it's minimum.
+	// interestingly, a gravity value of 1 and -1 behave the same way.
+	// it can help to mathematically think of the negative sign as instead the exponent of the gravity magnitude.
+	// when there is a negative value, it is actually a -1 in the exponent of the number.
+	// therefore, a gravity of -4 is actually a slope of 4^(-1) = 1/4.
+	// isn't math fun?
+	char gravity;
 
 	//material name
 	char *name;
@@ -359,7 +374,7 @@ void init_material_attributes(void){
 	mats[m_grass].affectMat[1].chance[7] = 450;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";
-	mats[m_water].gravity = true;
+	mats[m_water].gravity = -32;
     mats[m_water].color = 0x158ad4;
     
     mats[m_water].affectMat[0].matBefore = m_fire;
@@ -571,7 +586,7 @@ void init_material_attributes(void){
 	set_chance(mats[m_tree_branch_end].affectMat[2].chance, 30); // instantly changes into end leaves.
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_sand].name = "Sand";
-	mats[m_sand].gravity = 1;
+	mats[m_sand].gravity = -2;
 	mats[m_sand].color = 0xcfc1aa;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_mud].name = "Mud";

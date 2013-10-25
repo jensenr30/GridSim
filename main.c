@@ -28,7 +28,7 @@ int main( int argc, char* args[] )
     init_cell_stuff();
 
 
-	int i,j;
+	int i;
 ///-------------------------------------
  //putting test materials into grid
     

@@ -57,10 +57,11 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define m_tree_base		5
 #define m_smoke			6
 
-#define m_test			7
-#define m_test2			8
+#define m_test			30
+#define m_test2			31
 
-#define m_rock			11
+#define m_rock			10
+#define m_bedrock		11
 #define m_spring		12
 #define m_sand			13
 #define m_mud			14
@@ -300,9 +301,9 @@ void init_material_attributes(void){
 	// I don't need to specify anything for air because air doesn't do anything.
 	// all of the elements of the mats[m_air] structure are initialized in the set_default_material_attributes() function.
 	mats[m_air].name = "Air";
-	//DON'T YOU DARE CHANGE ANYTHING ABOUT AIR!
+	///DON'T YOU DARE CHANGE ANYTHING ABOUT AIR! you SACK of SHIT!
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_smoke].name = "Smoke";
+	//mats[m_smoke].name = "Smoke";
 	mats[m_smoke].color = 0xa3a3a3;
 	
 	mats[m_smoke].affectMat[0].matBefore = m_air;  /// smoke wafts upwards
@@ -399,39 +400,25 @@ void init_material_attributes(void){
 	mats[m_fire].decayIntoMat = m_air;
     mats[m_fire].color = 0xd83313;
 	mats[m_fire].decayChance = 2500;
-	
+	/*
 	mats[m_fire].affectMat[0].matBefore = m_air;		/// fire makes smoke
 	mats[m_fire].affectMat[0].matAfter  = m_smoke;
 	mats[m_fire].affectMat[0].chance[0] =  100;
 	mats[m_fire].affectMat[0].chance[1] = 1000;
 	mats[m_fire].affectMat[0].chance[2] =  100;
+	*/
 //-------------------------------------------------------------------------------------------------------------------------------
-	//mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
+	mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[m_test].color = 0xccff00;
-	mats[m_test].affectMat[0].chance[1] = 100000;
-	mats[m_test].affectMat[0].matBefore = m_air;
-	mats[m_test].affectMat[0].matAfter  = m_test2;
-	mats[m_test].affectMat[0].satAfter  = m_rock;
+	mats[m_test].gravity = 1;
 //-------------------------------------------------------------------------------------------------------------------------------
-	//mats[m_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
+	mats[m_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[m_test2].color = 0x00ffcc;
-	
-	mats[m_test2].satEffect[0].satMat = m_rock; /// saturated by earth
-	mats[m_test2].satEffect[0].satMem = true;
-	mats[m_test2].satEffect[0].absorb = true;
-	set_chance( mats[m_test2].satEffect[0].chance, 100000);
-	
-	mats[m_test2].affectMat[0].matBefore = m_air;
-	mats[m_test2].affectMat[0].matAfter  = m_test2;
-	mats[m_test2].affectMat[0].satAfter  = m_rock;
-	mats[m_test2].affectMat[0].satNeeded = m_rock;
-	mats[m_test2].affectMat[0].changeOrigMat = m_air;
-	mats[m_test2].affectMat[0].changeOrigSat = m_no_saturation;
-	mats[m_test2].affectMat[0].changesPerEval = 1;
-	set_chance(mats[m_test2].affectMat[0].chance, 100000);
+	mats[m_test2].gravity = 2;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_rock].name = "Rock";
 	mats[m_rock].color = 0x5a5651;
+	mats[m_rock].gravity = 3;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_tree_base].name = "Tree";	/// this is the start of the tree. this is what you palce and watch a tree grow.
 	mats[m_tree_base].color = 0x7b5126;
@@ -590,7 +577,7 @@ void init_material_attributes(void){
 	mats[m_sand].color = 0xcfc1aa;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_mud].name = "Mud";
-	mats[m_mud].gravity = true;
+	mats[m_mud].gravity = -3;
 	mats[m_mud].color = 0x644310;
 	mats[m_mud].satEffect[0].absorb = 1;
 	mats[m_mud].satEffect[0].satMat = m_water;
@@ -699,7 +686,7 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	//mats[m_dead_scurge].name = NULL;		
 	mats[m_dead_scurge].color = 0xa00b0b;
-	mats[m_dead_scurge].gravity = true;			///dead scurge falls. that's really it...
+	mats[m_dead_scurge].gravity = 2;			///dead scurge falls. that's really it...
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_bottom_feeder].name = "Bottom Feeder";
 	mats[m_bottom_feeder].color = 0xff6400;
@@ -730,7 +717,8 @@ void init_material_attributes(void){
 	mats[m_bottom_feeder].affectMat[4].changeOrigMat = m_air;
 	
 //-------------------------------------------------------------------------------------------------------------------------------
-	
+	mats[m_bedrock].color = 0x2f2614;
+	mats[m_bedrock].name  = "Bedrock";
 //-------------------------------------------------------------------------------------------------------------------------------
 	
 //-------------------------------------------------------------------------------------------------------------------------------

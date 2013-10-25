@@ -87,7 +87,9 @@ void evaluate_grid(){
 					:	SLOPE_RIGHT  = 1 = the material can fall down the right side of the slope
 					:	SLOPE_LEFT   = 2 = the material can fall down the  left side of the slope
 					:	SLOPE_EITHER = 3 = the material can fall down    either side of the slope ( this is SLOPE_RIGHT | SLOPE_LEFT ) the bitwise OR operator.
-	 * holdOff		: this is used to stop 
+	 * holdOff		: this is used to regulate the falling of materials that have a negative gravity (materials that fall down gradual slopes)
+	 * moveRight	: this is used as a flag for positive gravity.
+	 * moveLeft		:                   ''
 	*/
 	int currentMat;
 	char currentGrav;
@@ -95,6 +97,8 @@ void evaluate_grid(){
 	char validSlope;
 	char invalidSlope;
 	char holdOff = 0;
+	char moveRight;
+	char moveLeft;
 	
 	/// 1. NEW GRAVITY
 	for(j=GRID_HEIGHT-1; j>=0; j--){ // cycle through the rows
@@ -125,7 +129,30 @@ void evaluate_grid(){
 					invalidSlope = SLOPE_NONE;
 					// the minimum slope that the material can fall down is a 1/1 or steeper
 					if(currentGrav > 0){
-						
+						// initially set them both to 1. the for() loop will weed out the one(s) that won't work.
+						if(grid[i+1][j].mat == m_air)moveRight = 1;
+						else moveRight = 0;
+						if(grid[i-1][j].mat == m_air)moveLeft  = 1;
+						else moveLeft = 0;
+						// figure out
+						for(jg=1; jg<=currentGrav; jg++){
+							// if there is an obstruction in the path of the material falling down the slope, then set one of them to zero and break;
+							if(grid[i-1][j+jg].mat != m_air) moveLeft = 0;
+							if(grid[i+1][j+jg].mat != m_air) moveRight= 0;
+						}
+						// this selects either the right or the left direction
+						if(moveLeft && moveRight){
+							if(get_rand(0,1)) moveLeft = 0;
+							else moveRight = 0;
+						}
+						if(moveLeft){
+							grid[i][j].mat = m_air; // remove the material
+							if(i!=0) grid[i-1][j+currentGrav].mat = currentMat; // place the new material only if it is in a valid place
+						}
+						else if(moveRight){
+							grid[i][j].mat = m_air; // remove the material
+							if(i<GRID_WIDTH-1) grid[i+1][j+currentGrav].mat = currentMat; // place new material only if it is in a valid place
+						}
 					}
 					// the minimum slope that the material can fall down is a 1/1 or less steeper
 					else{

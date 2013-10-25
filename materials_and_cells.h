@@ -340,26 +340,28 @@ void init_material_attributes(void){
     
     
     /*
-	mats[m_plant].satEffect[0].decaySatGTE = 5;		/// plant can be over crowded
-	mats[m_plant].satEffect[0].satMat = m_plant;
-	set_chance(mats[m_plant].satEffect[0].chance, 100000);
-	mats[m_plant].satEffect[0].decayChance = 3500;
-	mats[m_plant].satEffect[0].decayIntoMat = m_air;
+	mats[m_plant].satEffect[1].decaySatGTE = 7;		/// plant can be over crowded
+	mats[m_plant].satEffect[1].satMat = m_plant;
+	set_chance(mats[m_plant].satEffect[1].chance, 100000);
+	mats[m_plant].satEffect[1].decayChance = 3500;
+	mats[m_plant].satEffect[1].decayIntoMat = m_air;
+	mats[m_plant].satEffect[1].decayIntoSat = m_no_saturation;
 	*/
 	/*
 	mats[m_plant].satEffect[1].satMat = m_earth;
 	set_chance(mats[m_plant].satEffect[1].chance, 100000);
 	*/
-	mats[m_plant].satEffect[2].satMat = m_water;
-	set_chance(mats[m_plant].satEffect[2].chance, 800);
-	mats[m_plant].satEffect[2].absorb = 1;
-	/*
-	mats[m_plant].satEffect[3].satMat = m_fire;		/// plant startrs to burn when it is next to fire
+	mats[m_plant].satEffect[0].satMat = m_water;
+	set_chance(mats[m_plant].satEffect[0].chance, 800);
+	mats[m_plant].satEffect[0].absorb = true;
+	
+	mats[m_plant].satEffect[3].satMat = m_fire;		/// plant starts to burn when it is next to fire
     mats[m_plant].satEffect[3].absorb = true;
-    mats[m_plant].satEffect[3].satMem = true;
     set_chance(mats[m_plant].satEffect[3].chance, 97000);
     mats[m_plant].satEffect[3].decayChance = 4000;
     mats[m_plant].satEffect[3].decayIntoMat = m_fire;
+    
+    /*
     mats[m_plant].affectMat[0].matBefore = m_water; /// plant grows into water
 	mats[m_plant].affectMat[0].matAfter  = m_plant;
 	mats[m_plant].affectMat[0].chance[0] = 1000;
@@ -370,7 +372,7 @@ void init_material_attributes(void){
 	mats[m_plant].affectMat[0].chance[5] = 1000;
 	mats[m_plant].affectMat[0].chance[6] = 1000;
 	mats[m_plant].affectMat[0].chance[7] = 1000;
-	
+	*/
 	mats[m_plant].affectMat[1].matBefore = m_mud; /// plant grows plant_roots into into mud
 	mats[m_plant].affectMat[1].matAfter  = m_plant_root;
 	mats[m_plant].affectMat[1].chance[0] = 100;
@@ -388,14 +390,14 @@ void init_material_attributes(void){
     mats[m_plant].affectMat[2].chance[0] = 100000;
     mats[m_plant].affectMat[2].satNeeded = m_fire;
     mats[m_plant].affectMat[2].changesPerEval = 1;
-    */
+    
     
     mats[m_plant].affectMat[3].satNeeded = m_water;			/// wet plants may grow more plant at the cost of their water saturation
     mats[m_plant].affectMat[3].changeOrigSat = m_no_saturation;
     mats[m_plant].affectMat[3].matBefore = m_air;
     mats[m_plant].affectMat[3].matAfter = m_plant;
     mats[m_plant].affectMat[3].changesPerEval = 1;
-    set_chance(mats[m_plant].affectMat[3].chance, 2000);
+    set_chance(mats[m_plant].affectMat[3].chance, 2500);
     
     mats[m_plant].affectMat[4].satNeeded = m_water;			/// wet plants may push their water saturation around
     mats[m_plant].affectMat[4].changeOrigSat = m_no_saturation;
@@ -403,7 +405,7 @@ void init_material_attributes(void){
     mats[m_plant].affectMat[4].satBefore = m_no_saturation;
     mats[m_plant].affectMat[4].satAfter  = m_water;
     mats[m_plant].affectMat[4].changesPerEval = 1;
-    set_chance( mats[m_plant].affectMat[4].chance, 8000);
+    set_chance( mats[m_plant].affectMat[4].chance, 6000);
 	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";

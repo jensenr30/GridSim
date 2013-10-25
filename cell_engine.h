@@ -243,20 +243,24 @@ void evaluate_grid(){
 	// c		  :	used to indicate which cell around our cell is being evaluated.
 	short cMat;
 	unsigned short matIndex, satEffIndex, newi, newj;
+	bool firstEncounter;
 	
 	/// 2.1 EVALUATE SATURATION - the giant ass loop where the saturation is evaluated
-	for(matIndex=0; matIndex<numberOfSatableMats ; matIndex++){ // go through every type of material that can be saturated and ONLY the types of materials that can be saturated.
+	// go through ONLY the types of materials that can be saturated.
+	for(matIndex=0; matIndex<numberOfSatableMats ; matIndex++){
 			
 		cMat = matSatOrder[matIndex]; // get correct material
 		
-		for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
+		for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
+			for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
+				
+				//go through each saturation effect of the material
+				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
 					
-			// if there is no saturation effect at the satEffIndex-th saturation effect, then there aren't any more by definition.
-			//break out of this look and move on the the next material that may have saturation effects.
-			if(mats[cMat].satEffect[satEffIndex].satMat == m_no_saturation) continue;
-		
-			for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
-				for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
+					firstEncounter = 1;
+					
+					// if there is no effect, skip ahead to the next saturation effect.
+					if(mats[cMat].satEffect[satEffIndex].satMat == m_no_saturation) continue;
 					
 					//make sure the current cell has the current material, cMat, in it!! if not, continue;
 					if(cMat != grid[i][j].mat) continue;
@@ -268,12 +272,14 @@ void evaluate_grid(){
 						// it needs to be saturated each cycle of evaluate_grid() when there is no memory.
 						grid[i][j].satChange = m_no_saturation;
 					}
+					/*
 					else{ // if there is saturation memory
 						// there is no change in the saturation level.
 						grid[i][j].satLevelChange = m_no_change;
 						// there is no change in the saturation
 						grid[i][j].satChange = m_no_change;
 					}
+					*/
 						
 					//for every cell around our cell [i][j], evaluate whether or not it gets saturated
 					//  	0 1 2
@@ -309,12 +315,14 @@ void evaluate_grid(){
 								grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
 								// absorbs the material if required. it only absorbs if it isn't already saturated.
 								if(grid[i][j].sat != grid[newi][newj].mat && mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = m_air;
+								// increment the satLevel if needed.
+								if(firstEncounter){
+									grid[i][j].satLevelChange = 1;
+									firstEncounter = 0;
+								}
+								else
+									grid[i][j].satLevelChange++;
 							}
-							// increment the satLevel if needed.
-							if(grid[i][j].satLevelChange == m_no_change)
-								grid[i][j].satLevelChange=1;
-							else
-								grid[i][j].satLevelChange++;
 						}
 					}
 				}

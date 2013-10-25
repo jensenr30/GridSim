@@ -38,7 +38,7 @@ int main( int argc, char* args[] )
 ///-------------------------------------
  //putting test materials into grid
     
-    for(i=0; i<20; i++) grid[i+10][23].mat = m_rock;
+    for(i=0; i<20; i++) grid[i+10][23].mat = m_bedrock;
     
     /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){

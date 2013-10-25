@@ -104,11 +104,19 @@ void evaluate_grid(){
 	for(j=GRID_HEIGHT-1; j>=0; j--){ // cycle through the rows
 		for(i=0; i<GRID_WIDTH; i++){ // cycle through each column for a single row
 			
+			//this resets the holdOff if there is a gap between the gravity material
+			if(grid[i][j].mat == m_air && grid[i][j+1].mat == m_air){
+				holdOff = 0;
+				continue;
+			}
+			
 			// temporarily store the values of the gravity and material for the current cell
 			currentMat = grid[i][j].mat;
 			currentGrav = mats[currentMat].gravity;
+			
 			//this decrements the holdOff mechanism. it acts as a way to police excessive material motion.
 			if(holdOff)holdOff--;
+			
 			// if gravity affects this material
 			if(currentGrav){
 				
@@ -180,7 +188,7 @@ void evaluate_grid(){
 							else if(validSlope == SLOPE_LEFT){		//if the material has a valid slope on the left
 								grid[i][j].mat = m_air; 				// remove the material from its current location
 								grid[i-ig][j+1].mat = currentMat; 		// place the material in its new location to the left
-								holdOff=2;
+								holdOff=currentGrav;
 								break;
 							}
 							else if(validSlope == SLOPE_EITHER){	//if the material has a valid slope on either side
@@ -192,7 +200,7 @@ void evaluate_grid(){
 								else{								// goes to the left
 									grid[i][j].mat = m_air;
 									grid[i-ig][j+1].mat = currentMat;
-									holdOff=2;
+									holdOff=currentGrav;
 									break;
 								}
 							}

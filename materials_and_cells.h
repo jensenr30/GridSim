@@ -8,7 +8,7 @@
 
 
 // this is how big each square cell is
-int CELL_SIZE = 4;
+int CELL_SIZE = 16;
 
 // this is how large the cell grid is.
 #define GRID_WIDTH SCREEN_WIDTH/CELL_SIZE

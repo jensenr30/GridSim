@@ -87,12 +87,14 @@ void evaluate_grid(){
 					:	SLOPE_RIGHT  = 1 = the material can fall down the right side of the slope
 					:	SLOPE_LEFT   = 2 = the material can fall down the  left side of the slope
 					:	SLOPE_EITHER = 3 = the material can fall down    either side of the slope ( this is SLOPE_RIGHT | SLOPE_LEFT ) the bitwise OR operator.
+	 * holdOff		: this is used to stop 
 	*/
 	int currentMat;
 	char currentGrav;
 	char jg, ig;
 	char validSlope;
 	char invalidSlope;
+	char holdOff = 0;
 	
 	/// 1. NEW GRAVITY
 	for(j=GRID_HEIGHT-1; j>=0; j--){ // cycle through the rows
@@ -101,9 +103,11 @@ void evaluate_grid(){
 			// temporarily store the values of the gravity and material for the current cell
 			currentMat = grid[i][j].mat;
 			currentGrav = mats[currentMat].gravity;
-			
+			//this decrements the holdOff mechanism. it acts as a way to police excessive material motion.
+			if(holdOff)holdOff--;
 			// if gravity affects this material
 			if(currentGrav){
+				
 				// material falls out of the bottom of the screen
 				if(j >= GRID_HEIGHT-1){
 					grid[i][j].mat = m_air;
@@ -112,6 +116,7 @@ void evaluate_grid(){
 				else if(grid[i][j+1].mat == m_air){
 					grid[i][j+1].mat = currentMat;
 					grid[i][j].mat = m_air;
+					holdOff = 2;
 				}
 				// the material cannot fall directly down. it has to fall down a slope.
 				else if(grid[i+1][j].mat == m_air || grid[i-1][j].mat == m_air){
@@ -132,13 +137,14 @@ void evaluate_grid(){
 							}
 							else invalidSlope |= SLOPE_RIGHT;
 							// if the material can fall to the left and has not yet been shown to be an invalid path
-							if( (i-ig>=0) && (grid[i-ig][j].mat==m_air)  &&  !(invalidSlope&SLOPE_LEFT) ){
+							if( !(holdOff) && (i-ig>=0) && (grid[i-ig][j].mat==m_air)  &&  !(invalidSlope&SLOPE_LEFT) ){
 								if(grid[i-ig][j+1].mat == m_air)
 									validSlope |= SLOPE_LEFT;
 							}
 							else invalidSlope |= SLOPE_LEFT;
-							if(invalidSlope == SLOPE_EITHER)		//if the slope is invalid in both directions, quit trying to evaluate the slope.
+							if(invalidSlope == SLOPE_EITHER){		//if the slope is invalid in both directions, quit trying to evaluate the slope.
 								break;
+							}
 							if(validSlope == SLOPE_RIGHT){			//if the material has a valid slope on the right
 								grid[i][j].mat = m_air; 				// remove the material from its current location
 								grid[i+ig][j+1].mat = currentMat; 		// place the material in its new location to the right
@@ -147,6 +153,7 @@ void evaluate_grid(){
 							else if(validSlope == SLOPE_LEFT){		//if the material has a valid slope on the left
 								grid[i][j].mat = m_air; 				// remove the material from its current location
 								grid[i-ig][j+1].mat = currentMat; 		// place the material in its new location to the left
+								holdOff=2;
 								break;
 							}
 							else if(validSlope == SLOPE_EITHER){	//if the material has a valid slope on either side
@@ -158,6 +165,7 @@ void evaluate_grid(){
 								else{								// goes to the left
 									grid[i][j].mat = m_air;
 									grid[i-ig][j+1].mat = currentMat;
+									holdOff=2;
 									break;
 								}
 							}

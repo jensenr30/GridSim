@@ -32,13 +32,16 @@ int main( int argc, char* args[] )
 ///-------------------------------------
  //putting test materials into grid
     
+    for(i=0; i<20; i++) grid[i+10][23].mat = m_rock;
+    
+    /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){
 		for(j=26 ; j<GRID_HEIGHT ; j+=20){
 			grid[i][j].mat = m_anti_scurge;
 		}
     }
-    
-    sleepTime = 0;
+    */
+    sleepTime = 256;
  //--------------------------------------
 	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
 	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_grass;

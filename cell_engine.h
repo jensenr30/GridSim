@@ -123,11 +123,15 @@ void evaluate_grid(){
 				// material falls out of the bottom of the screen
 				if(j >= GRID_HEIGHT-1){
 					grid[i][j].mat = m_air;
+					grid[i][j].sat = m_no_saturation; // remove saturaiton of material once it falls out of the screen.
 				}
 				// material falls a single cell
 				else if(grid[i][j+1].mat == m_air){
 					grid[i][j+1].mat = currentMat;
 					grid[i][j].mat = m_air;
+					//transfer saturation
+					grid[i][j+1].sat = grid[i][j].sat;
+					grid[i][j].sat = m_no_saturation;
 					holdOff = 2;
 				}
 				// the material cannot fall directly down. it has to fall down a slope.
@@ -155,11 +159,20 @@ void evaluate_grid(){
 						}
 						if(moveLeft){
 							grid[i][j].mat = m_air; // remove the material
-							if(i!=0) grid[i-1][j+currentGrav].mat = currentMat; // place the new material only if it is in a valid place
+							
+							if(i!=0){
+								grid[i-1][j+currentGrav].mat = currentMat; // place the new material only if it is in a valid place
+								grid[i-1][j+currentGrav].sat = grid[i][j].sat;
+							}
+							grid[i][j].sat = m_no_saturation; // remove saturation
 						}
 						else if(moveRight){
 							grid[i][j].mat = m_air; // remove the material
-							if(i<GRID_WIDTH-1) grid[i+1][j+currentGrav].mat = currentMat; // place new material only if it is in a valid place
+							if(i<GRID_WIDTH-1){
+								grid[i+1][j+currentGrav].mat = currentMat; // place new material only if it is in a valid place
+								grid[i+1][j+currentGrav].sat = grid[i][j].sat;
+							}
+							grid[i][j].sat = m_no_saturation;
 						}
 					}
 					// the minimum slope that the material can fall down is a 1/1 or less steeper
@@ -180,14 +193,18 @@ void evaluate_grid(){
 							if(invalidSlope == SLOPE_EITHER){		//if the slope is invalid in both directions, quit trying to evaluate the slope.
 								break;
 							}
-							if(validSlope == SLOPE_RIGHT){			//if the material has a valid slope on the right
+							if(validSlope == SLOPE_RIGHT){				//if the material has a valid slope on the right
 								grid[i][j].mat = m_air; 				// remove the material from its current location
 								grid[i+ig][j+1].mat = currentMat; 		// place the material in its new location to the right
+								grid[i+ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
+								grid[i][j].sat = m_no_saturation;		//remove old saturation
 								break;
 							}
 							else if(validSlope == SLOPE_LEFT){		//if the material has a valid slope on the left
 								grid[i][j].mat = m_air; 				// remove the material from its current location
 								grid[i-ig][j+1].mat = currentMat; 		// place the material in its new location to the left
+								grid[i-ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
+								grid[i][j].sat = m_no_saturation;		//remove old saturation
 								holdOff=currentGrav;
 								break;
 							}
@@ -195,11 +212,15 @@ void evaluate_grid(){
 								if(get_rand(0,1)){					// goes to the right
 									grid[i][j].mat = m_air;
 									grid[i+ig][j+1].mat = currentMat;
+									grid[i+ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
+									grid[i][j].sat = m_no_saturation;		//remove old saturation
 									break;
 								}
 								else{								// goes to the left
 									grid[i][j].mat = m_air;
 									grid[i-ig][j+1].mat = currentMat;
+									grid[i-ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
+									grid[i][j].sat = m_no_saturation;		//remove old saturation
 									holdOff=currentGrav;
 									break;
 								}
@@ -232,7 +253,7 @@ void evaluate_grid(){
 					
 			// if there is no saturation effect at the satEffIndex-th saturation effect, then there aren't any more by definition.
 			//break out of this look and move on the the next material that may have saturation effects.
-			if(mats[cMat].satEffect[satEffIndex].satMat == m_no_saturation) break;
+			if(mats[cMat].satEffect[satEffIndex].satMat == m_no_saturation) continue;
 		
 			for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
 				for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
@@ -307,7 +328,7 @@ void evaluate_grid(){
 	/// 2.2 SATURATION DECAY
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			if(grid[i][j].sat != -2){ // if there is a valid saturation here
+			if(grid[i][j].sat != m_no_saturation){ // if there is a valid saturation here
 				//store current material here for convenience
 				cMat = grid[i][j].mat;
 				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
@@ -524,20 +545,32 @@ void print_cells(){
 	myRectangle.y = 0;
 	myRectangle.w = SCREEN_WIDTH;
 	myRectangle.h = SCREEN_HEIGHT;
-	//INITIAL BLACK BACGROUND
+	// INITIAL BLACK BACKGROUND
 	SDL_FillRect( screen , &myRectangle , 0x000000);
 	
-	//constant cell sizes
+	// constant cell sizes
 	myRectangle.w = CELL_SIZE;
 	myRectangle.h = CELL_SIZE;
 	
+	// print the color of each material in each cell
     for(i = 0; i < GRID_WIDTH; i++){
         for(j = 0; j < GRID_HEIGHT; j++){
 			if(grid[i][j].mat == m_air) continue; // you don't need to print air. there is a black background being printed at the beginning of this print_cells() function.
-			
 			myRectangle.x = i*CELL_SIZE;
 			myRectangle.y = j*CELL_SIZE;
             SDL_FillRect( screen , &myRectangle , mats[grid[i][j].mat].color);
+        }
+    }
+    
+    myRectangle.w = CELL_SIZE/2;
+	myRectangle.h = CELL_SIZE/2;
+    // print the color of the saturations of each material in each cell
+    for(i = 0; i < GRID_WIDTH; i++){
+        for(j = 0; j < GRID_HEIGHT; j++){
+			if( grid[i][j].sat == m_no_saturation || grid[i][j].sat == m_air ) continue; // you don't need to print air. there is a black background being printed at the beginning of this print_cells() function.
+			myRectangle.x = i*CELL_SIZE + myRectangle.w/2;
+			myRectangle.y = j*CELL_SIZE + myRectangle.h/2;
+            SDL_FillRect( screen , &myRectangle , mats[grid[i][j].sat].color);
         }
     }
 }

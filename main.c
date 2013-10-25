@@ -24,7 +24,7 @@ int main( int argc, char* args[] )
     //Update the screen
     if( SDL_Flip( screen ) == -1 ) return 3;
 
-    //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to air
+    //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
     
     //this sets up some surfaces that the selection gui needs to run efficiently
@@ -32,14 +32,18 @@ int main( int argc, char* args[] )
 		MessageBox(NULL, "Couldn't Initialize selection gui surface: tempGuiScreen", "Error", MB_OK);
 		return -4;
     }
-
-
-	int i;
-///-------------------------------------
- //putting test materials into grid
     
-    for(i=0; i<20; i++) grid[i+10][23].mat = m_bedrock;
     
+
+	CELL_SIZE = 4;
+    sleepTime = 0;
+	int i,j;
+	//putting test materials into grid
+    
+    for(i=0; i<GRID_WIDTH; i++){
+		for(j=0; j<10; j++)
+		grid[i][GRID_HEIGHT-1-get_rand(0,4*j+12)].mat = m_bedrock;
+    }
     /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){
 		for(j=26 ; j<GRID_HEIGHT ; j+=20){
@@ -47,10 +51,10 @@ int main( int argc, char* args[] )
 		}
     }
     */
-    sleepTime = 256;
- //--------------------------------------
+    
+	//--------------------------------------
 	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
-	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_grass;
+	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
 
     //While the user hasn't quit
     while(1){

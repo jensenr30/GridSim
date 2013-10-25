@@ -106,6 +106,8 @@ int main( int argc, char* args[] )
 		
 		//checks if the mouse is held or not
         if(mouseStatusLeft == 1 && mouseModifier == 0){
+			//make sure the mouse isn't inside either of the two GUIs.
+			if(y >= 50 && x < SCREEN_WIDTH - 200)
             setcell(x, y, currentMat);
             }
 

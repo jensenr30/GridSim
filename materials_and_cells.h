@@ -696,20 +696,23 @@ void init_material_attributes(void){
 	mats[m_bottom_feeder].affectMat[1].matAfter  = m_bottom_feeder;
 	set_chance( &mats[m_bottom_feeder].affectMat[1].chance[0], 100000 );
 	mats[m_bottom_feeder].affectMat[1].changesPerEval = 8;
-	//mats[m_bottom_feeder].decayChance = 8000;
-	mats[m_bottom_feeder].affectMat[2].matBefore = m_air;				/// bottom feeders waltz around in search of food
-	mats[m_bottom_feeder].affectMat[2].matAfter = m_bottom_feeder;
-	mats[m_bottom_feeder].affectMat[2].changesPerEval = 1;
-	mats[m_bottom_feeder].affectMat[2].changeOrigMat = m_air;
-	set_chance(mats[m_bottom_feeder].affectMat[2].chance, 100000);
+	mats[m_bottom_feeder].affectMat[2].matBefore = m_dead_scurge;		/// bottom feeders also eat dead scurge
+	mats[m_bottom_feeder].affectMat[2].matAfter  = m_bottom_feeder;
+	set_chance( &mats[m_bottom_feeder].affectMat[2].chance[0], 2000 );
+	mats[m_bottom_feeder].affectMat[2].changesPerEval = 8;
+	mats[m_bottom_feeder].affectMat[3].matBefore = m_air;				/// bottom feeders waltz around in search of food
+	mats[m_bottom_feeder].affectMat[3].matAfter = m_bottom_feeder;
+	mats[m_bottom_feeder].affectMat[3].changesPerEval = 1;
+	mats[m_bottom_feeder].affectMat[3].changeOrigMat = m_air;
+	set_chance(mats[m_bottom_feeder].affectMat[3].chance, 100000);
 	mats[m_bottom_feeder].satEffect[0].satMat = m_air;					/// if bottom feeders are completely surrounded by air, then they have a chance of dying
 	set_chance(mats[m_bottom_feeder].satEffect[0].chance, 100000);
 	mats[m_bottom_feeder].satEffect[0].decaySatGTE = 8; // must be completely surrounded by air to decay
 	mats[m_bottom_feeder].satEffect[0].decayIntoMat = m_air;
 	mats[m_bottom_feeder].satEffect[0].decayChance = 1000;
-	mats[m_bottom_feeder].affectMat[3].matBefore = m_bottom_feeder;
-	mats[m_bottom_feeder].affectMat[3].matAfter  = m_air;
-	mats[m_bottom_feeder].affectMat[3].changeOrigMat = m_air;
+	mats[m_bottom_feeder].affectMat[4].matBefore = m_bottom_feeder;
+	mats[m_bottom_feeder].affectMat[4].matAfter  = m_air;
+	mats[m_bottom_feeder].affectMat[4].changeOrigMat = m_air;
 	
 //-------------------------------------------------------------------------------------------------------------------------------
 	

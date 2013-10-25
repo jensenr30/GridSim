@@ -1,3 +1,17 @@
+add a copy/cut/paste system.
+add a history system to undo and redo
+
+------------------------------------------------------------------------------------------------------
+
+make it so that when you press G, it makes ALL blocks (except ROCK) obey gravity. that way you can stack shit.
+
+------------------------------------------------------------------------------------------------------
+
+make it so that when you place materials, you don't replace others.
+e.g. when you place fire, it doesn't replace rock. it only gets placed in places where there is nothing (where there is air).
+
+------------------------------------------------------------------------------------------------------
+
 make a array of "cell" structures for the cell data.
 
 struct cell{
@@ -13,8 +27,8 @@ then change ALL OF THE PARTS IN THE CODE where it uses "cellData[][]" to this: "
 
 ------------------------------------------------------------------------------------------------------
 
-modify the print_cells to only print cells that have changed. get this data from the cellChanged[][] array in the evaluate_cells() function.
-
+PREFORMANCE INCREASE
+modify the print_cells to only print cells that have changed. i.e. only print the elements in the grid[][].matChanged that are NOT M_no_change
 
 ------------------------------------------------------------------------------------------------------
 
@@ -148,7 +162,7 @@ HIGH PRIORITY
 make it so mud can get saturated with water. that water is then passed to another mud/dirt block below it.
 in this way, water can saturate more than just the top of a pile of dirt.
  
- ------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
  
  HIGH priority
  
@@ -161,7 +175,7 @@ in this way, water can saturate more than just the top of a pile of dirt.
  
  make grass_roots grow grass 
  
- ------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
  
  HIGH PRIORITY
  
@@ -196,3 +210,14 @@ in this way, water can saturate more than just the top of a pile of dirt.
 	. . . . . . . .
 
 and so on in this order. each other cell size should similarly have the color of the saturating material only take up a quarter of the area (and be centered on the cell)
+
+------------------------------------------------------------------------------------------------------
+
+make the GRID_SIZE based on the gui width. that way we can achieve maximum efficiency. cells beneath the gui window(s) will not be evaluated.
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+

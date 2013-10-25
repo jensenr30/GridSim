@@ -33,6 +33,14 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Linker>
+			<Add option="-lcomdlg32" />
+			<Add option="-lmingw32" />
+			<Add option="-lSDLmain" />
+			<Add option="-lSDL" />
+			<Add option="-lSDL_image" />
+			<Add option="-lSDL_ttf" />
+		</Linker>
 		<Unit filename="cell_engine.h" />
 		<Unit filename="general_functions.h" />
 		<Unit filename="headers_and_globals.h" />

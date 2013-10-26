@@ -105,13 +105,13 @@ void evaluate_grid(){
 		for(i=0; i<GRID_WIDTH; i++){ // cycle through each column for a single row
 			
 			//this resets the holdOff if there is a gap between the gravity material
-			if(grid[i][j].mat == m_air && grid[i][j+1].mat == m_air){
+			if(grid[i+camera_x][j+camera_y].mat == m_air && grid[i+camera_x][j+1+camera_y].mat == m_air){
 				holdOff = 0;
 				continue;
 			}
 			
 			// temporarily store the values of the gravity and material for the current cell
-			currentMat = grid[i][j].mat;
+			currentMat = grid[i+camera_x][j+camera_y].mat;
 			currentGrav = mats[currentMat].gravity;
 			
 			//this decrements the holdOff mechanism. it acts as a way to police excessive material motion.
@@ -122,35 +122,35 @@ void evaluate_grid(){
 				
 				// material falls out of the bottom of the screen
 				if(j >= GRID_HEIGHT-1){
-					grid[i][j].mat = m_air;
-					grid[i][j].sat = m_no_saturation; // remove saturaiton of material once it falls out of the screen.
+					grid[i+camera_x][j+camera_y].mat = m_air;
+					grid[i+camera_x][j+camera_y].sat = m_no_saturation; // remove saturaiton of material once it falls out of the screen.
 				}
 				// material falls a single cell
-				else if(grid[i][j+1].mat == m_air){
-					grid[i][j+1].mat = currentMat;
-					grid[i][j].mat = m_air;
+				else if(grid[i+camera_x][j+1+camera_y].mat == m_air){
+					grid[i+camera_x][j+1+camera_y].mat = currentMat;
+					grid[i+camera_x][j+camera_y].mat = m_air;
 					//transfer saturation
-					grid[i][j+1].sat = grid[i][j].sat;
-					grid[i][j].sat = m_no_saturation;
+					grid[i+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;
+					grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 					holdOff = 2;
 				}
 				// the material cannot fall directly down. it has to fall down a slope.
-				else if(grid[i+1][j].mat == m_air || grid[i-1][j].mat == m_air){
+				else if(grid[i+1+camera_x][j+camera_y].mat == m_air || grid[i-1+camera_x][j+camera_y].mat == m_air){
 					// set the validity of the slope to none as default.
 					validSlope = SLOPE_NONE;
 					invalidSlope = SLOPE_NONE;
 					// the minimum slope that the material can fall down is a 1/1 or steeper
 					if(currentGrav > 0){
 						// initially set them both to 1. the for() loop will weed out the one(s) that won't work.
-						if(grid[i+1][j].mat == m_air)moveRight = 1;
+						if(grid[i+1+camera_x][j+camera_y].mat == m_air) moveRight = 1;
 						else moveRight = 0;
-						if(grid[i-1][j].mat == m_air)moveLeft  = 1;
+						if(grid[i-1+camera_x][j+camera_y].mat == m_air) moveLeft  = 1;
 						else moveLeft = 0;
 						// figure out
 						for(jg=1; jg<=currentGrav; jg++){
 							// if there is an obstruction in the path of the material falling down the slope, then set one of them to zero and break;
-							if(grid[i-1][j+jg].mat != m_air) moveLeft = 0;
-							if(grid[i+1][j+jg].mat != m_air) moveRight= 0;
+							if(grid[i-1+camera_x][j+jg+camera_y].mat != m_air) moveLeft = 0;
+							if(grid[i+1+camera_x][j+jg+camera_y].mat != m_air) moveRight= 0;
 						}
 						// this selects either the right or the left direction
 						if(moveLeft && moveRight){
@@ -158,35 +158,35 @@ void evaluate_grid(){
 							else moveRight = 0;
 						}
 						if(moveLeft){
-							grid[i][j].mat = m_air; // remove the material
+							grid[i+camera_x][j+camera_y].mat = m_air; // remove the material
 							
 							if(i!=0){
-								grid[i-1][j+currentGrav].mat = currentMat; // place the new material only if it is in a valid place
-								grid[i-1][j+currentGrav].sat = grid[i][j].sat;
+								grid[i-1+camera_x][j+currentGrav+camera_y].mat = currentMat; // place the new material only if it is in a valid place
+								grid[i-1+camera_x][j+currentGrav+camera_y].sat = grid[i+camera_x][j+camera_y].sat;
 							}
-							grid[i][j].sat = m_no_saturation; // remove saturation
+							grid[i+camera_x][j+camera_y].sat = m_no_saturation; // remove saturation
 						}
 						else if(moveRight){
-							grid[i][j].mat = m_air; // remove the material
+							grid[i+camera_x][j+camera_y].mat = m_air; // remove the material
 							if(i<GRID_WIDTH-1){
-								grid[i+1][j+currentGrav].mat = currentMat; // place new material only if it is in a valid place
-								grid[i+1][j+currentGrav].sat = grid[i][j].sat;
+								grid[i+1+camera_x][j+currentGrav+camera_y].mat = currentMat; // place new material only if it is in a valid place
+								grid[i+1+camera_x][j+currentGrav+camera_y].sat = grid[i+camera_x][j+camera_y].sat;
 							}
-							grid[i][j].sat = m_no_saturation;
+							grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 						}
 					}
 					// the minimum slope that the material can fall down is a 1/1 or less steeper
 					else{
 						for(ig=1; (-ig>=currentGrav); ig++){
 							// if the material can fall to the right and has not yet been shown to be an invalid path
-							if( (i+ig<GRID_WIDTH) && (grid[i+ig][j].mat==m_air)  &&  !(invalidSlope&SLOPE_RIGHT) ){
-								if(grid[i+ig][j+1].mat == m_air)
+							if( (i+ig<GRID_WIDTH) && (grid[i+ig+camera_x][j+camera_y].mat==m_air)  &&  !(invalidSlope&SLOPE_RIGHT) ){
+								if(grid[i+ig+camera_x][j+1+camera_y].mat == m_air)
 									validSlope |= SLOPE_RIGHT;
 							}
 							else invalidSlope |= SLOPE_RIGHT;
 							// if the material can fall to the left and has not yet been shown to be an invalid path
-							if( !(holdOff) && (i-ig>=0) && (grid[i-ig][j].mat==m_air)  &&  !(invalidSlope&SLOPE_LEFT) ){
-								if(grid[i-ig][j+1].mat == m_air)
+							if( !(holdOff) && (i-ig>=0) && (grid[i-ig+camera_x][j+camera_y].mat==m_air)  &&  !(invalidSlope&SLOPE_LEFT) ){
+								if(grid[i-ig+camera_x][j+1+camera_y].mat == m_air)
 									validSlope |= SLOPE_LEFT;
 							}
 							else invalidSlope |= SLOPE_LEFT;
@@ -194,33 +194,33 @@ void evaluate_grid(){
 								break;
 							}
 							if(validSlope == SLOPE_RIGHT){				//if the material has a valid slope on the right
-								grid[i][j].mat = m_air; 				// remove the material from its current location
-								grid[i+ig][j+1].mat = currentMat; 		// place the material in its new location to the right
-								grid[i+ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
-								grid[i][j].sat = m_no_saturation;		//remove old saturation
+								grid[i+camera_x][j+camera_y].mat = m_air; 				// remove the material from its current location
+								grid[i+ig+camera_x][j+1+camera_y].mat = currentMat; 		// place the material in its new location to the right
+								grid[i+ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+								grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 								break;
 							}
 							else if(validSlope == SLOPE_LEFT){		//if the material has a valid slope on the left
-								grid[i][j].mat = m_air; 				// remove the material from its current location
-								grid[i-ig][j+1].mat = currentMat; 		// place the material in its new location to the left
-								grid[i-ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
-								grid[i][j].sat = m_no_saturation;		//remove old saturation
+								grid[i+camera_x][j+camera_y].mat = m_air; 				// remove the material from its current location
+								grid[i-ig+camera_x][j+1+camera_y].mat = currentMat; 		// place the material in its new location to the left
+								grid[i-ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+								grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 								holdOff=currentGrav;
 								break;
 							}
 							else if(validSlope == SLOPE_EITHER){	//if the material has a valid slope on either side
 								if(get_rand(0,1)){					// goes to the right
-									grid[i][j].mat = m_air;
-									grid[i+ig][j+1].mat = currentMat;
-									grid[i+ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
-									grid[i][j].sat = m_no_saturation;		//remove old saturation
+									grid[i+camera_x][j+camera_y].mat = m_air;
+									grid[i+ig+camera_x][j+1+camera_y].mat = currentMat;
+									grid[i+ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+									grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 									break;
 								}
 								else{								// goes to the left
-									grid[i][j].mat = m_air;
-									grid[i-ig][j+1].mat = currentMat;
-									grid[i-ig][j+1].sat = grid[i][j].sat;	//copy saturation into new place
-									grid[i][j].sat = m_no_saturation;		//remove old saturation
+									grid[i+camera_x][j+camera_y].mat = m_air;
+									grid[i-ig+camera_x][j+1+camera_y].mat = currentMat;
+									grid[i-ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+									grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 									holdOff=currentGrav;
 									break;
 								}
@@ -566,16 +566,16 @@ void print_cells(){
     for(i = 0; i < GRID_WIDTH - wPos/CELL_SIZE; i++){
         for(j = 0; j < GRID_HEIGHT; j++){
         	//only print the material if it is not air
-			if(grid[i][j].mat != m_air){
+			if(grid[i+camera_x][j+camera_y].mat != m_air){
 				myRectangleMat.x = i*CELL_SIZE;
 				myRectangleMat.y = j*CELL_SIZE;
-				SDL_FillRect( screen , &myRectangleMat , mats[grid[i][j].mat].color);
+				SDL_FillRect( screen , &myRectangleMat , mats[grid[i+camera_x][j+camera_y].mat].color);
 			}
 			//only print valid saturations
-			if( grid[i][j].sat != m_no_saturation ){
+			if( grid[i+camera_x][j+camera_y].sat != m_no_saturation ){
 				myRectangleSat.x = i*CELL_SIZE + myRectangleSat.w/2;
 				myRectangleSat.y = j*CELL_SIZE + myRectangleSat.h/2;
-				SDL_FillRect( screen , &myRectangleSat , mats[grid[i][j].sat].color);
+				SDL_FillRect( screen , &myRectangleSat , mats[grid[i+camera_x][j+camera_y].sat].color);
 			}
         }
     }

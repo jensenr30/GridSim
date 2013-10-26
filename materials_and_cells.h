@@ -18,8 +18,8 @@ int CELL_SIZE = 16;
 #define MAX_GRID_HEIGHT 1080
 // these are to control the view of the world. the camera allows the user to pan.
 // these are measured in CELLS! NOT PIXELS!
-unsigned int camera_x = MAX_GRID_WIDTH;
-unsigned int camera_y = MAX_GRID_HEIGHT;
+int camera_x = MAX_GRID_WIDTH;
+int camera_y = MAX_GRID_HEIGHT;
 
 //this is how many different types of materials there can be in the game.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100 // the materials (i.e. m_earth, m_spring) can have values from 0-99
@@ -822,8 +822,8 @@ void init_material_attributes(void){
 void reset_cells(void){
 	int i; int j;
 
-	for(i=0 ; i<GRID_WIDTH*CELL_SIZE ; i++){
-		for(j=0 ; j<GRID_HEIGHT*CELL_SIZE ; j++){
+	for(i=0 ; i<MAX_GRID_WIDTH ; i++){
+		for(j=0 ; j<MAX_GRID_HEIGHT ; j++){
 			grid[i][j].mat = m_air;
 			grid[i][j].sat  = m_no_saturation;
 			grid[i][j].satLevel = 0;

@@ -55,7 +55,8 @@ int main( int argc, char* args[] )
 	//--------------------------------------
 	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
 	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
-
+	int keyw=0, keya=0, keys=0, keyd=0;
+	unsigned lastPanTime = 0;
     //While the user hasn't quit
     while(1){
 
@@ -108,21 +109,45 @@ int main( int argc, char* args[] )
 
             if( event.type == SDL_KEYDOWN ){								///keyboard event
                 switch( event.key.keysym.sym ){
-                    case SDLK_UP: break; //change block type up
-                    case SDLK_DOWN: break; // change block type down
-                    case SDLK_c: reset_cells();  break;//clear the screen
-                    case SDLK_p: print_saturation_data(); break; // prints the cellSat[][] array to stdout. this is for debuggin purposes.
-                    case SDLK_r:  randomize_grid(); break; // randomize grid
-                    case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
-                    case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
-                    case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
-                    case SDLK_ESCAPE: quit = true; // quit with escape
-                    default: break;
-                    }
-                }
+				case SDLK_UP: break; //change block type up
+				case SDLK_DOWN: break; // change block type down
+				case SDLK_c: reset_cells();  break;//clear the screen
+				case SDLK_p: print_saturation_data(); break; // prints the cellSat[][] array to stdout. this is for debuggin purposes.
+				case SDLK_r:  randomize_grid(); break; // randomize grid
+				case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
+				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
+				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
+				case SDLK_ESCAPE: quit = true; // quit with escape
+				case SDLK_w: keyw=1; break; // store key state
+				case SDLK_a: keya=1; break;
+				case SDLK_s: keys=1; break;
+				case SDLK_d: keyd=1; break;
+				default: break;
+				}
+			}
+			if( event.type == SDL_KEYUP ){								///keyboard event
+                switch( event.key.keysym.sym ){
+				case SDLK_w: keyw=0; break;//lastPanTime=0; break; // store key state
+				case SDLK_a: keya=0; break;//lastPanTime=0; break;
+				case SDLK_s: keys=0; break;//lastPanTime=0; break;
+				case SDLK_d: keyd=0; break;//lastPanTime=0; break;
+				default: break;
+				}
+			}
+                
 
     	} // end while(event)
 		//no more events to handle at the moment.
+		
+		//this handles time-controlled panning
+		if(SDL_GetTicks() - MIN_PAN_INTERVAL > lastPanTime){
+			if(keyw) pan(D_UP);
+			if(keya) pan(D_LEFT);
+			if(keys) pan(D_DOWN);
+			if(keyd) pan(D_RIGHT);
+			lastPanTime = SDL_GetTicks();
+			printf("\nlastPanTime = %d\n", lastPanTime);
+		}
 		
 		//checks if the mouse is held or not
         if(mouseStatusLeft == 1 && mouseModifier == 0){

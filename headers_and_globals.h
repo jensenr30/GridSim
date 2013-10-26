@@ -19,6 +19,9 @@
 #define true 1
 #define TRUE 1
 
+//this is for panning the screen (in milliseconds
+#define MIN_PAN_INTERVAL 50
+
 //The CONSTANT initial size of the screen
 #define DEFAULT_SCREEN_WIDTH 896
 #define DEFAULT_SCREEN_HEIGHT 576

@@ -28,7 +28,7 @@ int main( int argc, char* args[] )
     init_cell_stuff();
     
     //this sets up some surfaces that the selection gui needs to run efficiently
-    if( init_selection_gui() == false){
+    if( init_tempGuiScreen() == false){
 		MessageBox(NULL, "Couldn't Initialize selection gui surface: tempGuiScreen", "Error", MB_OK);
 		return -4;
     }
@@ -70,7 +70,7 @@ int main( int argc, char* args[] )
 			}
 
 
-            if( event.type == SDL_MOUSEBUTTONDOWN ){
+            if( event.type == SDL_MOUSEBUTTONDOWN ){						/// mouse down
 				x = event.motion.x;
 				y = event.motion.y;
                 if( event.button.button == SDL_BUTTON_LEFT ){
@@ -84,8 +84,7 @@ int main( int argc, char* args[] )
 				else if( event.button.button == SDL_BUTTON_WHEELDOWN )
 					zoom_out();
             }
-
-            if(event.type == SDL_MOUSEBUTTONUP){
+            else if(event.type == SDL_MOUSEBUTTONUP){						/// mouse up
 				x = event.motion.x;
 				y = event.motion.y;
                 if( event.button.button == SDL_BUTTON_LEFT ){
@@ -95,12 +94,19 @@ int main( int argc, char* args[] )
                     mouseStatusRight = 0;
                 }
             }
-            if( event.type == SDL_MOUSEMOTION ){
+            else if( event.type == SDL_MOUSEMOTION ){						/// mouse motion
 				x = event.motion.x;
 				y = event.motion.y;
             }
+            else if(event.type == SDL_VIDEORESIZE){							/// window resize
+				
+				SCREEN_WIDTH = event.resize.w;
+				SCREEN_HEIGHT = event.resize.h;
+				verify_grid_and_cell_size(); // make sure the window isn't too big for the cell size
+				set_window_size(event.resize.w, event.resize.h);
+			}
 
-            if( event.type == SDL_KEYDOWN ){
+            if( event.type == SDL_KEYDOWN ){								///keyboard event
                 switch( event.key.keysym.sym ){
                     case SDLK_UP: break; //change block type up
                     case SDLK_DOWN: break; // change block type down

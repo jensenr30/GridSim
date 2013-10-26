@@ -16,11 +16,10 @@ SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 #define xPos (SCREEN_WIDTH - 200)
 #define yPos 0
 #define wPos 200
-#define hPos SCREEN_HEIGHT
 
 // selection box positions
 // you have to keep these as number values
-short 	xSel = SCREEN_WIDTH - firstColumn - selectionBoxSize,
+short 	xSel = DEFAULT_SCREEN_WIDTH - firstColumn - selectionBoxSize,
 		ySel = firstRow - selectionBoxSize,
 		wSel = widthButton + selectionBoxSize * 2,
 		hSel = heightButton + selectionBoxSize * 2;
@@ -29,8 +28,8 @@ short 	xSel = SCREEN_WIDTH - firstColumn - selectionBoxSize,
 // this is where the gui is stored graphically to save processing power.
 SDL_Surface *tempGuiScreen;
 // this sets up the selection gui temp surface.
-bool init_selection_gui(){
-	tempGuiScreen = create_surface(wPos,hPos);
+bool init_tempGuiScreen(){
+	tempGuiScreen = create_surface(wPos,SCREEN_HEIGHT);
 	if(tempGuiScreen == NULL) return false;
 	else return true;
 }
@@ -39,9 +38,20 @@ bool init_selection_gui(){
 // displays gui
 void selectionGUI(int x, int y, int mouse)
 {
+	//this is the height of the gui
+	int hPos = SCREEN_HEIGHT;
+	// this keeps track of whether or not you have printed the gui before or not.
 	static bool firstTimeThrough = true;
+	// this variable stores the last screen height. It is used to tell if the screen height has changed.
+	static int storeScreenHeight = DEFAULT_SCREEN_HEIGHT;
+	if(SCREEN_HEIGHT != storeScreenHeight){
+		SDL_FreeSurface(tempGuiScreen);
+		init_tempGuiScreen();
+		firstTimeThrough = true;
+	}
 	// only re-print the gui if the user has clicked inside it.
 	if((x>=xPos && x<=xPos+wPos && y>yPos && y<yPos+hPos && mouse)||firstTimeThrough){
+		//reset this, as it is no longer your first time through printing the selection gui.
 		if(firstTimeThrough) firstTimeThrough = false;
 		// variables to step through array
 		int i, j, k;

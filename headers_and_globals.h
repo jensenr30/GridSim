@@ -19,9 +19,13 @@
 #define true 1
 #define TRUE 1
 
-//The attributes of the screen
-#define SCREEN_WIDTH 896
-#define SCREEN_HEIGHT 576
+//The CONSTANT initial size of the screen
+#define DEFAULT_SCREEN_WIDTH 896
+#define DEFAULT_SCREEN_HEIGHT 576
+//The DYNAMIC  initial size of the screen
+unsigned int SCREEN_WIDTH = DEFAULT_SCREEN_WIDTH;
+unsigned int SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT;
+
 #define SCREEN_BPP 32
 
 //The surfaces that will be used
@@ -45,11 +49,12 @@ int currentMat = 1;
 short mouseModifier = 0;
 
 
-
+void setcell(int , int, int);
 #include "general_functions.h"
 #include "materials_and_cells.h"
+#include "selection_gui.h"
 #include "cell_engine.h"
 #include "map_editor.h"
-#include "selection_gui.h"
+
 
 

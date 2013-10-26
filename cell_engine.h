@@ -548,7 +548,7 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 void print_cells(){
 	
     int i,j;
-	SDL_Rect myRectangle;
+	SDL_Rect myRectangle, myRectangleMat, myRectangleSat;
 	myRectangle.x = 0;
 	myRectangle.y = 0;
 	myRectangle.w = SCREEN_WIDTH;
@@ -557,30 +557,40 @@ void print_cells(){
 	SDL_FillRect( screen , &myRectangle , 0x000000);
 	
 	// constant cell sizes
-	myRectangle.w = CELL_SIZE;
-	myRectangle.h = CELL_SIZE;
+	myRectangleMat.w = CELL_SIZE;
+	myRectangleMat.h = CELL_SIZE;
+	myRectangleSat.w = CELL_SIZE/2;
+	myRectangleSat.h = CELL_SIZE/2;
 	
-	// print the color of each material in each cell
-    for(i = 0; i < GRID_WIDTH; i++){
+	// print out the grid
+    for(i = 0; i < GRID_WIDTH - wPos/CELL_SIZE; i++){
         for(j = 0; j < GRID_HEIGHT; j++){
-			if(grid[i][j].mat == m_air) continue; // you don't need to print air. there is a black background being printed at the beginning of this print_cells() function.
-			myRectangle.x = i*CELL_SIZE;
-			myRectangle.y = j*CELL_SIZE;
-            SDL_FillRect( screen , &myRectangle , mats[grid[i][j].mat].color);
+        	//only print the material if it is not air
+			if(grid[i][j].mat != m_air){
+				myRectangleMat.x = i*CELL_SIZE;
+				myRectangleMat.y = j*CELL_SIZE;
+				SDL_FillRect( screen , &myRectangleMat , mats[grid[i][j].mat].color);
+			}
+			//only print valid saturations
+			if( grid[i][j].sat != m_no_saturation ){
+				myRectangleSat.x = i*CELL_SIZE + myRectangleSat.w/2;
+				myRectangleSat.y = j*CELL_SIZE + myRectangleSat.h/2;
+				SDL_FillRect( screen , &myRectangleSat , mats[grid[i][j].sat].color);
+			}
         }
     }
     
-    myRectangle.w = CELL_SIZE/2;
-	myRectangle.h = CELL_SIZE/2;
+    /*
     // print the color of the saturations of each material in each cell
     for(i = 0; i < GRID_WIDTH; i++){
         for(j = 0; j < GRID_HEIGHT; j++){
 			if( grid[i][j].sat == m_no_saturation || grid[i][j].sat == m_air ) continue; // you don't need to print air. there is a black background being printed at the beginning of this print_cells() function.
-			myRectangle.x = i*CELL_SIZE + myRectangle.w/2;
-			myRectangle.y = j*CELL_SIZE + myRectangle.h/2;
-            SDL_FillRect( screen , &myRectangle , mats[grid[i][j].sat].color);
+			myRectangleSat.x = i*CELL_SIZE + myRectangleSat.w/2;
+			myRectangleSat.y = j*CELL_SIZE + myRectangleSat.h/2;
+            SDL_FillRect( screen , &myRectangleSat , mats[grid[i][j].sat].color);
         }
     }
+    */
 }
 
 

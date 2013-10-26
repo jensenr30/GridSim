@@ -11,8 +11,15 @@
 int CELL_SIZE = 16;
 
 // this is how large the cell grid is.
-#define GRID_WIDTH SCREEN_WIDTH/CELL_SIZE
-#define GRID_HEIGHT SCREEN_HEIGHT/CELL_SIZE
+#define GRID_WIDTH (SCREEN_WIDTH/CELL_SIZE)
+#define GRID_HEIGHT (SCREEN_HEIGHT/CELL_SIZE)
+
+#define MAX_GRID_WIDTH  1920
+#define MAX_GRID_HEIGHT 1080
+// these are to control the view of the world. the camera allows the user to pan.
+// these are measured in CELLS! NOT PIXELS!
+unsigned int camera_x = MAX_GRID_WIDTH;
+unsigned int camera_y = MAX_GRID_HEIGHT;
 
 //this is how many different types of materials there can be in the game.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100 // the materials (i.e. m_earth, m_spring) can have values from 0-99
@@ -38,7 +45,7 @@ struct cellData{
 };
 //this is the array of structures that the data for the grid is stored in.
 // your entire map exists in here.
-struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
+struct cellData grid[MAX_GRID_WIDTH*3][MAX_GRID_HEIGHT*3];
 
 
 //this defines the material types. a material type is a

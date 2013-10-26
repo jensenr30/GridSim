@@ -58,11 +58,9 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define m_tree_base		5
 #define m_smoke			6
 
-#define m_test			30
-#define m_test2			31
-
+#define m_rubble		9
 #define m_rock			10
-#define m_bedrock		11
+//#define m_bedrock		11
 #define m_spring		12
 #define m_sand			13
 #define m_mud			14
@@ -72,6 +70,9 @@ struct cellData grid[SCREEN_WIDTH][SCREEN_HEIGHT];
 #define m_anti_scurge	22
 #define m_dead_scurge	23
 #define m_bottom_feeder	24
+
+#define m_test			30
+#define m_test2			31
 
 //tree stuff
 #define m_tree_trunk		80
@@ -351,9 +352,13 @@ void init_material_attributes(void){
 	mats[m_plant].satEffect[1].satMat = m_earth;
 	set_chance(mats[m_plant].satEffect[1].chance, 100000);
 	*/
-	mats[m_plant].satEffect[0].satMat = m_water;
+	mats[m_plant].satEffect[0].satMat = m_water;	/// plant absorbs water. plant can die from too much water
 	set_chance(mats[m_plant].satEffect[0].chance, 800);
 	mats[m_plant].satEffect[0].absorb = true;
+	mats[m_plant].satEffect[0].decayChance = 15000;
+	mats[m_plant].satEffect[0].decayIntoMat = m_water;
+	mats[m_plant].satEffect[0].decaySatGTE = 3;
+	
 	
 	mats[m_plant].satEffect[3].satMat = m_fire;		/// plant starts to burn when it is next to fire
     mats[m_plant].satEffect[3].absorb = true;
@@ -361,18 +366,6 @@ void init_material_attributes(void){
     mats[m_plant].satEffect[3].decayChance = 4000;
     mats[m_plant].satEffect[3].decayIntoMat = m_fire;
     
-    /*
-    mats[m_plant].affectMat[0].matBefore = m_water; /// plant grows into water
-	mats[m_plant].affectMat[0].matAfter  = m_plant;
-	mats[m_plant].affectMat[0].chance[0] = 1000;
-	mats[m_plant].affectMat[0].chance[1] = 1000;
-	mats[m_plant].affectMat[0].chance[2] = 1000;
-	mats[m_plant].affectMat[0].chance[3] = 1000;
-	mats[m_plant].affectMat[0].chance[4] = 1000;
-	mats[m_plant].affectMat[0].chance[5] = 1000;
-	mats[m_plant].affectMat[0].chance[6] = 1000;
-	mats[m_plant].affectMat[0].chance[7] = 1000;
-	*/
 	mats[m_plant].affectMat[1].matBefore = m_mud; /// plant grows plant_roots into into mud
 	mats[m_plant].affectMat[1].matAfter  = m_plant_root;
 	mats[m_plant].affectMat[1].chance[0] = 100;
@@ -410,7 +403,7 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";
 	mats[m_water].gravity = -32;
-    mats[m_water].color = 0x158ad4;
+    mats[m_water].color = 0x52a9e0;
     
     mats[m_water].affectMat[0].matBefore = m_fire;
     mats[m_water].affectMat[0].matAfter  = m_air;
@@ -419,11 +412,11 @@ void init_material_attributes(void){
     mats[m_spring].name = "Spring";
 	mats[m_spring].color = 0x97bcbb;
 	
-	mats[m_spring].affectMat[0].matBefore = m_air;  /// spring generates water
+	mats[m_spring].affectMat[0].matBefore = m_dont_care;  /// spring generates water
 	mats[m_spring].affectMat[0].matAfter = m_water;
-	mats[m_spring].affectMat[0].chance[0] = 0;
-	mats[m_spring].affectMat[0].chance[1] = 0;
-	mats[m_spring].affectMat[0].chance[2] = 0;
+	//mats[m_spring].affectMat[0].chance[0] = 0;
+	//mats[m_spring].affectMat[0].chance[1] = 0;
+	//mats[m_spring].affectMat[0].chance[2] = 0;
 	mats[m_spring].affectMat[0].chance[3] = 300;
 	mats[m_spring].affectMat[0].chance[4] = 300;
 	mats[m_spring].affectMat[0].chance[5] = 700;
@@ -443,168 +436,25 @@ void init_material_attributes(void){
 	*/
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
-	mats[m_test].color = 0xccff00;
+	mats[m_test].color = 0xCCFF00;
 	mats[m_test].gravity = 1;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
-	mats[m_test2].color = 0x00ffcc;
+	mats[m_test2].color = 0x00FFCC;
 	mats[m_test2].gravity = 2;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_rock].name = "Rock";
-	mats[m_rock].color = 0x5a5651;
-	mats[m_rock].gravity = 3;
+	mats[m_rock].color = 0x5A5651;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_rubble].name = "Rubble";
+	mats[m_rubble].color = 0x715A63;
+	mats[m_rubble].gravity = 3;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_tree_base].name = "Tree";	/// this is the start of the tree. this is what you palce and watch a tree grow.
 	mats[m_tree_base].color = 0x7b5126;
 	mats[m_tree_base].affectMat[0].matBefore = m_air;
 	mats[m_tree_base].affectMat[0].matAfter  = m_tree_trunk;
 	mats[m_tree_base].affectMat[0].chance[1] = 850;
-//-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_trunk].color = mats[m_tree_base].color;
-	
-	mats[m_tree_trunk].satEffect[0].satMat = m_tree_trunk; /// tree_trunk can tell when there is tree_trunk around it.
-	mats[m_tree_trunk].satEffect[0].chance[1] = 100000;
-	
-	mats[m_tree_trunk].affectMat[0].matBefore = m_air;  /// turns air into leaves only when there isn't a tree_trunk above it.
-	mats[m_tree_trunk].affectMat[0].matAfter  = m_tree_leaves_end;
-	mats[m_tree_trunk].affectMat[0].chance[0] = 350;
-	mats[m_tree_trunk].affectMat[0].chance[1] = 1000;
-	mats[m_tree_trunk].affectMat[0].chance[2] = 350;
-	mats[m_tree_trunk].affectMat[0].chance[3] = 500;
-	mats[m_tree_trunk].affectMat[0].chance[4] = 500;
-	mats[m_tree_trunk].affectMat[0].satNeeded = m_no_saturation;
-	
-	//copy_affMat(&mats[m_tree_trunk].affectMat[0], &mats[m_tree_trunk].affectMat[1]);
-	
-	mats[m_tree_trunk].affectMat[2].matBefore = m_tree_leaves_end;		/// tree_trunk grows upwards into tree_leaves_end
-	mats[m_tree_trunk].affectMat[2].matAfter  = m_tree_trunk;
-	mats[m_tree_trunk].affectMat[2].chance[1] = 500;
-	
-	mats[m_tree_trunk].affectMat[3].matBefore = m_tree_leaves_end;		/// tree trunk grows tree_trunk_end into tree_leaves_end
-	mats[m_tree_trunk].affectMat[3].matAfter  = m_tree_trunk_top;
-	mats[m_tree_trunk].affectMat[3].chance[1] = 200;
-	
-	mats[m_tree_trunk].affectMat[4].matBefore = m_tree_leaves_end; /// once tree has grown, it sheds the leaves lower on it's trunk.
-	mats[m_tree_trunk].affectMat[4].matAfter  = m_air;
-	//mats[m_tree_trunk].affectMat[4].satBefore = m_tree_trunk;		// tree_trunk can only remove leaves that are saturated with tree_trunk.
-	mats[m_tree_trunk].affectMat[4].chance[3] = 450;				// if end_leaves are saturated with tree_trunk_top, they are not removed.
-	mats[m_tree_trunk].affectMat[4].chance[4] = 450;
-	mats[m_tree_trunk].affectMat[4].satNeeded = m_tree_trunk;
-//-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_trunk_top].color = mats[m_tree_base].color; /// this is the top of the tree. the trunk will stop growing when this material is spawned.
-	
-	mats[m_tree_trunk_top].affectMat[0].matBefore = m_air;		///turns air into leaves_end
-	mats[m_tree_trunk_top].affectMat[0].matAfter  = m_tree_leaves_end;
-	mats[m_tree_trunk_top].affectMat[0].chance[0] = 500;
-	mats[m_tree_trunk_top].affectMat[0].chance[1] = 750;
-	mats[m_tree_trunk_top].affectMat[0].chance[2] = 500;
-	
-	mats[m_tree_trunk_top].affectMat[1].matBefore = m_tree_leaves_end;
-	mats[m_tree_trunk_top].affectMat[1].matAfter  = m_tree_branch_right;
-	mats[m_tree_trunk_top].affectMat[1].chance[2] = 250;		/// spawns tree_branch_right on its rght side.
-	
-	mats[m_tree_trunk_top].affectMat[2].matBefore = m_tree_leaves_end;
-	mats[m_tree_trunk_top].affectMat[2].matAfter  = m_tree_branch_left;
-	mats[m_tree_trunk_top].affectMat[2].chance[0] = 250;		/// spawns tree_branch_right on its rght side.
-//-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_leaves].color = 0x708D23;
-	
-	mats[m_tree_leaves].satEffect[0].satMat = m_tree_branch_left; /// tree_leaves saturated by tree_branches_right
-	set_chance(mats[m_tree_leaves].satEffect[0].chance, 100000);
-	
-	mats[m_tree_leaves].satEffect[1].satMat = m_tree_branch_right;/// and tree_leaves saturated by tree_branches_right
-	set_chance(mats[m_tree_leaves].satEffect[1].chance, 100000);
-	
-	mats[m_tree_leaves].affectMat[0].matBefore = m_air;
-	mats[m_tree_leaves].affectMat[0].matAfter  = m_tree_leaves;
-	mats[m_tree_leaves].affectMat[0].satNeeded = m_any_of_my_sats;
-	mats[m_tree_leaves].affectMat[0].chance[1] = 100;
-	mats[m_tree_leaves].affectMat[0].chance[0] = 
-	mats[m_tree_leaves].affectMat[0].chance[2] = 54;
-	mats[m_tree_leaves].affectMat[0].chance[3] = 
-	mats[m_tree_leaves].affectMat[0].chance[4] = 40;
-	mats[m_tree_leaves].affectMat[0].chance[5] = 
-	mats[m_tree_leaves].affectMat[0].chance[7] = 35;
-	mats[m_tree_leaves].affectMat[0].chance[6] = 20;
-	
-	
-	mats[m_tree_leaves].affectMat[1].matBefore = m_air;
-	mats[m_tree_leaves].affectMat[1].matAfter  = m_tree_leaves_end;
-	mats[m_tree_leaves].affectMat[1].chance[1] = 350;
-	mats[m_tree_leaves].affectMat[1].chance[0] = 
-	mats[m_tree_leaves].affectMat[1].chance[2] = 250;
-	mats[m_tree_leaves].affectMat[1].chance[3] = 
-	mats[m_tree_leaves].affectMat[1].chance[4] = 200;
-	mats[m_tree_leaves].affectMat[1].chance[5] = 
-	mats[m_tree_leaves].affectMat[1].chance[7] = 165;
-	mats[m_tree_leaves].affectMat[1].chance[6] = 100;
-	
-//-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_leaves_end].color = 0x708D23;
-	
-	mats[m_tree_leaves_end].satEffect[0].satMat = m_tree_trunk;		/// tree_leaves_end can be saturated by both tree_trunk 
-	set_chance(mats[m_tree_leaves_end].satEffect[0].chance, 100000);
-	
-	mats[m_tree_leaves_end].satEffect[1].satMat = m_tree_trunk_top; /// and tree_trunk_top.
-	set_chance(mats[m_tree_leaves_end].satEffect[1].chance, 100000);
-//-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_branch_right].color = mats[m_tree_base].color;
-	
-	mats[m_tree_branch_right].satEffect[0].satMat = m_tree_branch_right; /// can be saturated by tree_branch_right
-	mats[m_tree_branch_right].satEffect[0].chance[1] = 100000;
-	mats[m_tree_branch_right].satEffect[0].chance[2] = 100000;
-	mats[m_tree_branch_right].satEffect[0].chance[4] = 100000;
-	
-	mats[m_tree_branch_right].satEffect[0].satMat = m_tree_branch_end;  /// can be saturated by tree_branch_end
-	mats[m_tree_branch_right].satEffect[0].chance[1] = 100000;
-	mats[m_tree_branch_right].satEffect[0].chance[2] = 100000;
-	mats[m_tree_branch_right].satEffect[0].chance[4] = 100000;
-	
-	mats[m_tree_branch_right].affectMat[0].matBefore = m_air;			/// tree_branch_right makes leaves around it.
-	mats[m_tree_branch_right].affectMat[0].matAfter  = m_tree_leaves;
-	set_chance( &mats[m_tree_branch_right].affectMat[0].chance[0], 433);
-	//mats[m_tree_branch_right].affectMat[0].satNeeded = m_no_saturation;
-	
-	mats[m_tree_branch_right].affectMat[1].matBefore = m_air;			/// tree_branch_right makes leaves_end around it.
-	mats[m_tree_branch_right].affectMat[1].matAfter  = m_tree_leaves_end;
-	set_chance( &mats[m_tree_branch_right].affectMat[1].chance[0], 150);
-	//mats[m_tree_branch_right].affectMat[1].satNeeded = m_no_saturation;
-	
-	mats[m_tree_branch_right].affectMat[2].matBefore = m_tree_leaves;		/// tree_branch_right spawns tree_branch end in these locations.
-	mats[m_tree_branch_right].affectMat[2].matAfter  = m_tree_branch_end;
-	mats[m_tree_branch_right].affectMat[2].chance[7] = 80;
-	mats[m_tree_branch_right].affectMat[2].chance[2] = 180;
-	mats[m_tree_branch_right].affectMat[2].chance[0] = 75;
-	mats[m_tree_branch_right].affectMat[2].satNeeded = m_no_saturation;
-	mats[m_tree_branch_right].affectMat[2].changesPerEval = 1; // only one branch per evaluation
-	
-	mats[m_tree_branch_right].affectMat[3].matBefore = m_tree_leaves;		/// tree_branch_right grows more right/up
-	mats[m_tree_branch_right].affectMat[3].matAfter  = m_tree_branch_right;
-	mats[m_tree_branch_right].affectMat[3].chance[1] = 170;
-	mats[m_tree_branch_right].affectMat[3].chance[2] = 400;
-	mats[m_tree_branch_right].affectMat[3].chance[4] = 70;
-	mats[m_tree_branch_right].affectMat[3].satNeeded = m_no_saturation;
-	mats[m_tree_branch_right].affectMat[3].changesPerEval = 1; // only one branch per evaluation
-
-//-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_branch_left].color = mats[m_tree_base].color;
-	
-	/// tree_branch_left makes leaves around it as well
-	copy_affMat(&mats[m_tree_branch_right].affectMat[0], &mats[m_tree_branch_left].affectMat[0]);
-//-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_branch_end].color = mats[m_tree_base].color;
-	
-	mats[m_tree_branch_end].affectMat[0].matBefore = m_tree_leaves;
-	mats[m_tree_branch_end].affectMat[0].matAfter  = m_tree_leaves_end;
-	set_chance(mats[m_tree_branch_end].affectMat[0].chance, 100000); // instantly changes into end leaves.
-	
-	mats[m_tree_branch_end].affectMat[1].matBefore = m_air;
-	mats[m_tree_branch_end].affectMat[1].matAfter  = m_tree_leaves_end;
-	set_chance(mats[m_tree_branch_end].affectMat[1].chance, 150); // instantly changes into end leaves.
-	
-	mats[m_tree_branch_end].affectMat[2].matBefore = m_air;
-	mats[m_tree_branch_end].affectMat[2].matAfter  = m_tree_leaves;
-	set_chance(mats[m_tree_branch_end].affectMat[2].chance, 30); // instantly changes into end leaves.
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_sand].name = "Sand";
 	mats[m_sand].gravity = -2;
@@ -771,10 +621,154 @@ void init_material_attributes(void){
 	mats[m_bottom_feeder].affectMat[4].changeOrigMat = m_air;
 	*/
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_bedrock].color = 0x2f2614;
-	mats[m_bedrock].name  = "Bedrock";
+	//mats[m_bedrock].color = 0x2f2614;
+	//mats[m_bedrock].name  = "Bedrock";
 //-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_tree_trunk].color = mats[m_tree_base].color;
 	
+	mats[m_tree_trunk].satEffect[0].satMat = m_tree_trunk; /// tree_trunk can tell when there is tree_trunk around it.
+	mats[m_tree_trunk].satEffect[0].chance[1] = 100000;
+	
+	mats[m_tree_trunk].affectMat[0].matBefore = m_air;  /// turns air into leaves only when there isn't a tree_trunk above it.
+	mats[m_tree_trunk].affectMat[0].matAfter  = m_tree_leaves_end;
+	mats[m_tree_trunk].affectMat[0].chance[0] = 350;
+	mats[m_tree_trunk].affectMat[0].chance[1] = 1000;
+	mats[m_tree_trunk].affectMat[0].chance[2] = 350;
+	mats[m_tree_trunk].affectMat[0].chance[3] = 500;
+	mats[m_tree_trunk].affectMat[0].chance[4] = 500;
+	mats[m_tree_trunk].affectMat[0].satNeeded = m_no_saturation;
+	
+	//copy_affMat(&mats[m_tree_trunk].affectMat[0], &mats[m_tree_trunk].affectMat[1]);
+	
+	mats[m_tree_trunk].affectMat[2].matBefore = m_tree_leaves_end;		/// tree_trunk grows upwards into tree_leaves_end
+	mats[m_tree_trunk].affectMat[2].matAfter  = m_tree_trunk;
+	mats[m_tree_trunk].affectMat[2].chance[1] = 500;
+	
+	mats[m_tree_trunk].affectMat[3].matBefore = m_tree_leaves_end;		/// tree trunk grows tree_trunk_end into tree_leaves_end
+	mats[m_tree_trunk].affectMat[3].matAfter  = m_tree_trunk_top;
+	mats[m_tree_trunk].affectMat[3].chance[1] = 200;
+	
+	mats[m_tree_trunk].affectMat[4].matBefore = m_tree_leaves_end; /// once tree has grown, it sheds the leaves lower on it's trunk.
+	mats[m_tree_trunk].affectMat[4].matAfter  = m_air;
+	//mats[m_tree_trunk].affectMat[4].satBefore = m_tree_trunk;		// tree_trunk can only remove leaves that are saturated with tree_trunk.
+	mats[m_tree_trunk].affectMat[4].chance[3] = 450;				// if end_leaves are saturated with tree_trunk_top, they are not removed.
+	mats[m_tree_trunk].affectMat[4].chance[4] = 450;
+	mats[m_tree_trunk].affectMat[4].satNeeded = m_tree_trunk;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_tree_trunk_top].color = mats[m_tree_base].color; /// this is the top of the tree. the trunk will stop growing when this material is spawned.
+	
+	mats[m_tree_trunk_top].affectMat[0].matBefore = m_air;		///turns air into leaves_end
+	mats[m_tree_trunk_top].affectMat[0].matAfter  = m_tree_leaves_end;
+	mats[m_tree_trunk_top].affectMat[0].chance[0] = 500;
+	mats[m_tree_trunk_top].affectMat[0].chance[1] = 750;
+	mats[m_tree_trunk_top].affectMat[0].chance[2] = 500;
+	
+	mats[m_tree_trunk_top].affectMat[1].matBefore = m_tree_leaves_end;
+	mats[m_tree_trunk_top].affectMat[1].matAfter  = m_tree_branch_right;
+	mats[m_tree_trunk_top].affectMat[1].chance[2] = 250;		/// spawns tree_branch_right on its rght side.
+	
+	mats[m_tree_trunk_top].affectMat[2].matBefore = m_tree_leaves_end;
+	mats[m_tree_trunk_top].affectMat[2].matAfter  = m_tree_branch_left;
+	mats[m_tree_trunk_top].affectMat[2].chance[0] = 250;		/// spawns tree_branch_right on its rght side.
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_tree_leaves].color = 0x708D23;
+	
+	mats[m_tree_leaves].satEffect[0].satMat = m_tree_branch_left; /// tree_leaves saturated by tree_branches_right
+	set_chance(mats[m_tree_leaves].satEffect[0].chance, 100000);
+	
+	mats[m_tree_leaves].satEffect[1].satMat = m_tree_branch_right;/// and tree_leaves saturated by tree_branches_right
+	set_chance(mats[m_tree_leaves].satEffect[1].chance, 100000);
+	
+	mats[m_tree_leaves].affectMat[0].matBefore = m_air;
+	mats[m_tree_leaves].affectMat[0].matAfter  = m_tree_leaves;
+	mats[m_tree_leaves].affectMat[0].satNeeded = m_any_of_my_sats;
+	mats[m_tree_leaves].affectMat[0].chance[1] = 100;
+	mats[m_tree_leaves].affectMat[0].chance[0] = 
+	mats[m_tree_leaves].affectMat[0].chance[2] = 54;
+	mats[m_tree_leaves].affectMat[0].chance[3] = 
+	mats[m_tree_leaves].affectMat[0].chance[4] = 40;
+	mats[m_tree_leaves].affectMat[0].chance[5] = 
+	mats[m_tree_leaves].affectMat[0].chance[7] = 35;
+	mats[m_tree_leaves].affectMat[0].chance[6] = 20;
+	
+	
+	mats[m_tree_leaves].affectMat[1].matBefore = m_air;
+	mats[m_tree_leaves].affectMat[1].matAfter  = m_tree_leaves_end;
+	mats[m_tree_leaves].affectMat[1].chance[1] = 350;
+	mats[m_tree_leaves].affectMat[1].chance[0] = 
+	mats[m_tree_leaves].affectMat[1].chance[2] = 250;
+	mats[m_tree_leaves].affectMat[1].chance[3] = 
+	mats[m_tree_leaves].affectMat[1].chance[4] = 200;
+	mats[m_tree_leaves].affectMat[1].chance[5] = 
+	mats[m_tree_leaves].affectMat[1].chance[7] = 165;
+	mats[m_tree_leaves].affectMat[1].chance[6] = 100;
+	
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_tree_leaves_end].color = 0x708D23;
+	
+	mats[m_tree_leaves_end].satEffect[0].satMat = m_tree_trunk;		/// tree_leaves_end can be saturated by both tree_trunk 
+	set_chance(mats[m_tree_leaves_end].satEffect[0].chance, 100000);
+	
+	mats[m_tree_leaves_end].satEffect[1].satMat = m_tree_trunk_top; /// and tree_trunk_top.
+	set_chance(mats[m_tree_leaves_end].satEffect[1].chance, 100000);
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_tree_branch_right].color = mats[m_tree_base].color;
+	
+	mats[m_tree_branch_right].satEffect[0].satMat = m_tree_branch_right; /// can be saturated by tree_branch_right
+	mats[m_tree_branch_right].satEffect[0].chance[1] = 100000;
+	mats[m_tree_branch_right].satEffect[0].chance[2] = 100000;
+	mats[m_tree_branch_right].satEffect[0].chance[4] = 100000;
+	
+	mats[m_tree_branch_right].satEffect[0].satMat = m_tree_branch_end;  /// can be saturated by tree_branch_end
+	mats[m_tree_branch_right].satEffect[0].chance[1] = 100000;
+	mats[m_tree_branch_right].satEffect[0].chance[2] = 100000;
+	mats[m_tree_branch_right].satEffect[0].chance[4] = 100000;
+	
+	mats[m_tree_branch_right].affectMat[0].matBefore = m_air;			/// tree_branch_right makes leaves around it.
+	mats[m_tree_branch_right].affectMat[0].matAfter  = m_tree_leaves;
+	set_chance( &mats[m_tree_branch_right].affectMat[0].chance[0], 433);
+	//mats[m_tree_branch_right].affectMat[0].satNeeded = m_no_saturation;
+	
+	mats[m_tree_branch_right].affectMat[1].matBefore = m_air;			/// tree_branch_right makes leaves_end around it.
+	mats[m_tree_branch_right].affectMat[1].matAfter  = m_tree_leaves_end;
+	set_chance( &mats[m_tree_branch_right].affectMat[1].chance[0], 150);
+	//mats[m_tree_branch_right].affectMat[1].satNeeded = m_no_saturation;
+	
+	mats[m_tree_branch_right].affectMat[2].matBefore = m_tree_leaves;		/// tree_branch_right spawns tree_branch end in these locations.
+	mats[m_tree_branch_right].affectMat[2].matAfter  = m_tree_branch_end;
+	mats[m_tree_branch_right].affectMat[2].chance[7] = 80;
+	mats[m_tree_branch_right].affectMat[2].chance[2] = 180;
+	mats[m_tree_branch_right].affectMat[2].chance[0] = 75;
+	mats[m_tree_branch_right].affectMat[2].satNeeded = m_no_saturation;
+	mats[m_tree_branch_right].affectMat[2].changesPerEval = 1; // only one branch per evaluation
+	
+	mats[m_tree_branch_right].affectMat[3].matBefore = m_tree_leaves;		/// tree_branch_right grows more right/up
+	mats[m_tree_branch_right].affectMat[3].matAfter  = m_tree_branch_right;
+	mats[m_tree_branch_right].affectMat[3].chance[1] = 170;
+	mats[m_tree_branch_right].affectMat[3].chance[2] = 400;
+	mats[m_tree_branch_right].affectMat[3].chance[4] = 70;
+	mats[m_tree_branch_right].affectMat[3].satNeeded = m_no_saturation;
+	mats[m_tree_branch_right].affectMat[3].changesPerEval = 1; // only one branch per evaluation
+
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_tree_branch_left].color = mats[m_tree_base].color;
+	
+	/// tree_branch_left makes leaves around it as well
+	copy_affMat(&mats[m_tree_branch_right].affectMat[0], &mats[m_tree_branch_left].affectMat[0]);
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_tree_branch_end].color = mats[m_tree_base].color;
+	
+	mats[m_tree_branch_end].affectMat[0].matBefore = m_tree_leaves;
+	mats[m_tree_branch_end].affectMat[0].matAfter  = m_tree_leaves_end;
+	set_chance(mats[m_tree_branch_end].affectMat[0].chance, 100000); // instantly changes into end leaves.
+	
+	mats[m_tree_branch_end].affectMat[1].matBefore = m_air;
+	mats[m_tree_branch_end].affectMat[1].matAfter  = m_tree_leaves_end;
+	set_chance(mats[m_tree_branch_end].affectMat[1].chance, 150); // instantly changes into end leaves.
+	
+	mats[m_tree_branch_end].affectMat[2].matBefore = m_air;
+	mats[m_tree_branch_end].affectMat[2].matAfter  = m_tree_leaves;
+	set_chance(mats[m_tree_branch_end].affectMat[2].chance, 30); // instantly changes into end leaves.
 //-------------------------------------------------------------------------------------------------------------------------------
 	
 //-------------------------------------------------------------------------------------------------------------------------------

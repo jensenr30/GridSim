@@ -42,7 +42,7 @@ int main( int argc, char* args[] )
     
     for(i=0; i<GRID_WIDTH; i++){
 		for(j=0; j<10; j++)
-		grid[i][GRID_HEIGHT-1-get_rand(0,4*j+12)].mat = m_bedrock;
+		grid[i][GRID_HEIGHT-1-get_rand(0,4*j+12)].mat = m_rock;
     }
     /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){

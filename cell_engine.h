@@ -315,14 +315,14 @@ void evaluate_grid(){
 								grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
 								// absorbs the material if required. it only absorbs if it isn't already saturated.
 								if(grid[i][j].sat != grid[newi][newj].mat && mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = m_air;
-								// increment the satLevel if needed.
-								if(firstEncounter){
-									grid[i][j].satLevelChange = 1;
-									firstEncounter = 0;
-								}
-								else
-									grid[i][j].satLevelChange++;
 							}
+							// increment the satLevel if needed.
+							if(firstEncounter){
+								grid[i][j].satLevelChange = 1;
+								firstEncounter = 0;
+								}
+							else
+								grid[i][j].satLevelChange++;
 						}
 					}
 				}

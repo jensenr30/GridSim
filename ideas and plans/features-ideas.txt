@@ -1,3 +1,27 @@
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+add world generation. make rock as the bottom layers, and dirt and grass as the top layers.
+add tree spawning and caves and lakes and underground water pockets.
+
+------------------------------------------------------------------------------------------------------
+
+add a playable part of the game where the player wanders the world and survives.
+
+------------------------------------------------------------------------------------------------------
+
+add weather to the game. rain? snow? maybe add a snow block?
+
+------------------------------------------------------------------------------------------------------
+
 add a copy/cut/paste system.
 add a history system to undo and redo
 

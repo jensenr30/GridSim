@@ -44,6 +44,7 @@ void zoom_in()
     if(CELL_SIZE > MAX_CELL_SIZE)
 		CELL_SIZE = MAX_CELL_SIZE;
 	verify_grid_and_cell_size();
+	verify_camera();
 }
 
 void zoom_out()
@@ -58,6 +59,7 @@ void zoom_out()
 		CELL_SIZE = MIN_CELL_SIZE;
 		
 	verify_grid_and_cell_size();
+	verify_camera();
 }
 
 #define D_UP	0	// W
@@ -68,6 +70,18 @@ void zoom_out()
 // the "- CELL_SIZE" part of the if statement is to make sure that we are on the same size of the error in the integer division in the GRID_WIDTH term.
 #define MAX_camera_x (MAX_GRID_WIDTH*3 - GRID_WIDTH - CELL_SIZE)
 #define MAX_camera_y (MAX_GRID_HEIGHT*3 - GRID_HEIGHT - CELL_SIZE)
+
+void verify_camera(){
+	// make sure the camera is in a valid place
+	if(camera_x < 0) camera_x = 0;
+	if(camera_y < 0) camera_y = 0;
+	
+	//make sure the camera values are not too large. they mustn't overstep their bounds.
+	if(camera_x > MAX_camera_x)
+		camera_x = MAX_camera_x;
+	if(camera_y > MAX_camera_y)
+		camera_y = MAX_camera_y;
+}
 
 void pan(int direction){
 	switch(direction){
@@ -84,15 +98,7 @@ void pan(int direction){
 		camera_x += MAX_CELL_SIZE/CELL_SIZE + 6;
 		break;
 	}
-	// make sure the camera is in a valid place
-	if(camera_x < 0) camera_x = 0;
-	if(camera_y < 0) camera_y = 0;
-	
-	//make sure the camera values are not too large. they mustn't overstep their bounds.
-	if(camera_x > MAX_camera_x)
-		camera_x = MAX_camera_x;
-	if(camera_y > MAX_camera_y)
-		camera_y = MAX_camera_y;
+	verify_camera();
 }
 
 

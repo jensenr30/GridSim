@@ -821,9 +821,9 @@ void init_material_attributes(void){
 ///this function resets all the cells to default state. Nothing
 void reset_cells(void){
 	int i; int j;
-
-	for(i=0 ; i<MAX_GRID_WIDTH ; i++){
-		for(j=0 ; j<MAX_GRID_HEIGHT ; j++){
+	
+	for(i=0 ; i<MAX_GRID_WIDTH*3 ; i++){
+		for(j=0 ; j<MAX_GRID_HEIGHT*3 ; j++){
 			grid[i][j].mat = m_air;
 			grid[i][j].sat  = m_no_saturation;
 			grid[i][j].satLevel = 0;
@@ -851,7 +851,7 @@ void print_saturation_data(){
 	printf("printTime = %d\n\nMaterials:\n\n",printTime);
 	for(j=0 ; j<GRID_HEIGHT ; j++){
 		for(i=0 ; i<GRID_WIDTH ; i++){
-			if(grid[i][j].mat > 0)printf("%2d ",grid[i][j].mat);
+			if(grid[i+camera_x][j+camera_y].mat > 0)printf("%2d ",grid[i+camera_x][j+camera_y].mat);
 			else printf(" . ");
 		}
 		printf("\n");
@@ -859,7 +859,7 @@ void print_saturation_data(){
 	printf("Saturation:\n\n");
 	for(j=0 ; j<GRID_HEIGHT ; j++){
 		for(i=0 ; i<GRID_WIDTH ; i++){
-			if(grid[i][j].sat >= 0)printf("%2d ",grid[i][j].sat);
+			if(grid[i+camera_x][j+camera_y].sat >= 0)printf("%2d ",grid[i+camera_x][j+camera_y].sat);
 			else printf(" . ");
 		}
 		printf("\n");
@@ -867,7 +867,7 @@ void print_saturation_data(){
 	printf("\n\nSaturation Level:\n\n");
 	for(j=0 ; j<GRID_HEIGHT ; j++){
 		for(i=0 ; i<GRID_WIDTH ; i++){
-			if(grid[i][j].satLevel > 0)printf("%2d ",grid[i][j].satLevel);
+			if(grid[i+camera_x][j+camera_y].satLevel > 0)printf("%2d ",grid[i+camera_x][j+camera_y].satLevel);
 			else printf(" . ");
 		}
 		printf("\n");
@@ -898,7 +898,7 @@ void randomize_grid(){
 	for(i=0 ; i<SCREEN_WIDTH ; i++){
 		for(j=0 ; j<SCREEN_HEIGHT ; j++){
 			if(get_rand(1,10) < 10){
-				grid[i][j].mat = m_air;
+				grid[i+camera_x][j+camera_y].mat = m_air;
 				continue;
 			}
 			//get random material
@@ -909,8 +909,7 @@ void randomize_grid(){
 				if(temp == m_scurge || temp == m_anti_scurge)
 					temp = m_air;
 			}
-			grid[i][j].mat = temp;
-		
+			grid[i+camera_x][j+camera_y].mat = temp;
 		}
 	}
 }

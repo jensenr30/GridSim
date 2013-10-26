@@ -1,4 +1,17 @@
  
+ void set_window_size(int w, int h){
+	screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_SWSURFACE | SDL_RESIZABLE );
+	
+	//If there was an error setting up the screen
+	if(screen == NULL )
+	{
+		exit(111);
+	}
+}
+ 
+ 
+ 
+ 
 SDL_Surface *load_image( char* filename ){
     //Temporary storage for the image that is loaded
     SDL_Surface* loadedImage = NULL;
@@ -46,7 +59,7 @@ int init(){
 	}
 	
 	//Set up the screen
-	screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
+	set_window_size(SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	//If there was an error setting up the screen
 	if(screen == NULL ){

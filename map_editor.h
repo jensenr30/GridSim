@@ -20,16 +20,22 @@ void deletecell(int x, int y, int data)
 	}
 }
 
-void zoomplus()
+void zoom_in()
 {
-    CELL_SIZE *= 2;
-    if(CELL_SIZE > 64)
-		CELL_SIZE = 64;
+    if(CELL_SIZE*1.25 < 1+CELL_SIZE)
+		CELL_SIZE += 1;
+	else CELL_SIZE *= 1.25;
+	
+    if(CELL_SIZE > 62)
+		CELL_SIZE = 62;
 }
 
-void zoomminus()
+void zoom_out()
 {
-    CELL_SIZE /= 2;
+    if(CELL_SIZE*0.8 < 1)
+		CELL_SIZE -= 1;
+	else CELL_SIZE *= 0.8;
+    
     if(CELL_SIZE < 1)
 		CELL_SIZE = 1;
 }

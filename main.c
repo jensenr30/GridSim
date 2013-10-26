@@ -76,10 +76,13 @@ int main( int argc, char* args[] )
                 if( event.button.button == SDL_BUTTON_LEFT ){
                     mouseStatusLeft = 1;
                 }
-
                 else if( event.button.button == SDL_BUTTON_RIGHT ){
                     mouseStatusRight = 1;
                 }
+                else if( event.button.button == SDL_BUTTON_WHEELUP )
+					zoom_in();
+				else if( event.button.button == SDL_BUTTON_WHEELDOWN )
+					zoom_out();
             }
 
             if(event.type == SDL_MOUSEBUTTONUP){
@@ -107,8 +110,6 @@ int main( int argc, char* args[] )
                     case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
                     case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
                     case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
-                    case SDLK_EQUALS: zoomplus(); break; //zoom in
-                    case SDLK_MINUS: zoomminus(); break; //zoom out
                     case SDLK_ESCAPE: quit = true; // quit with escape
                     default: break;
                     }

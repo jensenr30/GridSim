@@ -386,9 +386,9 @@ void reset_grid_changes(){
 	//reset cellMatChanges and cellSatChanges
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			grid[i][j].matChange = m_no_change;
-			grid[i][j].satChange = m_no_change;
-			grid[i][j].satLevelChange = m_no_change;
+			grid[i+camera_x][j+camera_y].matChange = m_no_change;
+			grid[i+camera_x][j+camera_y].satChange = m_no_change;
+			grid[i+camera_x][j+camera_y].satLevelChange = m_no_change;
 		}
 	}
 }
@@ -401,19 +401,19 @@ void apply_grid_changes(){
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			//if the material at [i][j] needs to be changed (updated) then change it
-			if(grid[i][j].matChange != m_no_change) grid[i][j].mat = grid[i][j].matChange;
+			if(grid[i+camera_x][j+camera_y].matChange != m_no_change) grid[i+camera_x][j+camera_y].mat = grid[i+camera_x][j+camera_y].matChange;
 			//if the saturation at [i][j] needs to be changed (updated) then change it
-			if(grid[i][j].satChange != m_no_change) grid[i][j].sat = grid[i][j].satChange;
+			if(grid[i+camera_x][j+camera_y].satChange != m_no_change) grid[i+camera_x][j+camera_y].sat = grid[i+camera_x][j+camera_y].satChange;
 			//if the saturation level at [i][j] needs to be changed (updated) then change it.
-			if(grid[i][j].satLevelChange != m_no_change) grid[i][j].satLevel = grid[i][j].satLevelChange;
+			if(grid[i+camera_x][j+camera_y].satLevelChange != m_no_change) grid[i+camera_x][j+camera_y].satLevel = grid[i+camera_x][j+camera_y].satLevelChange;
 		}
 	}
 	//reset cellMatChanges and cellSatChanges
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			grid[i][j].matChange = m_no_change;
-			grid[i][j].satChange = m_no_change;
-			grid[i][j].satLevelChange = m_no_change;
+			grid[i+camera_x][j+camera_y].matChange = m_no_change;
+			grid[i+camera_x][j+camera_y].satChange = m_no_change;
+			grid[i+camera_x][j+camera_y].satLevelChange = m_no_change;
 		}
 	}
 }
@@ -452,33 +452,33 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	case m_dont_care:
 		break;
 	case m_no_saturation:
-		if(grid[i][j].sat != m_no_saturation) return;
+		if(grid[i+camera_x][j+camera_y].sat != m_no_saturation) return;
 		break;
 	case m_any_of_my_sats:
 		validSat = false; // by default, we have not yet detected a valid saturation.
 		for(c=0 ; c<MAX_NUMBER_OF_SATURATIONS ; c++){
-			if(mats[grid[i][j].mat].satEffect[c].satMat == m_no_saturation) // if you have reached an null satEffect...
+			if(mats[grid[i+camera_x][j+camera_y].mat].satEffect[c].satMat == m_no_saturation) // if you have reached an null satEffect...
 				break; // ...break out of the for(c) loop
 				
 			// if there is a valid saturation, set validSat true and break out of the for(c) loop.
-			if(grid[i][j].sat == mats[grid[i][j].mat].satEffect[c].satMat){
+			if(grid[i+camera_x][j+camera_y].sat == mats[grid[i+camera_x][j+camera_y].mat].satEffect[c].satMat){
 					validSat = true;
 				break;
 			}
 		}
 		if(validSat == false) return; // false condition. if this material is not saturated with one of its valid saturations, then quit this affectMat.
 		//if our material isn't saturated enough, return
-		if(grid[i][j].satLevel < affMat->satGTE) return;
+		if(grid[i+camera_x][j+camera_y].satLevel < affMat->satGTE) return;
 		//if our material is too saturated, return
-		if(grid[i][j].satLevel > affMat->satLTE) return;
+		if(grid[i+camera_x][j+camera_y].satLevel > affMat->satLTE) return;
 		break;
 	default: // default conditions. there is a single saturation we are looking for. and we have to be the saturation range.
 		//if the saturation here isn't right, return
-		if(grid[i][j].sat != affMat->satNeeded) return;
+		if(grid[i+camera_x][j+camera_y].sat != affMat->satNeeded) return;
 		//if our material isn't saturated enough, return
-		if(grid[i][j].satLevel < affMat->satGTE) return;
+		if(grid[i+camera_x][j+camera_y].satLevel < affMat->satGTE) return;
 		//if our material is too saturated, return
-		if(grid[i][j].satLevel > affMat->satLTE) return;
+		if(grid[i+camera_x][j+camera_y].satLevel > affMat->satLTE) return;
 		break;
 	}
 	
@@ -512,24 +512,24 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 			if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
 		
 			// if there is a valid material or if you can use any material
-			if( affMat->matBefore == grid[newi][newj].mat || affMat->matBefore == m_dont_care){
+			if( affMat->matBefore == grid[newi+camera_x][newj+camera_y].mat || affMat->matBefore == m_dont_care){
 				// if there is a valid saturation or if you can use any saturation
-				if( affMat->satBefore == grid[newi][newj].sat || affMat->satBefore == m_dont_care){
+				if( affMat->satBefore == grid[newi+camera_x][newj+camera_y].sat || affMat->satBefore == m_dont_care){
 					// rolling
 					if(roll_ht(affMat->chance[c])){
 						// change the material only if it needs changing.
-						if(affMat->matAfter != m_no_change) grid[newi][newj].matChange = affMat->matAfter;
+						if(affMat->matAfter != m_no_change) grid[newi+camera_x][newj+camera_y].matChange = affMat->matAfter;
 						// change the saturation only if it needs changing. also change the saturation level to a default of 1
 						if(affMat->satAfter != m_no_change) {
-								grid[newi][newj].satChange = affMat->satAfter;
-								grid[newi][newj].satLevelChange = 1;
+								grid[newi+camera_x][newj+camera_y].satChange = affMat->satAfter;
+								grid[newi+camera_x][newj+camera_y].satLevelChange = 1;
 						}
 						
 						// check to see if the original material will change because of it having completed an affectMat
 						if(affMat->changeOrigMat != m_no_change) 			// if the material changes after it affects neighboring cells
-							grid[i][j].matChange = affMat->changeOrigMat; 		// change the material
+							grid[i+camera_x][j+camera_y].matChange = affMat->changeOrigMat; 		// change the material
 						if(affMat->changeOrigSat != m_no_change) 			// if the saturation of our material changes after our material affects neighboring cells
-							grid[i][j].satChange = affMat->changeOrigSat; 		// change the saturation of our material.
+							grid[i+camera_x][j+camera_y].satChange = affMat->changeOrigSat; 		// change the saturation of our material.
 					}
 				}
 			}

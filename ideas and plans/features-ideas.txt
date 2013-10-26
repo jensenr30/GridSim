@@ -1,11 +1,19 @@
+make a varible background color. maybe a gradient? that would be easily done with openGL.
+make sunsets and dark nights and blue days.
+or you could make it so that the daytime sky has a random color. (it would be consistant on that world, but it would be random when the world is generated.
+that could be like a random variable for world generation: SKY_COLOR.
+maybe some skies would be a "classic" sky-blue whereas others might be a kind of rust colored atmosphere. still others could be greenish or reddish.
 
 ------------------------------------------------------------------------------------------------------
 
+use openGL for graphics instead of SDL. keep SDL for the user input but switch to OpenGL for all rendering of rectangles
 
+http://lazyfoo.net/SDL_tutorials/lesson36/index.php
 
 ------------------------------------------------------------------------------------------------------
 
-
+optimize the structures with the most used data types in the first 128 bytes according to this website:
+https://en.wikibooks.org/wiki/Optimizing_C%2B%2B/Code_optimization/Faster_operations
 
 ------------------------------------------------------------------------------------------------------
 
@@ -19,6 +27,11 @@ add a playable part of the game where the player wanders the world and survives.
 ------------------------------------------------------------------------------------------------------
 
 add weather to the game. rain? snow? maybe add a snow block?
+make weird weather.
+make some weather or seasons that aren't just your run-of-the-mill spring, summer, autum, and winter.
+make a season where drain-o rains down from the sky and kills shit.
+or make a season where the inherent grid of the game starts to show (i.e. the grid of cells that the game is comprised of starts to become visible.
+the cells start to show a shadow of an outline.
 
 ------------------------------------------------------------------------------------------------------
 

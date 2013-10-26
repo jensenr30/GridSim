@@ -336,18 +336,18 @@ void evaluate_grid(){
 	/// 2.2 SATURATION DECAY
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
-			if(grid[i][j].sat != m_no_saturation){ // if there is a valid saturation here
+			if(grid[i+camera_x][j+camera_y].sat != m_no_saturation){ // if there is a valid saturation here
 				//store current material here for convenience
-				cMat = grid[i][j].mat;
+				cMat = grid[i+camera_x][j+camera_y].mat;
 				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
-					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i][j].sat){ // if this is the right saturation
+					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i+camera_x][j+camera_y].sat){ // if this is the right saturation
 						//check for the right saturaion levels. if you don't have the right sat levels, just move on to the next satEffect. (continue)
-						if(grid[i][j].satLevel < mats[cMat].satEffect[satEffIndex].decaySatGTE || grid[i][j].satLevel > mats[cMat].satEffect[satEffIndex].decaySatLTE) continue;
+						if(grid[i+camera_x][j+camera_y].satLevel < mats[cMat].satEffect[satEffIndex].decaySatGTE || grid[i+camera_x][j+camera_y].satLevel > mats[cMat].satEffect[satEffIndex].decaySatLTE) continue;
 						
 						// roll for saturation-initiated decay 
 						if(roll_ht( mats[cMat].satEffect[satEffIndex].decayChance )){
-							grid[i][j].matChange = mats[cMat].satEffect[satEffIndex].decayIntoMat;
-							grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].decayIntoSat;
+							grid[i+camera_x][j+camera_y].matChange = mats[cMat].satEffect[satEffIndex].decayIntoMat;
+							grid[i+camera_x][j+camera_y].satChange = mats[cMat].satEffect[satEffIndex].decayIntoSat;
 						}
 					}
 				}
@@ -362,15 +362,15 @@ void evaluate_grid(){
 	for(i=0 ; i<GRID_WIDTH ; i++){
 		for(j=0 ; j<GRID_HEIGHT ; j++){
 			// air doesn't do anything. that is it's definition.
-			if(grid[i][j].mat == m_air) continue;
+			if(grid[i+camera_x][j+camera_y].mat == m_air) continue;
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
 				
 				//evaluate the affectMaterial structure (this will apply correct changes to the cellMat array)
-				evaluate_affectMaterial(i, j, &mats[grid[i][j].mat].affectMat[a] );
+				evaluate_affectMaterial(i, j, &mats[grid[i+camera_x][j+camera_y].mat].affectMat[a] );
 				
 			}
 			// check for decay.
-			if(roll_ht( mats[ grid[i][j].mat ].decayChance) ) grid[i][j].matChange = mats[ grid[i][j].mat ].decayIntoMat; // if, by chance, it is time to decay, then decay into your proper type.
+			if(roll_ht( mats[ grid[i+camera_x][j+camera_y].mat ].decayChance) ) grid[i+camera_x][j+camera_y].matChange = mats[ grid[i+camera_x][j+camera_y].mat ].decayIntoMat; // if, by chance, it is time to decay, then decay into your proper type.
 		}
 	}
 	apply_grid_changes(); // apply changes from the AFFECTS AND DECAY and decay part of this function.

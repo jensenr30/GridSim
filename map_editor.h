@@ -72,16 +72,16 @@ void zoom_out()
 void pan(int direction){
 	switch(direction){
 	case D_UP:
-		camera_y -= MAX_CELL_SIZE/CELL_SIZE;
+		camera_y -= MAX_CELL_SIZE/CELL_SIZE + 6;
 		break;
 	case D_LEFT:
-		camera_x -= MAX_CELL_SIZE/CELL_SIZE;
+		camera_x -= MAX_CELL_SIZE/CELL_SIZE + 6;
 		break;
 	case D_DOWN:
-		camera_y += MAX_CELL_SIZE/CELL_SIZE;
+		camera_y += MAX_CELL_SIZE/CELL_SIZE + 6;
 		break;
 	case D_RIGHT:
-		camera_x += MAX_CELL_SIZE/CELL_SIZE;
+		camera_x += MAX_CELL_SIZE/CELL_SIZE + 6;
 		break;
 	}
 	// make sure the camera is in a valid place

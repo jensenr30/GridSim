@@ -1,3 +1,32 @@
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+idea from patar:
+make the panning of the screen mapped to the motion of the mouse.
+if the user middle clicks (or maybe presses alt) then the mouse will function as a method of panning the screen.
+this is VERY HIGH PRIORITY
+
+------------------------------------------------------------------------------------------------------
+
 make a varible background color. maybe a gradient? that would be easily done with openGL.
 make sunsets and dark nights and blue days.
 or you could make it so that the daytime sky has a random color. (it would be consistant on that world, but it would be random when the world is generated.

@@ -42,7 +42,7 @@ int main( int argc, char* args[] )
     
     for(i=0; i<GRID_WIDTH; i++){
 		for(j=0; j<10; j++)
-		grid[i][GRID_HEIGHT-1-get_rand(0,4*j+12)].mat = m_rock;
+		grid[i+camera_x][GRID_HEIGHT-1-get_rand(0,4*j+12)+camera_y].mat = m_rock;
     }
     /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){
@@ -81,9 +81,9 @@ int main( int argc, char* args[] )
                     mouseStatusRight = 1;
                 }
                 else if( event.button.button == SDL_BUTTON_WHEELUP )
-					zoom_in();
+					zoom_in(x,y);
 				else if( event.button.button == SDL_BUTTON_WHEELDOWN )
-					zoom_out();
+					zoom_out(x,y);
             }
             else if(event.type == SDL_MOUSEBUTTONUP){						/// mouse up
 				x = event.motion.x;
@@ -101,9 +101,13 @@ int main( int argc, char* args[] )
             }
             else if(event.type == SDL_VIDEORESIZE){							/// window resize
 				
+				float new_cell_size = CELL_SIZE * event.resize.h/((float)SCREEN_HEIGHT); // adjust the pixel size.
+				if(new_cell_size - ((int)new_cell_size) >= 0.5f) CELL_SIZE = new_cell_size + 1;
+				else CELL_SIZE = new_cell_size;
 				SCREEN_WIDTH = event.resize.w;
 				SCREEN_HEIGHT = event.resize.h;
 				verify_grid_and_cell_size(); // make sure the window isn't too big for the cell size
+				
 				set_window_size(event.resize.w, event.resize.h);
 			}
 

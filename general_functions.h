@@ -1,6 +1,6 @@
  
  void set_window_size(int w, int h){
-	screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_SWSURFACE | SDL_RESIZABLE );
+	screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_OPENGL /*| SDL_RESIZABLE*/ );
 	
 	//If there was an error setting up the screen
 	if(screen == NULL )
@@ -52,6 +52,32 @@ void apply_surface( int x, int y,  SDL_Surface* source, SDL_Surface* destination
     SDL_BlitSurface( source, NULL, destination, &offset );
 }
 
+bool initGL()
+{
+    //Initialize Projection Matrix
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+
+    //Initialize Modelview Matrix
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+	// this gives us the pixel grid that we want (the same layout as SDL with 0,0 in the upper left hand corner.
+    glOrtho( 0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 1.0, -1.0);
+
+    //Initialize clear color
+    glClearColor( 0.f, 0.f, 0.f, 1.f );
+
+    //Check for error
+    GLenum error = glGetError();
+    if( error != GL_NO_ERROR )
+    {
+        printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
+        return false;
+    }
+
+    return true;
+}
+
 int init(){
 	//Initialize all subsystems
 	if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 ){
@@ -66,8 +92,15 @@ int init(){
 		return false;
 	}
 	
+	//Initialize OpenGL
+    if( initGL() == false )
+    {
+        return false;    
+    }
+	
+	
 	//Set the window caption
-	SDL_WM_SetCaption( "GridSim 0.1 - working copy", NULL );
+	SDL_WM_SetCaption( "GridSim 0.1g - openGL", NULL );
 	
 	//SDL_Wm_SetIcon( icon ); // sets the icon of the windows and taskbar item
 	

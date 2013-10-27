@@ -2,7 +2,6 @@
 
 int main( int argc, char* args[] ) 
 {
-	
 	//get a random seed.
 	srand(time(NULL));
 

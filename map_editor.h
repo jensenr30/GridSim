@@ -29,6 +29,8 @@ void deletecell(int x, int y, int data)
 		grid[x/CELL_SIZE + camera_x][y/CELL_SIZE + camera_y].satLevel = 0;
 	}
 }
+// function prototype to keep the compiler quiet
+void verify_camera();
 
 #define MAX_CELL_SIZE 61
 #define MIN_CELL_SIZE 1

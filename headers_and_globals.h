@@ -1,5 +1,12 @@
+// standard input/output
 #include <stdio.h>
+// Windows
 #include "Windows.h"
+// OpenGL
+#include <GL/freeglut.h> 
+#include <GL/gl.h>
+#include <GL/glu.h>
+// SDL stuff
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"

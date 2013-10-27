@@ -185,7 +185,7 @@ int main( int argc, char* args[] )
         cursorDisplay(x, y);
 
         //updates the screen
-        SDL_Flip( screen );
+		SDL_GL_SwapBuffers();
 
     }// end while(quit == false)
 

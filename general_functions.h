@@ -1,8 +1,16 @@
+ //prototype
+ bool initGL();
  
  void set_window_size(int w, int h){
-	screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_OPENGL /*| SDL_RESIZABLE*/ );
+	screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_OPENGL | SDL_RESIZABLE | SDL_DOUBLEBUF );
 	
-	//If there was an error setting up the screen
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
+	glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+	
 	if(screen == NULL )
 	{
 		exit(111);
@@ -85,7 +93,12 @@ int init(){
 	}
 	
 	//Set up the screen
-	set_window_size(SCREEN_WIDTH, SCREEN_HEIGHT);
+	screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL | SDL_RESIZABLE );
+	//If there was an error setting up the screen
+	if(screen == NULL )
+	{
+		exit(111);
+	}
 	
 	//If there was an error setting up the screen
 	if(screen == NULL ){

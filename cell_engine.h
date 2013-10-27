@@ -582,22 +582,21 @@ void print_cells(){
 			}
 			//only print valid saturations
 			if( grid[i+camera_x][j+camera_y].sat != m_no_saturation ){
+				// put the color into something easier to write
 				satColor = mats[grid[i+camera_x][j+camera_y].sat].color;
-				//glVertex2i(    i*CELL_SIZE, j*CELL_SIZE);
-				//glVertex2i((i+0.75)*CELL_SIZE, j*CELL_SIZE);
-				//glVertex2i((i+0.75)*CELL_SIZE, (j+1)*CELL_SIZE);
-				//glVertex2i(    i*CELL_SIZE, (j+1)*CELL_SIZE);
-				//myRectangleSat.x = i*CELL_SIZE + myRectangleSat.w/2;
-				//myRectangleSat.y = j*CELL_SIZE + myRectangleSat.h/2;
-				//SDL_FillRect( screen , &myRectangleSat , mats[grid[i+camera_x][j+camera_y].sat].color);
+				//get the right color values
+				glColor3ub(satColor/0x10000, (satColor/0x100)&0xFF, satColor&0xFF);
+				//print the cell saturation color inside the cell itself.
+				glVertex2i((i+0.25)*CELL_SIZE, (j+0.25)*CELL_SIZE);
+				glVertex2i((i+0.75)*CELL_SIZE, (j+0.25)*CELL_SIZE);
+				glVertex2i((i+0.75)*CELL_SIZE, (j+0.75)*CELL_SIZE);
+				glVertex2i((i+0.25)*CELL_SIZE, (j+0.75)*CELL_SIZE);
 			}
         }
     }
     
 	//end the printing of material cells
     glEnd();
-	// update the screen
-    SDL_GL_SwapBuffers();
     /*
     // print the color of the saturations of each material in each cell
     for(i = 0; i < GRID_WIDTH; i++){

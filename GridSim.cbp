@@ -36,6 +36,9 @@
 		<Linker>
 			<Add option="-lcomdlg32" />
 			<Add option="-lmingw32" />
+			<Add option="-lOpenGL32" />
+			<Add option="-lglu32" />
+			<Add option="-lfreeglut" />
 			<Add option="-lSDLmain" />
 			<Add option="-lSDL" />
 			<Add option="-lSDL_image" />

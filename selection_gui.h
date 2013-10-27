@@ -87,14 +87,14 @@ void selectionGUI(int x, int y, int mouse)
 		guiRectangle.y = 0;
 		guiRectangle.w = wPos;
 		guiRectangle.h = hPos;
-		SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , 0x181818);
+		GL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , 0x181818);
 		
 		// box under text color
 		guiRectangle.x = 0;
 		guiRectangle.y = 0;
 		guiRectangle.w = 200;
 		guiRectangle.h = 50;
-		SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[currentMat].color);
+		GL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[currentMat].color);
 		
 		// decide what color the materials name will be: black or white based on the brightness of the color of the material.
 		SDL_Color matNameColor;
@@ -117,7 +117,7 @@ void selectionGUI(int x, int y, int mouse)
 		selectionBox.y = ySel - yPos;
 		selectionBox.w = wSel;
 		selectionBox.h = hSel;
-		SDL_FillRect( /*screen*/tempGuiScreen , &selectionBox , 0xffffff);
+		GL_FillRect( /*screen*/tempGuiScreen , &selectionBox , 0xffffff);
 		
 		// prints a rectangle for each material icon
 		for( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
@@ -126,7 +126,7 @@ void selectionGUI(int x, int y, int mouse)
 			guiRectangle.y = matIcon[i].y - yPos;
 			guiRectangle.w = widthButton;
 			guiRectangle.h = heightButton;
-			SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[i].color);
+			GL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[i].color);
 		}
 		
 		// checks for mouse clicks over material icons
@@ -193,7 +193,7 @@ void brushesGUI(int x, int y, int mouse)
 	brushesRectangle.y = 0;
 	brushesRectangle.w = xPos;
 	brushesRectangle.h = 50;
-    SDL_FillRect( screen , &brushesRectangle , 0x181818);
+    GL_FillRect( screen , &brushesRectangle , 0x181818);
     
     //assigns text to brush names
     Brushes[0].name = "Standard";
@@ -217,7 +217,7 @@ void brushesGUI(int x, int y, int mouse)
         brushesRectangle.y = Brushes[i].y;
         brushesRectangle.w = brushButtonWidth;
         brushesRectangle.h = brushButtonHeight;
-        SDL_FillRect( screen , &brushesRectangle , 0xffffff);
+        GL_FillRect( screen , &brushesRectangle , 0xffffff);
     }
 
     //checks for mouse clicks over brush icons
@@ -393,7 +393,7 @@ void cursorDisplay(x, y)
         cursorRectangle.x = x - CELL_SIZE/2;
         cursorRectangle.y = y - CELL_SIZE/2;
         cursorRectangle.w = cursorRectangle.h = CELL_SIZE;
-        SDL_FillRect( screen , &cursorRectangle , mats[currentMat].color);
+        GL_FillRect( screen , &cursorRectangle , mats[currentMat].color);
         
         //updates cursor to what it the cursor is about to print
         
@@ -403,22 +403,22 @@ void cursorDisplay(x, y)
             //top
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y - CELL_SIZE*1.5;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
             //left
             cursorRectangle.x = x - CELL_SIZE*1.5;
             cursorRectangle.y = y - CELL_SIZE/2;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
             //bottom
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y + CELL_SIZE/2;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
             //right
             cursorRectangle.x = x + CELL_SIZE/2;
             cursorRectangle.y = y - CELL_SIZE/2;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
            
         }
         
@@ -430,29 +430,29 @@ void cursorDisplay(x, y)
             cursorRectangle.y = y - CELL_SIZE*1.5;
             cursorRectangle.w = CELL_SIZE*3;
             cursorRectangle.h = CELL_SIZE*3;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
             //top
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y - CELL_SIZE*2.5;
             cursorRectangle.w = CELL_SIZE;
             cursorRectangle.h = CELL_SIZE;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
             //left
             cursorRectangle.x = x - CELL_SIZE*2.5;
             cursorRectangle.y = y - CELL_SIZE/2;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
             //bottom
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y + CELL_SIZE*1.5;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
             //right
             cursorRectangle.x = x + CELL_SIZE*1.5;
             cursorRectangle.y = y - CELL_SIZE/2;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
             
         }
         
@@ -463,6 +463,6 @@ void cursorDisplay(x, y)
             cursorRectangle.y = y - CELL_SIZE*1.5;
             cursorRectangle.w = CELL_SIZE*3;
             cursorRectangle.h = CELL_SIZE*3;
-            SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            GL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
         }
 }

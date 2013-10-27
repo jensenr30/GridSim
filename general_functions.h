@@ -11,15 +11,28 @@
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 	
-	if(screen == NULL )
-	{
-		exit(111);
-	}
+	if(screen == NULL ) exit(111);
 }
- 
- 
- 
- 
+
+//this acts as a replacement for GL_FillRect
+void GL_FillRect(SDL_Surface *dst, SDL_Rect *rct, int color){
+	//clear the color buffer
+	//glClear( GL_COLOR_BUFFER_BIT );
+	// quadrilateral
+	glBegin(GL_QUADS);
+	//process color
+	glColor3ub(color/0x10000, (color/0x100)&0xff, color&0xff );
+	//generate verticies
+	glVertex2s(rct->x,          rct->y			);
+	glVertex2s(rct->x + rct->w, rct->y			);
+	glVertex2s(rct->x + rct->w, rct->y + rct->h	);
+	glVertex2s(rct->x,          rct->y + rct->h	);
+	//end the quad
+	glEnd();
+}
+
+
+
 SDL_Surface *load_image( char* filename ){
     //Temporary storage for the image that is loaded
     SDL_Surface* loadedImage = NULL;

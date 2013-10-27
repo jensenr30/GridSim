@@ -186,6 +186,8 @@ int main( int argc, char* args[] )
 
         //updates the screen
 		SDL_GL_SwapBuffers();
+		//clear openGLcolor to get it ready for the next cycle of graphics prints? i think? maybe? probably. it seems to work.
+		glClear( GL_COLOR_BUFFER_BIT );
 
     }// end while(quit == false)
 

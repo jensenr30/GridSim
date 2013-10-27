@@ -28,7 +28,7 @@
 		my_rect.y = 0;
 		my_rect.w = 640;
 		my_rect.h = 480;
-		SDL_FillRect( screen, &my_rect, 0xffffff );
+		GL_FillRect( screen, &my_rect, 0xffffff );
 		SDL_FreeSurface( screen );
 
 		//apply images

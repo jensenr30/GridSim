@@ -8,3 +8,5 @@ bin/Release/GridSim.exe
 *stdout.txt
 *.orig
 *Thumbs.db
+icon.rc
+.gitignore

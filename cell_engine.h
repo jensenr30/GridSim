@@ -105,9 +105,11 @@ void evaluate_grid(){
 		for(i=0; i<GRID_WIDTH; i++){ // cycle through each column for a single row
 			
 			//this resets the holdOff if there is a gap between the gravity material
-			if(grid[i+camera_x][j+camera_y].mat == m_air && grid[i+camera_x][j+1+camera_y].mat == m_air){
-				holdOff = 0;
-				continue;
+			if(holdOff){ // only check if the holdOff is non-zero
+				if(grid[i+camera_x][j+camera_y].mat == m_air && grid[i+camera_x][j+1+camera_y].mat == m_air){
+					holdOff = 0;
+					continue;
+				}
 			}
 			
 			// temporarily store the values of the gravity and material for the current cell

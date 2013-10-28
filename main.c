@@ -7,7 +7,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, sleepTime = 64, paused = 0, countVar = 0;
+    int x, y, sleepTime = 0, paused = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -36,7 +36,6 @@ int main( int argc, char* args[] )
     
 
 	CELL_SIZE = 4;
-    sleepTime = 0;
 	int i;//
 	//putting test materials into grid
     

@@ -16,7 +16,8 @@
 
 ------------------------------------------------------------------------------------------------------
 
-
+make an option to either replace existing material or only place material in un-filled cells when adding material to the matrix.
+also make an option to only delete certain types of material when erasing from the grid.
 
 ------------------------------------------------------------------------------------------------------
 

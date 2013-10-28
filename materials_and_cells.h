@@ -58,28 +58,30 @@ struct cellData grid[MAX_GRID_WIDTH*3][MAX_GRID_HEIGHT*3];
 #define m_no_saturation 	-2  // this is used to signify that a material in a cell has no saturation
 #define m_no_change 		-1	// this material is more of a flag. It is used by the cell_engine in checking the changes to the cells in the grid.
 #define m_air			0
+
+/// materials you will see
+
 #define m_earth			1
-#define m_plant			2
-#define m_water			3
-#define m_fire			4
-#define m_tree_base		5
-#define m_smoke			6
+#define m_mud			2
+#define m_rock			3
+#define m_rubble		4
+#define m_sand			5
 
-#define m_rubble		9
-#define m_rock			10
-//#define m_bedrock		11
-#define m_spring		12
-#define m_sand			13
-#define m_mud			14
-#define m_plant_root	15
+#define m_spring		7
+#define m_water			8
+#define m_plant			9
+#define m_plant_root	10
+#define m_fire			11
+#define m_tree_base		12
 
-#define m_scurge		21
-#define m_anti_scurge	22
-#define m_dead_scurge	23
-#define m_bottom_feeder	24
+#define m_scurge		19
+#define m_anti_scurge	20
+#define m_bottom_feeder	21
 
-#define m_test			30
-#define m_test2			31
+#define m_test			23
+#define m_test2			24
+
+/// non-menu materials
 
 //tree stuff
 #define m_tree_trunk		80
@@ -91,6 +93,7 @@ struct cellData grid[MAX_GRID_WIDTH*3][MAX_GRID_HEIGHT*3];
 #define m_tree_leaves_end	86
 #define m_tree_fruit		87
 
+#define m_dead_scurge	98
 
 #define m_valid_but_null_material (MAX_NUMBER_OF_UNIQUE_MATERIALS-1)
 
@@ -312,6 +315,7 @@ void init_material_attributes(void){
 	mats[m_air].name = "Air";
 	///DON'T YOU DARE CHANGE ANYTHING ABOUT AIR! you SACK of SHIT!
 //-------------------------------------------------------------------------------------------------------------------------------
+	/*
 	//mats[m_smoke].name = "Smoke";
 	mats[m_smoke].color = 0xa3a3a3;
 	
@@ -326,6 +330,7 @@ void init_material_attributes(void){
 	mats[m_smoke].affectMat[0].changesPerEval = 1;
 	mats[m_smoke].decayChance = 400;
 	mats[m_smoke].decayIntoMat = m_water;
+	*/
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_earth].name = "Earth";
 	mats[m_earth].color = 0x8b672d;
@@ -412,23 +417,16 @@ void init_material_attributes(void){
 	mats[m_water].gravity = -32;
     mats[m_water].color = 0x52a9e0;
     
-    mats[m_water].affectMat[0].matBefore = m_fire;
+    mats[m_water].affectMat[0].matBefore = m_fire;		/// water puts out fire
     mats[m_water].affectMat[0].matAfter  = m_air;
     set_chance(mats[m_water].affectMat[0].chance, 100000);
 //-------------------------------------------------------------------------------------------------------------------------------
     mats[m_spring].name = "Spring";
 	mats[m_spring].color = 0x97bcbb;
 	
-	mats[m_spring].affectMat[0].matBefore = m_dont_care;  /// spring generates water
+	mats[m_spring].affectMat[0].matBefore = m_air;  /// spring generates in open cells
 	mats[m_spring].affectMat[0].matAfter = m_water;
-	//mats[m_spring].affectMat[0].chance[0] = 0;
-	//mats[m_spring].affectMat[0].chance[1] = 0;
-	//mats[m_spring].affectMat[0].chance[2] = 0;
-	mats[m_spring].affectMat[0].chance[3] = 300;
-	mats[m_spring].affectMat[0].chance[4] = 300;
-	mats[m_spring].affectMat[0].chance[5] = 700;
-	mats[m_spring].affectMat[0].chance[6] = 1000;
-	mats[m_spring].affectMat[0].chance[7] = 700;
+	set_chance(mats[m_spring].affectMat[0].chance, 800);
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_fire].name = "Fire"; 
 	mats[m_fire].decayIntoMat = m_air;

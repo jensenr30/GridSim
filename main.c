@@ -37,12 +37,17 @@ int main( int argc, char* args[] )
 
 	CELL_SIZE = 4;
     sleepTime = 0;
-	int i,j;
+	int i;//
 	//putting test materials into grid
     
     for(i=0; i<GRID_WIDTH; i++){
-		for(j=0; j<10; j++)
-		grid[i+camera_x][GRID_HEIGHT-1-get_rand(0,4*j+12)+camera_y].mat = m_rock;
+		if(get_rand(1,4)==1)
+			grid[i+camera_x][GRID_HEIGHT-1-get_rand(7,15)+camera_y].mat = m_plant_root;
+		if(get_rand(1,10)==10)
+			grid[i+camera_x][camera_y+get_rand(20,35)].mat = m_spring;
+		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
+		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
+		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
     }
     /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){

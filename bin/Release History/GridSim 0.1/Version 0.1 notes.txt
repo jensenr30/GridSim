@@ -1,0 +1,30 @@
+--------------------------------------------------------------
+Grid Sim
+Version 0.1
+Released 2013-10-27 (October 27th, 2013)
+--------------------------------------------------------------
+
+--------------------------------------------------------------
+Developer's Notes:
+
+1.	The panning is a bit jerky at the moment.
+	A man by the name of Patar has suggested that I tie the panning controls to the mouse.
+	I intend to do that.
+	
+2.	The controls for placing materials have always been fairly poor.
+	Josh Pohl is currently working on making them better, more intuitive, and more powerful.
+	
+3.	I'm planing on taking the game in a different direction soon.
+	I'm thinking of an adveture/building/sandbox type game.
+	This game should turn into something more than other sandbox games in that the environment will be very dynamic.
+	The environment will at times work with you, and at other times work against you.
+--------------------------------------------------------------
+
+
+Expect to see these changes and more in the next release!
+Drop Josh or me a line if you have any comments or suggestions!
+Contact info is provided below:
+--------------------------------------------------------------
+Developers:
+	Ryan Jensen		aka JensenR30		JensenR30@gmail.com
+	Josh Pohl		aka JPisaBrony		jdpohl789@gmail.com

@@ -67,9 +67,9 @@ int init(){
 	}
 	
 	//Set the window caption
-	SDL_WM_SetCaption( "GridSim 0.1 - working copy", NULL );
+	SDL_WM_SetCaption( "GridSim 0.1", NULL );
 	
-	//SDL_Wm_SetIcon( icon ); // sets the icon of the windows and taskbar item
+	
 	
 	//If everything initialized fine
 	return true;
@@ -86,6 +86,10 @@ int load_files(){
 		return false;
 	}
 	*/
+	
+	icon = SDL_LoadBMP("game icon.ico");
+	SDL_WM_SetIcon(icon, NULL); // sets the icon of the windows and taskbar item
+	
 	//Initialize SDL_ttf
     if( TTF_Init() == -1 )
     {

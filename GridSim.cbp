@@ -23,7 +23,9 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-Os" />
+					<Add option="-O3" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -44,6 +46,9 @@
 		<Unit filename="cell_engine.h" />
 		<Unit filename="general_functions.h" />
 		<Unit filename="headers_and_globals.h" />
+		<Unit filename="icon.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

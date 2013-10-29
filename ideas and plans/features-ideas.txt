@@ -34,21 +34,6 @@ maybe there would be some special interest in the immidiate area around the play
 It would be nice if evaluating things outside the player's field of view would act as a damper to regulate the speed at which the game plays inside the player's field of view.
 that would be great because then the game could be played at a relatively contant speed while enhancing the overall feel of the dynamicness of the map.
 
-------------------------------------------------------------------------------------------------------
-
-the places where you don't go, time doesn't pass.
-what if you have an algorithm that makes time pass very slowly in the regions where you are not.
-for instsance, what if, every time the screen is updated in the player field of view, a few rows of the rest of the world are evaluated from top to bottom.
-special care would have to be taken to ensure that this extra evaluation of the rest of the grid does NOT overlap with the player's screen.
-
-evaluating too much of the world beyond the player's field of view would become too processing intense and would ultimately only hinder play.
-
-however, I think it would be a great idea to divert processing power to the rest of the grid when possible.
-maybe there would be some special interest in the immidiate area around the player?
-
-It would be nice if evaluating things outside the player's field of view would act as a damper to regulate the speed at which the game plays inside the player's field of view.
-that would be great because then the game could be played at a relatively contant speed while enhancing the overall feel of the dynamicness of the map.
-
 maybe we could have a similar thing that tekkit has: world anchors!
 that way that specific location will get some kind of advantage in terms of evaluation speed.
 

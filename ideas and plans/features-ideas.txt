@@ -1,4 +1,9 @@
 
+
+------------------------------------------------------------------------------------------------------
+
+
+
 ------------------------------------------------------------------------------------------------------
 
 
@@ -6,6 +11,66 @@
 ------------------------------------------------------------------------------------------------------
 
 
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+make a system of dual or even triple colors where there can be verticle or horizontal stripes on materials that have dual/triple colors.
+
+the color of a normal materials is solid:
+
+- - - -
+- - - -
+- - - -
+
+the color of a striped block would look like this:
+
+# - # -
+# - # -
+# - # -
+# - # -
+
+or maybe it should be checkered
+
+# - # -
+- # - #
+# - # -
+- # - #
+
+yeah maybe this. or maybe that could be a flag?
+
+in the mats structure:
+
+colorType;
+
+#define ct_solid 0
+#define ct_striped 1
+#define ct_checkered 2
+(etc...)
+
+------------------------------------------------------------------------------------------------------
+
+use threads to evaluate multiple sections of the saturation of the screen at once.
+maybe use four threads total to evaluate the four quarters of the screen.
+that would be awesome. the game might preform faster if the process was chopped up into smaller pieces and handled by different threads.
+
+if I start running into dual write errors (where more than one thread tries to overwrite the same data simultaneiously)
+then I may have to evaluate the four quarters individually, but leave a border between all of them so that their data writing doesn't interfere with each other.
+Then after the four quarters are evaluated, the border can be evaluated.
+
+------------------------------------------------------------------------------------------------------
+
+add a portal feature.
+make it two blocks that send out tendril like things around them in random directions until they finally meet.
+when they meet, their connection makes a portal.
+where does the portal go? i don't know yet.
 
 ------------------------------------------------------------------------------------------------------
 

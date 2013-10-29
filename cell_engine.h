@@ -246,84 +246,81 @@ void evaluate_grid(){
 	bool firstEncounter;
 	
 	/// 2.1 EVALUATE SATURATION - the giant ass loop where the saturation is evaluated
-	// go through ONLY the types of materials that can be saturated.
-	for(matIndex=0; matIndex<numberOfSatableMats ; matIndex++){
+	for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
+		for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
 			
-		cMat = matSatOrder[matIndex]; // get correct material
-		
-		for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
-			for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
+			cMat = grid[i+camera_x][j+camera_y].mat; // get correct material
+			
+			//go through each saturation effect of the material
+			for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
 				
-				//go through each saturation effect of the material
-				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
+				// if there is no effect, skip ahead to the next saturation effect.
+				if(mats[cMat].satEffect[satEffIndex].satMat == m_no_saturation) continue;
+				
+				//make sure the current cell has the current material, cMat, in it!! if not, continue;
+				if(cMat != grid[i+camera_x][j+camera_y].mat) continue;
+				
+				//check for saturation memory
+				if(mats[cMat].satEffect[satEffIndex].satMem == false){ // if there is no saturation memory
+					// if there is no memory, evaluate the satuation level each time.
+					grid[i+camera_x][j+camera_y].satLevelChange = 0;
+					// it needs to be saturated each cycle of evaluate_grid() when there is no memory.
+					grid[i+camera_x][j+camera_y].satChange = m_no_saturation;
+				}
+				/*
+				else{ // if there is saturation memory
+					// there is no change in the saturation level.
+					grid[i+camera_x][j+camera_y].satLevelChange = m_no_change;
+					// there is no change in the saturation
+					grid[i+camera_x][j+camera_y].satChange = m_no_change;
+				}
+				*/
+				
+				//set this so that you know you have not encountered any other saturating materials around the material you are evaluating
+				firstEncounter = 1;
 					
-					firstEncounter = 1;
-					
-					// if there is no effect, skip ahead to the next saturation effect.
-					if(mats[cMat].satEffect[satEffIndex].satMat == m_no_saturation) continue;
-					
-					//make sure the current cell has the current material, cMat, in it!! if not, continue;
-					if(cMat != grid[i+camera_x][j+camera_y].mat) continue;
-					
-					//check for saturation memory
-					if(mats[cMat].satEffect[satEffIndex].satMem == false){ // if there is no saturation memory
-						// if there is no memory, evaluate the satuation level each time.
-						grid[i+camera_x][j+camera_y].satLevelChange = 0;
-						// it needs to be saturated each cycle of evaluate_grid() when there is no memory.
-						grid[i+camera_x][j+camera_y].satChange = m_no_saturation;
+				//for every cell around our cell [i][j], evaluate whether or not it gets saturated
+				//  	0 1 2
+				//  	3 M 4
+				//  	5 6 7
+				for(c=0 ; c<8 ; c++){
+					//get correct newi and newj values to plug into grid[newi+camera_x][newj+camera_y].mat
+					switch(c){
+					case 0: newi = i-1;	newj = j-1;
+						break;
+					case 1: newi = i;	newj = j-1;
+						break;
+					case 2: newi = i+1;	newj = j-1;
+						break;
+					case 3: newi = i-1;	newj = j;
+						break;
+					case 4: newi = i+1;	newj = j;
+						break;
+					case 5: newi = i-1;	newj = j+1;
+						break;
+					case 6: newi = i;	newj = j+1; 
+						break;
+					case 7: newi = i+1;	newj = j+1;
+						break;
 					}
-					/*
-					else{ // if there is saturation memory
-						// there is no change in the saturation level.
-						grid[i+camera_x][j+camera_y].satLevelChange = m_no_change;
-						// there is no change in the saturation
-						grid[i+camera_x][j+camera_y].satChange = m_no_change;
-					}
-					*/
+					// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
+					if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
+				
+					// if the material near this cell is the right type to saturate it
+					if(grid[newi+camera_x][newj+camera_y].mat == mats[cMat].satEffect[satEffIndex].satMat){
 						
-					//for every cell around our cell [i][j], evaluate whether or not it gets saturated
-					//  	0 1 2
-					//  	3 M 4
-					//  	5 6 7
-					for(c=0 ; c<8 ; c++){
-						//get correct newi and newj values to plug into grid[newi+camera_x][newj+camera_y].mat
-						switch(c){
-						case 0: newi = i-1;	newj = j-1;
-							break;
-						case 1: newi = i;	newj = j-1;
-							break;
-						case 2: newi = i+1;	newj = j-1;
-							break;
-						case 3: newi = i-1;	newj = j;
-							break;
-						case 4: newi = i+1;	newj = j;
-							break;
-						case 5: newi = i-1;	newj = j+1;
-							break;
-						case 6: newi = i;	newj = j+1; 
-							break;
-						case 7: newi = i+1;	newj = j+1;
-							break;
+						if(roll_ht(mats[cMat].satEffect[satEffIndex].chance[c])){ // determine if it will become saturated based on roll_ht function.
+							grid[i+camera_x][j+camera_y].satChange = mats[cMat].satEffect[satEffIndex].satMat;
+							// absorbs the material if required. it only absorbs if it isn't already saturated.
+							if(grid[i+camera_x][j+camera_y].sat != grid[newi+camera_x][newj+camera_y].mat && mats[cMat].satEffect[satEffIndex].absorb) grid[newi+camera_x][newj+camera_y].matChange = m_air;
 						}
-						// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
-						if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
-					
-						// if the material near this cell is the right type to saturate it
-						if(grid[newi+camera_x][newj+camera_y].mat == mats[cMat].satEffect[satEffIndex].satMat){
-							
-							if(roll_ht(mats[cMat].satEffect[satEffIndex].chance[c])){ // determine if it will become saturated based on roll_ht function.
-								grid[i+camera_x][j+camera_y].satChange = mats[cMat].satEffect[satEffIndex].satMat;
-								// absorbs the material if required. it only absorbs if it isn't already saturated.
-								if(grid[i+camera_x][j+camera_y].sat != grid[newi+camera_x][newj+camera_y].mat && mats[cMat].satEffect[satEffIndex].absorb) grid[newi+camera_x][newj+camera_y].matChange = m_air;
+						// increment the satLevel if needed.
+						if(firstEncounter){
+							grid[i+camera_x][j+camera_y].satLevelChange = 1;
+							firstEncounter = 0;
 							}
-							// increment the satLevel if needed.
-							if(firstEncounter){
-								grid[i+camera_x][j+camera_y].satLevelChange = 1;
-								firstEncounter = 0;
-								}
-							else
-								grid[i+camera_x][j+camera_y].satLevelChange++;
-						}
+						else
+							grid[i+camera_x][j+camera_y].satLevelChange++;
 					}
 				}
 			}

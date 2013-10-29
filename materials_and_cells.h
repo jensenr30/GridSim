@@ -74,6 +74,8 @@ struct cellData grid[MAX_GRID_WIDTH*3][MAX_GRID_HEIGHT*3];
 #define m_fire			11
 #define m_tree_base		12
 
+#define m_pipe			13
+
 #define m_scurge		19
 #define m_anti_scurge	20
 #define m_bottom_feeder	21
@@ -364,7 +366,7 @@ void init_material_attributes(void){
 	mats[m_plant].satEffect[1].satMat = m_earth;
 	set_chance(mats[m_plant].satEffect[1].chance, 100000);
 	*/
-	mats[m_plant].satEffect[0].satMat = m_water;	/// plant absorbs water. plant can die from too much water
+	mats[m_plant].satEffect[0].satMat = m_water;		/// plant absorbs water. plant can die from too much water
 	set_chance(mats[m_plant].satEffect[0].chance, 800);
 	mats[m_plant].satEffect[0].absorb = true;
 	mats[m_plant].satEffect[0].decayChance = 15000;
@@ -372,13 +374,13 @@ void init_material_attributes(void){
 	mats[m_plant].satEffect[0].decaySatGTE = 3;
 	
 	
-	mats[m_plant].satEffect[3].satMat = m_fire;		/// plant starts to burn when it is next to fire
+	mats[m_plant].satEffect[3].satMat = m_fire;			/// plant starts to burn when it is next to fire
     mats[m_plant].satEffect[3].absorb = true;
     set_chance(mats[m_plant].satEffect[3].chance, 97000);
     mats[m_plant].satEffect[3].decayChance = 4000;
     mats[m_plant].satEffect[3].decayIntoMat = m_fire;
     
-	mats[m_plant].affectMat[1].matBefore = m_mud; /// plant grows plant_roots into into mud
+	mats[m_plant].affectMat[1].matBefore = m_mud; 		/// plant grows plant_roots into into mud
 	mats[m_plant].affectMat[1].matAfter  = m_plant_root;
 	mats[m_plant].affectMat[1].chance[0] = 100;
 	mats[m_plant].affectMat[1].chance[1] = 100;
@@ -389,7 +391,7 @@ void init_material_attributes(void){
 	mats[m_plant].affectMat[1].chance[6] = 450;
 	mats[m_plant].affectMat[1].chance[7] = 450;
 	
-    mats[m_plant].affectMat[2].matBefore = m_air;	/// burning plant spreads fire
+    mats[m_plant].affectMat[2].matBefore = m_air;		/// burning plant spreads fire
     mats[m_plant].affectMat[2].matAfter  = m_fire;
     set_chance_symmetrical(mats[m_plant].affectMat[2].chance, 6000,5000, 3500, 2000, 1000);
     mats[m_plant].affectMat[2].chance[0] = 100000;
@@ -397,14 +399,14 @@ void init_material_attributes(void){
     mats[m_plant].affectMat[2].changesPerEval = 1;
     
     
-    mats[m_plant].affectMat[3].satNeeded = m_water;			/// wet plants may grow more plant at the cost of their water saturation
+    mats[m_plant].affectMat[3].satNeeded = m_water;		/// wet plants may grow more plant at the cost of their water saturation
     mats[m_plant].affectMat[3].changeOrigSat = m_no_saturation;
     mats[m_plant].affectMat[3].matBefore = m_air;
     mats[m_plant].affectMat[3].matAfter = m_plant;
     mats[m_plant].affectMat[3].changesPerEval = 1;
     set_chance(mats[m_plant].affectMat[3].chance, 2500);
     
-    mats[m_plant].affectMat[4].satNeeded = m_water;			/// wet plants may push their water saturation around
+    mats[m_plant].affectMat[4].satNeeded = m_water;		/// wet plants may push their water saturation around
     mats[m_plant].affectMat[4].changeOrigSat = m_no_saturation;
     mats[m_plant].affectMat[4].matBefore = m_plant;
     mats[m_plant].affectMat[4].satBefore = m_no_saturation;
@@ -424,9 +426,29 @@ void init_material_attributes(void){
     mats[m_spring].name = "Spring";
 	mats[m_spring].color = 0x97bcbb;
 	
-	mats[m_spring].affectMat[0].matBefore = m_air;  /// spring generates in open cells
+	mats[m_spring].affectMat[0].matBefore = m_air;  	/// spring generates in open cells
 	mats[m_spring].affectMat[0].matAfter = m_water;
 	set_chance(mats[m_spring].affectMat[0].chance, 800);
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_pipe].name = "Pipe";
+	mats[m_pipe].color = 0x778866; // be7e22;
+	mats[m_pipe].satEffect[0].absorb = true;			/// pipe absorbs water around it.
+	mats[m_pipe].satEffect[0].satMat = m_water;
+	mats[m_pipe].satEffect[0].chance[6] = 100000; // pipe only absorbs water from below it.
+	
+	mats[m_pipe].affectMat[0].matBefore = m_pipe;		/// pipe moves water up
+	mats[m_pipe].affectMat[0].satBefore = m_no_saturation;
+	mats[m_pipe].affectMat[0].satAfter = m_water;
+	mats[m_pipe].affectMat[0].satNeeded = m_water;
+	mats[m_pipe].affectMat[0].changeOrigSat = m_no_saturation;
+	mats[m_pipe].affectMat[0].chance[1] = 100000;
+	
+	mats[m_pipe].affectMat[1].matBefore = m_air;
+	mats[m_pipe].affectMat[1].matAfter = m_water;
+	mats[m_pipe].affectMat[1].satNeeded = m_water;
+	mats[m_pipe].affectMat[1].changeOrigSat = m_no_saturation;
+	mats[m_pipe].affectMat[1].chance[1] = 100000;
+	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_fire].name = "Fire"; 
 	mats[m_fire].decayIntoMat = m_air;
@@ -455,7 +477,7 @@ void init_material_attributes(void){
 	mats[m_rubble].color = 0x715A63;
 	mats[m_rubble].gravity = 3;
 //-------------------------------------------------------------------------------------------------------------------------------
-	mats[m_tree_base].name = "Tree";	/// this is the start of the tree. this is what you palce and watch a tree grow.
+	mats[m_tree_base].name = "Tree";					/// this is the start of the tree. this is what you palce and watch a tree grow.
 	mats[m_tree_base].color = 0x7b5126;
 	mats[m_tree_base].affectMat[0].matBefore = m_air;
 	mats[m_tree_base].affectMat[0].matAfter  = m_tree_trunk;
@@ -471,7 +493,7 @@ void init_material_attributes(void){
 	mats[m_mud].satEffect[0].absorb = 1;
 	mats[m_mud].satEffect[0].satMat = m_water;
 	mats[m_mud].satEffect[0].satMem = true;
-	mats[m_mud].satEffect[0].chance[0] = 1000; /// mud absorbs water
+	mats[m_mud].satEffect[0].chance[0] = 1000; 			/// mud absorbs water
 	mats[m_mud].satEffect[0].chance[1] = 1100;
 	mats[m_mud].satEffect[0].chance[2] = 1000;
 	mats[m_mud].satEffect[0].chance[3] = 500;
@@ -480,7 +502,7 @@ void init_material_attributes(void){
 	mats[m_mud].satEffect[0].chance[6] = 200;
 	mats[m_mud].satEffect[0].chance[7] = 150;
 	
-	mats[m_mud].affectMat[1].changesPerEval = 1; /// when mud is saturated with water, it will leak water into other mud that is NOT saturated with water.
+	mats[m_mud].affectMat[1].changesPerEval = 1; 		/// when mud is saturated with water, it will leak water into other mud that is NOT saturated with water.
 	mats[m_mud].affectMat[1].changeOrigSat = m_no_saturation;
 	mats[m_mud].affectMat[1].satNeeded = m_water;
 	mats[m_mud].affectMat[1].matBefore = m_mud;
@@ -493,7 +515,7 @@ void init_material_attributes(void){
 	mats[m_mud].affectMat[1].chance[6] = 950;
 	mats[m_mud].affectMat[1].chance[7] = 700;
 	
-	mats[m_mud].affectMat[2].changesPerEval = 1; 	/// mud leaks water into dry earth.
+	mats[m_mud].affectMat[2].changesPerEval = 1; 		/// mud leaks water into dry earth.
 	mats[m_mud].affectMat[2].satNeeded = m_water;
 	mats[m_mud].affectMat[2].changeOrigSat = m_no_saturation;
 	mats[m_mud].affectMat[2].matBefore = m_earth;
@@ -508,7 +530,7 @@ void init_material_attributes(void){
 	mats[m_mud].affectMat[1].chance[6] = 650;
 	mats[m_mud].affectMat[1].chance[7] = 325;
 	
-	mats[m_mud].affectMat[0].changeOrigMat = m_earth;		/// mud turns into dirt if it can make the dirt below it turn into earth.
+	mats[m_mud].affectMat[0].changeOrigMat = m_earth;	/// mud turns into dirt if it can make the dirt below it turn into earth.
 	mats[m_mud].affectMat[0].changesPerEval = 1;
 	mats[m_mud].affectMat[0].satBefore = m_no_saturation;
 	mats[m_mud].affectMat[0].satAfter = m_no_saturation;

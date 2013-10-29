@@ -9,10 +9,15 @@ void evaluate_affectMaterial(unsigned short, unsigned short, struct affectMateri
 void reset_grid_changes();
 
 //these are definitions for use with the gravity evaluation code in part 1 of the evaluate grid function.
-#define SLOPE_NONE   0
-#define SLOPE_RIGHT  1
-#define SLOPE_LEFT   2
-#define SLOPE_EITHER 3
+#define SLOPE_NONE   	0
+#define SLOPE_RIGHT  	1
+#define SLOPE_LEFT   	2
+#define SLOPE_EITHER 	3
+
+#define TUNNEL_NONE 	0
+#define TUNNEL_RIGHT 	1
+#define TUNNEL_LEFT  	2
+#define TUNNEL_EITHER 	3
 
 
 // this will evaluate the grid. It will run a simulation for the number of generations you tell it to.
@@ -87,14 +92,20 @@ void evaluate_grid(){
 					:	SLOPE_RIGHT  = 1 = the material can fall down the right side of the slope
 					:	SLOPE_LEFT   = 2 = the material can fall down the  left side of the slope
 					:	SLOPE_EITHER = 3 = the material can fall down    either side of the slope ( this is SLOPE_RIGHT | SLOPE_LEFT ) the bitwise OR operator.
+	 * validTunnel	: keeps track of it the material cann tunnel through another cell of the same material to a lower location.
+					: tunneling is evaluated as a last ditch effort (if sloping down doesn't work, try tunneling)
+	 * invalidTunnel: this tells us which tunnel will for SURE not work.
 	 * holdOff		: this is used to regulate the falling of materials that have a negative gravity (materials that fall down gradual slopes)
 	 * moveRight	: this is used as a flag for positive gravity.
 	 * moveLeft		:                   ''
 	*/
 	int currentMat;
 	char currentGrav;
+	int currentSat;
 	char jg, ig;
 	char validSlope;
+	char validTunnel;
+	char invalidTunnel;
 	char invalidSlope;
 	char holdOff = 0;
 	char moveRight;
@@ -113,6 +124,7 @@ void evaluate_grid(){
 			// temporarily store the values of the gravity and material for the current cell
 			currentMat = grid[i+camera_x][j+camera_y].mat;
 			currentGrav = mats[currentMat].gravity;
+			currentSat = grid[i+camera_x][j+camera_y].sat;
 			
 			//this decrements the holdOff mechanism. it acts as a way to police excessive material motion.
 			if(holdOff)holdOff--;
@@ -130,7 +142,7 @@ void evaluate_grid(){
 					grid[i+camera_x][j+1+camera_y].mat = currentMat;
 					grid[i+camera_x][j+camera_y].mat = m_air;
 					//transfer saturation
-					grid[i+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;
+					grid[i+camera_x][j+1+camera_y].sat = currentSat;
 					grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 					holdOff = 2;
 				}
@@ -162,7 +174,7 @@ void evaluate_grid(){
 							
 							if(i!=0){
 								grid[i-1+camera_x][j+currentGrav+camera_y].mat = currentMat; // place the new material only if it is in a valid place
-								grid[i-1+camera_x][j+currentGrav+camera_y].sat = grid[i+camera_x][j+camera_y].sat;
+								grid[i-1+camera_x][j+currentGrav+camera_y].sat = currentSat;
 							}
 							grid[i+camera_x][j+camera_y].sat = m_no_saturation; // remove saturation
 						}
@@ -170,7 +182,7 @@ void evaluate_grid(){
 							grid[i+camera_x][j+camera_y].mat = m_air; // remove the material
 							if(i<GRID_WIDTH-1){
 								grid[i+1+camera_x][j+currentGrav+camera_y].mat = currentMat; // place new material only if it is in a valid place
-								grid[i+1+camera_x][j+currentGrav+camera_y].sat = grid[i+camera_x][j+camera_y].sat;
+								grid[i+1+camera_x][j+currentGrav+camera_y].sat = currentSat;
 							}
 							grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 						}
@@ -196,14 +208,14 @@ void evaluate_grid(){
 							if(validSlope == SLOPE_RIGHT){				//if the material has a valid slope on the right
 								grid[i+camera_x][j+camera_y].mat = m_air; 				// remove the material from its current location
 								grid[i+ig+camera_x][j+1+camera_y].mat = currentMat; 		// place the material in its new location to the right
-								grid[i+ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+								grid[i+ig+camera_x][j+1+camera_y].sat = currentSat;	//copy saturation into new place
 								grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 								break;
 							}
 							else if(validSlope == SLOPE_LEFT){		//if the material has a valid slope on the left
 								grid[i+camera_x][j+camera_y].mat = m_air; 				// remove the material from its current location
 								grid[i-ig+camera_x][j+1+camera_y].mat = currentMat; 		// place the material in its new location to the left
-								grid[i-ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+								grid[i-ig+camera_x][j+1+camera_y].sat = currentSat;	//copy saturation into new place
 								grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 								holdOff=currentGrav;
 								break;
@@ -212,14 +224,14 @@ void evaluate_grid(){
 								if(get_rand(0,1)){					// goes to the right
 									grid[i+camera_x][j+camera_y].mat = m_air;
 									grid[i+ig+camera_x][j+1+camera_y].mat = currentMat;
-									grid[i+ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+									grid[i+ig+camera_x][j+1+camera_y].sat = currentSat;	//copy saturation into new place
 									grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 									break;
 								}
 								else{								// goes to the left
 									grid[i+camera_x][j+camera_y].mat = m_air;
 									grid[i-ig+camera_x][j+1+camera_y].mat = currentMat;
-									grid[i-ig+camera_x][j+1+camera_y].sat = grid[i+camera_x][j+camera_y].sat;	//copy saturation into new place
+									grid[i-ig+camera_x][j+1+camera_y].sat = currentSat;	//copy saturation into new place
 									grid[i+camera_x][j+camera_y].sat = m_no_saturation;		//remove old saturation
 									holdOff=currentGrav;
 									break;
@@ -227,7 +239,58 @@ void evaluate_grid(){
 							}
 						}
 					}
-				}// if (checking cells around the material)
+				}
+				/*
+				else{ // if all else fails, try to TUNNEL
+					// if the material has not declined, and if the material one cell down is the same as the one being evaluated...
+					if(currentGrav < 0 && grid[i+camera_x][j+1+camera_y].mat == currentMat){
+						
+						validTunnel = TUNNEL_NONE;
+						invalidTunnel = TUNNEL_NONE;
+						
+						for(ig=1; ig<=-currentGrav; ig++){
+							
+							// check to see if there valid tunnel RIGHT
+							if( (invalidTunnel&TUNNEL_RIGHT) == 0 && grid[i+camera_x+ig][j+camera_y+1].mat == m_air) validTunnel |= TUNNEL_RIGHT;
+							// if there is no where to tunnel yet, check to see if there is an invalid material blocking the way.
+							else if( (validTunnel&TUNNEL_RIGHT) == 0 && grid[i+camera_x+ig][j+camera_y+1].mat != currentMat) invalidTunnel |= TUNNEL_RIGHT;
+							
+							// check to see if there valid tunnel LEFT
+							if( (invalidTunnel&TUNNEL_LEFT) == 0 && grid[i+camera_x-ig][j+camera_y+1].mat == m_air) validTunnel |= TUNNEL_LEFT;
+							// if there is no where to tunnel yet, check to see if there is an invalid material blocking the way.
+							else if( (validTunnel&TUNNEL_LEFT) == 0 && grid[i+camera_x-ig][j+camera_y+1].mat != currentMat) invalidTunnel |= TUNNEL_LEFT;
+							
+							// if there is no valid tunnel, quit
+							if( invalidTunnel == TUNNEL_EITHER) break;
+							
+							// if the material can tunnel left or right.
+							if(validTunnel == TUNNEL_EITHER){
+								
+								
+								break;
+							}
+							else if(validTunnel == TUNNEL_RIGHT){
+								// overwrite new cell data
+								grid[i+camera_x+ig][j+camera_y+1].mat = currentMat;
+								grid[i+camera_x+ig][j+camera_y+1].sat = currentSat;
+								// erase old cell data
+								grid[i+camera_x][j+camera_y].mat = m_air;
+								grid[i+camera_x][j+camera_y].sat = m_no_saturation;
+								break;
+							}
+							else if(validTunnel == TUNNEL_LEFT){
+								// overwrite new cell data
+								grid[i+camera_x-ig][j+camera_y+1].mat = currentMat;
+								grid[i+camera_x-ig][j+camera_y+1].sat = currentSat;
+								// erase old cell data
+								grid[i+camera_x][j+camera_y].mat = m_air;
+								grid[i+camera_x][j+camera_y].sat = m_no_saturation;
+								break;
+							}
+						} // for (check for tunneling)
+					} // if tunneling if possible
+				} // if all else fails, try to tunnel
+				*/
 			} // if gravity
 		} // for i
 	} // for j

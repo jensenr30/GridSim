@@ -34,7 +34,7 @@ int main( int argc, char* args[] )
     }
     
     
-
+	/*
 	CELL_SIZE = 4;
 	int i;//
 	//putting test materials into grid
@@ -47,6 +47,17 @@ int main( int argc, char* args[] )
 		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
 		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
 		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
+    }
+    */
+    CELL_SIZE = 40;
+    sleepTime = 500;
+	int i;//
+	//putting test materials into grid
+    for(i=0; i<10; i++){
+		grid[camera_x+5][camera_y+i].mat = m_rock;
+		grid[camera_x+7][camera_y+i].mat = m_rock;
+		
+    grid[camera_x+i][camera_y+11].mat = m_rock;
     }
     /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){

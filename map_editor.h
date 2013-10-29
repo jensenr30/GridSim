@@ -45,23 +45,23 @@ void verify_camera(){
 		camera_y = MAX_camera_y;
 }
 
-void setcell(int x, int y, int data)
+void setcell(int mousex, int mousey, int data)
 {
 	//make sure the user's cursor is inside the grid. (no negative values or values bigger than the grid size
-	if(x>=0 && x/CELL_SIZE<GRID_WIDTH && y>=0 && y/CELL_SIZE<GRID_HEIGHT && y<= SCREEN_WIDTH){
-		grid[x/CELL_SIZE + camera_x][y/CELL_SIZE + camera_y].mat = data;
-		grid[x/CELL_SIZE + camera_x][y/CELL_SIZE + camera_y].sat = m_no_saturation;
-		grid[x/CELL_SIZE + camera_x][y/CELL_SIZE + camera_y].satLevel = 0;
+	if(mousex>=0 && mousex/CELL_SIZE<GRID_WIDTH && mousey>=0 && mousey/CELL_SIZE<GRID_HEIGHT && mousey<= SCREEN_WIDTH){
+		grid[mousex/CELL_SIZE + camera_x][mousey/CELL_SIZE + camera_y].mat = data;
+		grid[mousex/CELL_SIZE + camera_x][mousey/CELL_SIZE + camera_y].sat = m_no_saturation;
+		grid[mousex/CELL_SIZE + camera_x][mousey/CELL_SIZE + camera_y].satLevel = 0;
 	}
 }
 
-void deletecell(int x, int y, int data)
+void deletecell(int mousex, int mousey, int data)
 {
 	//make sure the user's cursor is inside the grid. (no negative values or values bigger than the grid size
-	if(x>=0 && x/CELL_SIZE<GRID_WIDTH && y>=0 && y/CELL_SIZE<GRID_HEIGHT && x<=SCREEN_WIDTH - 200 && y<= SCREEN_WIDTH){
-		grid[x/CELL_SIZE + camera_x][y/CELL_SIZE + camera_y].mat = 0;
-		grid[x/CELL_SIZE + camera_x][y/CELL_SIZE + camera_y].sat = m_no_saturation;
-		grid[x/CELL_SIZE + camera_x][y/CELL_SIZE + camera_y].satLevel = 0;
+	if(mousex>=0 && mousex/CELL_SIZE<GRID_WIDTH && mousey>=0 && mousey/CELL_SIZE<GRID_HEIGHT && mousex<=SCREEN_WIDTH - 200 && mousey<= SCREEN_WIDTH){
+		grid[mousex/CELL_SIZE + camera_x][mousey/CELL_SIZE + camera_y].mat = 0;
+		grid[mousex/CELL_SIZE + camera_x][mousey/CELL_SIZE + camera_y].sat = m_no_saturation;
+		grid[mousex/CELL_SIZE + camera_x][mousey/CELL_SIZE + camera_y].satLevel = 0;
 	}
 }
 

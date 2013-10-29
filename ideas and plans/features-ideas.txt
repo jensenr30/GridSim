@@ -1,6 +1,3 @@
-------------------------------------------------------------------------------------------------------
-
-
 
 ------------------------------------------------------------------------------------------------------
 
@@ -9,6 +6,59 @@
 ------------------------------------------------------------------------------------------------------
 
 
+
+------------------------------------------------------------------------------------------------------
+
+chicken and magic. not together necessarily.
+just.
+chicken.
+and also,
+magic.
+
+------------------------------------------------------------------------------------------------------
+
+the places where you don't go, time doesn't pass.
+what if you have an algorithm that makes time pass very slowly in the regions where you are not.
+for instsance, what if, every time the screen is updated in the player field of view, a few rows of the rest of the world are evaluated from top to bottom.
+special care would have to be taken to ensure that this extra evaluation of the rest of the grid does NOT overlap with the player's screen.
+
+evaluating too much of the world beyond the player's field of view would become too processing intense and would ultimately only hinder play.
+
+however, I think it would be a great idea to divert processing power to the rest of the grid when possible.
+maybe there would be some special interest in the immidiate area around the player?
+
+It would be nice if evaluating things outside the player's field of view would act as a damper to regulate the speed at which the game plays inside the player's field of view.
+that would be great because then the game could be played at a relatively contant speed while enhancing the overall feel of the dynamicness of the map.
+
+maybe we could have a similar thing that tekkit has: world anchors!
+that way that specific location will get some kind of advantage in terms of evaluation speed.
+
+[12:51:03 AM] I'm thinking about diverting processing power to evaluating the grid outside the player's field of view when the game is running too fast
+[12:51:16 AM] Jen: i.e. when the player zooms in, the frame rate WOULD increase, but now that extra processing power gets used to evaluate the rest of the world.
+[12:51:21 AM] Jen: that could WORK!
+[12:51:38 AM] Jen: and then the world move very slowly when you are not there
+[12:51:43 AM] Jen: but it would still move SOME
+[12:51:45 AM] Jen: xD
+[12:51:49 AM] Jen: i'm going to try that sometime.
+[12:52:04 AM] Jen: that would also act as a great way to regulate the speed at which the game can be played.
+
+------------------------------------------------------------------------------------------------------
+
+ should make gurren laggan pixel art with gridsim
+
+------------------------------------------------------------------------------------------------------
+
+make a key on the keyboard forces straight lines wne using the cursor
+
+------------------------------------------------------------------------------------------------------
+
+[12:18:02 AM] Jen: i think it would be neat if plant would produce something when you kill it
+[12:18:11 AM] Jen: or maybe I could nerf plant growth and make plants more valuable
+[12:18:21 AM] Jen: or make different types of plants
+[12:18:29 AM] Jen: maybe make a weed that grows really fast
+[12:18:34 AM] Jen: but doesn't really do much
+[12:18:50 AM] Jen: and then make a plant that when you harvest you get some small change of getting food or something really useful.
+[12:18:56 AM] Jen: so then you could farm shit like a boss.
 
 ------------------------------------------------------------------------------------------------------
 
@@ -62,6 +112,8 @@ make some weather or seasons that aren't just your run-of-the-mill spring, summe
 make a season where drain-o rains down from the sky and kills shit.
 or make a season where the inherent grid of the game starts to show (i.e. the grid of cells that the game is comprised of starts to become visible.
 the cells start to show a shadow of an outline.
+there is a season that shows the very grid of the game itself!
+call it Fruam
 
 ------------------------------------------------------------------------------------------------------
 
@@ -126,66 +178,13 @@ All of the above materials can be burnt.
 However, they should burn for different lengths of time.
 From fastest burning to slowest burning:
 
-	slow->	leaves_end
+	fast->	leaves_end
 			leaves
 			wood_end
 			wood_branch
-	fast->	wood
+	slow->	wood
 leaves_end have a very very very small chance of spawning fruit in the air around them.
 once the fruit is spawned, it then saturates the leaves with it's fruitiness and the leaves can no longer spawn fruit.
-
-------------------------------------------------------------------------------------------------------
- 
- HIGH priority
- 
- make grass_roots want to pass water to the grass_roots below them. (low probability of passing water to the grass_roots to the side of them. super low priority of passing water to the roots above them.)
- 
- make saturated grass_roots colored differently than normal grass_roots?? that would be nice. to see the water moving through.
- 
- this will probably require that you make the satEffect[].affectMat be evaluated before the decay of saturated materials.
- whatever. that makes sense anyway. do it.
- 
- make grass_roots grow grass 
- 
-------------------------------------------------------------------------------------------------------
- 
- HIGH PRIORITY
- 
- have a way of showing which cells are saturated with what.
- 
- here is a diagram:
- 
-		 . - color of material in cell
-		 # - color of material saturating cell
- 
-1x1 // no indication of the saturating material
-	. 
-
-2x2 // small indication of the saturating material
-	. .
-	. #
-
-4x4 // decent indication
-	. . . .
-	. # # .
-	. # # .
-	. . . .
-
-8x8 // good show of saturating material color.
-	. . . . . . . .
-	. . . . . . . .
-	. . # # # # . .
-	. . # # # # . .
-	. . # # # # . .
-	. . # # # # . .
-	. . . . . . . .
-	. . . . . . . .
-
-and so on in this order. each other cell size should similarly have the color of the saturating material only take up a quarter of the area (and be centered on the cell)
-
-------------------------------------------------------------------------------------------------------
-
-make the GRID_SIZE based on the gui width. that way we can achieve maximum efficiency. cells beneath the gui window(s) will not be evaluated.
 
 ------------------------------------------------------------------------------------------------------
 

@@ -242,7 +242,7 @@ void evaluate_grid(){
 	// newi, newj :	the coordinates of the cells around the grid[i+camera_x][j+camera_y].mat being evaluated.
 	// c		  :	used to indicate which cell around our cell is being evaluated.
 	short cMat;
-	unsigned short matIndex, satEffIndex, newi, newj;
+	unsigned short satEffIndex, newi, newj;
 	bool firstEncounter;
 	
 	/// 2.1 EVALUATE SATURATION - the giant ass loop where the saturation is evaluated

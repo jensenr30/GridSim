@@ -46,6 +46,9 @@
 		<Unit filename="cell_engine.h" />
 		<Unit filename="general_functions.h" />
 		<Unit filename="headers_and_globals.h" />
+		<Unit filename="icon.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

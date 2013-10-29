@@ -1,0 +1,19 @@
+--------------------------------------------------------------
+
+Grid Sim
+Version 0.1
+Released 2013-10-27 (October 27th, 2013)
+
+--------------------------------------------------------------
+
+Updates:
+	
+1.	The game was optimized quite a bit! expect some preformance increases!
+	The optimization was made possible because of a debilhitating mistake made early on in the cell_engine design.
+	In any case, enjoy the speed improvements!
+	
+--------------------------------------------------------------
+
+Developers:
+	Ryan Jensen		aka JensenR30		JensenR30@gmail.com
+	Josh Pohl		aka JPisaBrony		jdpohl789@gmail.com

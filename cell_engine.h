@@ -103,13 +103,23 @@ void evaluate_grid(){
 	char currentGrav;
 	int currentSat;
 	char jg, ig;
-	char validSlope;
-	char validTunnel;
-	char invalidTunnel;
-	char invalidSlope;
+	//char invalidSlope;
+	//char validSlope;
+	//char validTunnel;
+	//char invalidTunnel;
 	char holdOff = 0;
 	char moveRight;
 	char moveLeft;
+	//bool foundObstacleRight;
+	//bool foundObstacleLeft;
+	int cells_right_to_obstruction;
+	int cells_left_to_obstruction;
+	int cells_right_to_air;
+	int cells_left_to_air;
+	int length_of_mat_right;
+	int length_of_mat_left;
+	bool found_length_of_mat_right;
+	bool found_length_of_mat_left;
 	
 	/// 1. NEW GRAVITY
 	for(j=GRID_HEIGHT-1; j>=0; j--){ // cycle through the rows
@@ -146,11 +156,11 @@ void evaluate_grid(){
 					grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 					holdOff = 2;
 				}
-				// the material cannot fall directly down. it has to fall down a slope.
+				
+				
+				// THE MATERIAL CANNOT FALL DIRECTLY DOWN. IT HAS TO FALL DOWN A SLOPE.
 				else if(grid[i+1+camera_x][j+camera_y].mat == m_air || grid[i-1+camera_x][j+camera_y].mat == m_air){
-					// set the validity of the slope to none as default.
-					validSlope = SLOPE_NONE;
-					invalidSlope = SLOPE_NONE;
+					
 					// the minimum slope that the material can fall down is a 1/1 or steeper
 					if(currentGrav > 0){
 						// initially set them both to 1. the for() loop will weed out the one(s) that won't work.
@@ -187,21 +197,121 @@ void evaluate_grid(){
 							grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 						}
 					}
-					// the minimum slope that the material can fall down is a 1/1 or less steeper
+					
+					
+					else{ // NEW GRADED AND TUNNELING GRAVITY.
+						
+						// gravity is when the material falls down a slope
+						// tunneling is defined as the material getting to a new place through material of its kind.
+						
+						cells_right_to_obstruction = -currentGrav;
+						cells_left_to_obstruction = -currentGrav;
+						cells_right_to_air = 0;
+						cells_left_to_air = 0;
+						// if the material underneath the cell we are evaluating is the same as the material in the cell we are evaluating, then the length of mat is 0 to start. otherwise the length of the material is invalid and is set to -1.
+						if(grid[camera_x+i][camera_y+j+1].mat == currentMat){
+							length_of_mat_right = 0;
+							length_of_mat_left =  0;
+							found_length_of_mat_right = false;
+							found_length_of_mat_left = false;
+						}
+						else{
+							length_of_mat_right = -1;
+							length_of_mat_left = -1;
+							found_length_of_mat_right = true;
+							found_length_of_mat_left = true;
+						}
+						
+						
+						moveRight = false;
+						moveLeft = false;
+					
+						// generate the figures we need to evaluate gravity.
+						for(ig=1; ig<=-currentGrav; ig++){
+							
+							// get how far it is to the nearest obstruction to the right. only set this if it has not been set before.
+							if( cells_right_to_obstruction==-currentGrav && grid[camera_x+i+ig][camera_y+j].mat != m_air ) cells_right_to_obstruction = ig;
+							// get how far it is to the nearest obstruction to the  left. only set this if it has not been set before.
+							if( cells_left_to_obstruction==-currentGrav  && grid[camera_x+i-ig][camera_y+j].mat != m_air )  cells_left_to_obstruction = ig;
+							
+							// get how far it is to the nearest air cell to the right. only set this if it has not been set before.
+							if( !cells_right_to_air && grid[camera_x+i+ig][camera_y+j+1].mat == m_air ) cells_right_to_air = ig;
+							// get how far it is to the nearest air cell to the  left. only set this if it has not been set before.
+							if( !cells_left_to_air  && grid[camera_x+i-ig][camera_y+j+1].mat == m_air )  cells_left_to_air = ig;
+							
+							// get how far it is to the nearest non-currentMat cell to the right. only set this if it has not been set before.
+							if( !found_length_of_mat_right && grid[camera_x+i+ig][camera_y+j+1].mat != currentMat ) { length_of_mat_right = ig-1; found_length_of_mat_right = true; }
+							// get how far it is to the nearest non-currentMat cell to the  left. only set this if it has not been set before.
+							if( !found_length_of_mat_left  && grid[camera_x+i-ig][camera_y+j+1].mat != currentMat )  { length_of_mat_left = ig-1; found_length_of_mat_left = true; }
+							
+							//break if all of these values have been found
+							if( cells_right_to_obstruction!=-currentGrav && cells_left_to_obstruction!=-currentGrav && cells_right_to_air && cells_left_to_air && length_of_mat_right<0 && length_of_mat_left<0 ) break;
+						}//end for looping through the horizontal elements around the material
+						
+						#if ( debug )
+							printf("\ncells_right_to_obstruction = %d\n", cells_right_to_obstruction);
+							printf("cells_left_to_obstruction = %d\n", cells_left_to_obstruction);
+							printf("cells_right_to_air = %d\n", cells_right_to_air);
+							printf("cells_left_to_air = %d\n", cells_left_to_air);
+							printf("length_of_mat_right = %d\n", length_of_mat_right);
+							printf("length_of_mat_left = %d\n\n", length_of_mat_left);
+						#endif
+						
+						// can the material tunnel to the right?
+						if(length_of_mat_right >= 0 && cells_right_to_air - length_of_mat_right == 1) moveRight = true;
+						// can the material tunnel to the left?
+						if(length_of_mat_left >= 0 && cells_left_to_air - length_of_mat_left == 1) moveLeft = true;
+						// can the material fall down the slope to the right?
+						if(cells_right_to_air && cells_right_to_obstruction > cells_right_to_air) moveRight = true;
+						// can the material fall down the slope to the left?
+						if(cells_left_to_air && cells_left_to_obstruction > cells_left_to_air) moveLeft = true;
+						
+						
+						// if both directions of motion are valid. this will ensure that either moveRight or moveLeft will be 1. NOT both.
+						if(moveLeft && moveRight){
+							// preform a random weighted coin flip to see which the water goes off.
+							if( get_rand(1,cells_left_to_air+cells_right_to_air) > cells_left_to_air && !holdOff)
+								moveRight = 0;
+							else
+								moveLeft  = 0;
+						}
+						
+						// the material goes to the right
+						if(moveRight){
+							// put current cell data into new cell
+							grid[camera_x+i+cells_right_to_air][camera_y+j+1].mat = currentMat;
+							grid[camera_x+i+cells_right_to_air][camera_y+j+1].sat = currentSat;
+							// erase current cell data
+							grid[camera_x+i][camera_y+j].mat = m_air;
+							grid[camera_x+i][camera_y+j].sat = m_no_saturation;
+						}
+						// the material goes to the left.
+						if(moveLeft && !holdOff){
+							// put current cell data into new cell
+							grid[camera_x+i-cells_left_to_air][camera_y+j+1].mat = currentMat;
+							grid[camera_x+i-cells_left_to_air][camera_y+j+1].sat = currentSat;
+							// erase current cell data
+							grid[camera_x+i][camera_y+j].mat = m_air;
+							grid[camera_x+i][camera_y+j].sat = m_no_saturation;
+							holdOff = -currentGrav;
+						}
+					}
+					/* OLD GRADED GRAVITY
+					// the minimum slope that the material can fall down is a 1/1 or less steep
 					else{
 						for(ig=1; (-ig>=currentGrav); ig++){
 							// if the material can fall to the right and has not yet been shown to be an invalid path
 							if( (i+ig<GRID_WIDTH) && (grid[i+ig+camera_x][j+camera_y].mat==m_air)  &&  !(invalidSlope&SLOPE_RIGHT) ){
 								if(grid[i+ig+camera_x][j+1+camera_y].mat == m_air)
 									validSlope |= SLOPE_RIGHT;
-							}
-							else invalidSlope |= SLOPE_RIGHT;
+							}else invalidSlope |= SLOPE_RIGHT;
+							
 							// if the material can fall to the left and has not yet been shown to be an invalid path
 							if( !(holdOff) && (i-ig>=0) && (grid[i-ig+camera_x][j+camera_y].mat==m_air)  &&  !(invalidSlope&SLOPE_LEFT) ){
 								if(grid[i-ig+camera_x][j+1+camera_y].mat == m_air)
 									validSlope |= SLOPE_LEFT;
-							}
-							else invalidSlope |= SLOPE_LEFT;
+							}else invalidSlope |= SLOPE_LEFT;
+							
 							if(invalidSlope == SLOPE_EITHER){		//if the slope is invalid in both directions, quit trying to evaluate the slope.
 								break;
 							}
@@ -239,14 +349,18 @@ void evaluate_grid(){
 							}
 						}
 					}
+					*/
 				}
 				/*
 				else{ // if all else fails, try to TUNNEL
 					// if the material has not declined, and if the material one cell down is the same as the one being evaluated...
 					if(currentGrav < 0 && grid[i+camera_x][j+1+camera_y].mat == currentMat){
 						
+						//these valuse will be overwritten as the cell is evaluated.
 						validTunnel = TUNNEL_NONE;
 						invalidTunnel = TUNNEL_NONE;
+						foundObstacleRight = false;
+						foundObstacleLeft  = false;
 						
 						for(ig=1; ig<=-currentGrav; ig++){
 							
@@ -254,22 +368,37 @@ void evaluate_grid(){
 							if( (invalidTunnel&TUNNEL_RIGHT) == 0 && grid[i+camera_x+ig][j+camera_y+1].mat == m_air) validTunnel |= TUNNEL_RIGHT;
 							// if there is no where to tunnel yet, check to see if there is an invalid material blocking the way.
 							else if( (validTunnel&TUNNEL_RIGHT) == 0 && grid[i+camera_x+ig][j+camera_y+1].mat != currentMat) invalidTunnel |= TUNNEL_RIGHT;
+							//check to see if there is an obstacle to the right
+							
+							//check to see if there is any valid obstruction to the right
+							if(grid[i+camera_x+ig][j+camera_y].mat != m_air) foundObstacleRight = true;
 							
 							// check to see if there valid tunnel LEFT
 							if( (invalidTunnel&TUNNEL_LEFT) == 0 && grid[i+camera_x-ig][j+camera_y+1].mat == m_air) validTunnel |= TUNNEL_LEFT;
 							// if there is no where to tunnel yet, check to see if there is an invalid material blocking the way.
 							else if( (validTunnel&TUNNEL_LEFT) == 0 && grid[i+camera_x-ig][j+camera_y+1].mat != currentMat) invalidTunnel |= TUNNEL_LEFT;
 							
+							//check to see if there is any valid obstruction to the left
+							if(grid[i+camera_x-ig][j+camera_y].mat != m_air) foundObstacleLeft = true;
+							
+							
 							// if there is no valid tunnel, quit
 							if( invalidTunnel == TUNNEL_EITHER) break;
 							
 							// if the material can tunnel left or right.
-							if(validTunnel == TUNNEL_EITHER){
-								
+							if(validTunnel == TUNNEL_EITHER && foundObstacleLeft && foundObstacleRight){
+								//decide to go left or right.
+								if(get_rand(0,1)) ig *= -1;
+								grid[i+camera_x+ig][j+camera_y+1].mat = currentMat;
+								grid[i+camera_x+ig][j+camera_y+1].sat = currentSat;
+								// erase old cell data
+								grid[i+camera_x][j+camera_y].mat = m_air;
+								grid[i+camera_x][j+camera_y].sat = m_no_saturation;
+								break;
 								
 								break;
 							}
-							else if(validTunnel == TUNNEL_RIGHT){
+							else if(validTunnel == TUNNEL_RIGHT && foundObstacleRight){
 								// overwrite new cell data
 								grid[i+camera_x+ig][j+camera_y+1].mat = currentMat;
 								grid[i+camera_x+ig][j+camera_y+1].sat = currentSat;
@@ -278,7 +407,7 @@ void evaluate_grid(){
 								grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 								break;
 							}
-							else if(validTunnel == TUNNEL_LEFT){
+							else if(validTunnel == TUNNEL_LEFT && foundObstacleLeft){
 								// overwrite new cell data
 								grid[i+camera_x-ig][j+camera_y+1].mat = currentMat;
 								grid[i+camera_x-ig][j+camera_y+1].sat = currentSat;
@@ -287,6 +416,7 @@ void evaluate_grid(){
 								grid[i+camera_x][j+camera_y].sat = m_no_saturation;
 								break;
 							}
+							
 						} // for (check for tunneling)
 					} // if tunneling if possible
 				} // if all else fails, try to tunnel

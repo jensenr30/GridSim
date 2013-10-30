@@ -10,11 +10,32 @@
 
 ------------------------------------------------------------------------------------------------------
 
-
+[6:33:30 PM] Jackson B: do you think there will be a way for falling elements to displace water it hits, to give a sinking feel?
+[6:33:53 PM | Edited 6:34:30 PM] Jackson B: cuz right now it just sits on top of the water and eventually gets covered like any other of the common falling rabble
+[6:34:11 PM] Jen: yeah
+[6:34:16 PM] Jen: that could be done
+[6:34:19 PM | Edited 6:34:21 PM] Jen: i've thought about that
+[6:34:32 PM] Jen: I would basically just have a flag and a density
+[6:34:46 PM] Jen: I have yet to do that.
+[6:34:52 PM] Jen: i'll add it to the list
+[6:34:59 PM] Jackson B: will doing that displace the water or move over it?
+[6:35:14 PM] Jen: i would think it would just switch places with it
+[6:35:21 PM] Jackson B: ok
+[6:35:38 PM] Jen: or maybe...
+[6:35:47 PM] Jen: it would rush up the side...
+[6:35:49 PM] Jen: hmmm
+[6:35:52 PM] Jen: interesting stuff...
+[6:36:02 PM] Jackson B: that's where i was getting at
 
 ------------------------------------------------------------------------------------------------------
 
+make the gravity checking simpler:
 
+after you know that the block cannot fall straight down, immidiately calculate a few things:
+check the distance between it and the nearest obstacle (block that is not itself) on it's row (within the range of the material's gravity)
+then check the distance between it and the next lowest open cell.
+
+calculate these so that later you can do simple numberical if statements with no loops and generate a result.
 
 ------------------------------------------------------------------------------------------------------
 

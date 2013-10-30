@@ -1,0 +1,35 @@
+--------------------------------------------------------------
+
+Grid Sim
+Version 0.3
+Released 2013-10-29 (October 29th, 2013) 11:29 PM GMT -6:00
+
+--------------------------------------------------------------
+
+Updates:
+	
+1.	Gravity was changed. The "physics" are much better now.
+	Pre-v0.3, water wouldn't fill small spaces or the underside of non-gravity materials that were submerged in water
+	Now water (along with all of the other liquid/gradual grade gravity obeying material) will act nicer to us all.
+	
+2.	Pipes were added. This new material was the motivation behing renovating the gravity engine a second time.
+	Pipes were suggested by Michael Nowotcznski, "nski". Thanks, bro.
+	
+3.	Updated the "HOW TO PLAY.txt" document
+--------------------------------------------------------------
+
+Developers:
+
+Ryan Jensen
+	"JensenR30"
+	JensenR30@gmail.com
+	
+Josh Pohl
+	"JPisaBrony"
+	jdpohl789@gmail.com
+
+
+
+
+Send either me or Josh an email if you have any questions or comments.
+We'll write back.

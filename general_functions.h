@@ -67,7 +67,7 @@ int init(){
 	}
 	
 	//Set the window caption
-	SDL_WM_SetCaption( "GridSim 0.1", NULL );
+	SDL_WM_SetCaption( "GridSim 0.3", NULL );
 	
 	
 	

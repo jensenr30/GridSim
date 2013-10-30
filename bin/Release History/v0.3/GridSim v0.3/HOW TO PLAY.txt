@@ -1,0 +1,48 @@
+
+>
+>	START GRIDSIM by opening the "game" folder and running "GridSim" exe
+>	or simply double click the "_Start_GridSim" bat file
+>
+
+--------------------------------------------------------------
+	CONTROLS
+--------------------------------------------------------------
+Left click
+	Place material into the grid
+Right click
+	Remove material from the grid
+
+Scroll up/down
+	Zoom in/out
+
+WASD
+	Pan the screen around
+	
+Space Bar
+	Pause
+
+C
+	Clear the entire grid
+
+R
+	Randomise the grid
+	
+P
+	print material and saturation data your window
+
+Left  Arrow Key
+	speed up the simulation
+Right Arrow Key
+	slow down the simulation
+--------------------------------------------------------------
+
+The sprit of the game:
+
+	GridSim is a game about materials.
+	Materials interact with each other in various ways.
+	Part of playing the game is discovering these behaviors.
+	The sprit of the game is one of adventure, exploration, and experimentation.
+
+	The interaction rules of the game may change from version to version.
+	The changes in material behavior are often be made known through the version notes.
+	Enjoy exploring.

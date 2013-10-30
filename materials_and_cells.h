@@ -213,7 +213,10 @@ struct saturationEffect{
 
 ///this is the data structure for materials:
 struct material {
-
+	
+	// the color of the material
+	unsigned int color;
+	
 	// this is an array of affectMaterial structures.
 	//Each element of the structure array describes one type of interaction this material can have with materials in neighboring cells.
 	//start with affectMat[0] and put other effects into affectMat[1] and affectMat[2] and so on.
@@ -224,9 +227,6 @@ struct material {
 	// basically, if you want to make a saturation effect for a material, you have to put it in the satEffect[0] spot. if you want to make another, put it in the satEffect[1] spot. and so on and so forth.
 	// once the grid evaluator finds a saturation effect that is the default (does nothing)
 	struct saturationEffect satEffect[MAX_NUMBER_OF_SATURATIONS];
-
-	// the color of the material
-	unsigned int color;
 
 	//value between 0 and 100000 describing the likelyhood of this material decaying on its own.
 	// 467 would mean there is a 0.467% chance of decay on each evaluation cycle.
@@ -431,7 +431,7 @@ void init_material_attributes(void){
 	set_chance(mats[m_spring].affectMat[0].chance, 800);
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_pipe].name = "Pipe";
-	mats[m_pipe].color = 0x778866; // be7e22;
+	mats[m_pipe].color = /*0x778866; */ 0xbe7e22;
 	mats[m_pipe].satEffect[0].absorb = true;			/// pipe absorbs water around it.
 	mats[m_pipe].satEffect[0].satMat = m_water;
 	mats[m_pipe].satEffect[0].chance[6] = 100000; // pipe only absorbs water from below it.
@@ -630,12 +630,19 @@ void init_material_attributes(void){
 	mats[m_bottom_feeder].affectMat[3].changeOrigSat = m_no_saturation;
 	set_chance(mats[m_bottom_feeder].affectMat[3].chance, 100000);
 	
-	mats[m_bottom_feeder].satEffect[0].satMat = m_air;					/// if bottom feeders are completely surrounded by air, then they have a chance of dying
+	mats[m_bottom_feeder].satEffect[0].satMat = m_bottom_feeder;		/// bottom feeders cannot survive when they are packed together
 	set_chance(mats[m_bottom_feeder].satEffect[0].chance, 100000);
-	mats[m_bottom_feeder].satEffect[0].decaySatGTE = 8; // must be completely surrounded by air to decay
+	mats[m_bottom_feeder].satEffect[0].decaySatGTE = 6; // must be completely surrounded by air to decay
 	mats[m_bottom_feeder].satEffect[0].decayIntoMat = m_air;
-	mats[m_bottom_feeder].satEffect[0].decayIntoSat = m_no_saturation;
-	mats[m_bottom_feeder].satEffect[0].decayChance = 1000;
+	mats[m_bottom_feeder].satEffect[0].decayChance = 4000;
+	
+	mats[m_bottom_feeder].satEffect[1].satMat = m_air;					/// if bottom feeders are completely surrounded by air, then they have a chance of dying
+	set_chance(mats[m_bottom_feeder].satEffect[1].chance, 100000);
+	mats[m_bottom_feeder].satEffect[1].decaySatGTE = 8; // must be completely surrounded by air to decay
+	mats[m_bottom_feeder].satEffect[1].decayIntoMat = m_air;
+	mats[m_bottom_feeder].satEffect[1].decayChance = 1000;
+	
+	
 	/*
 	mats[m_bottom_feeder].satEffect[1].satMat = m_bottom_feeder;
 	set_chance(mats[m_bottom_feeder].satEffect[1].chance, 100000);
@@ -833,7 +840,9 @@ void init_material_attributes(void){
 			numberOfSatableMats++;
 		}
 	}
-	printf("numberOfSatableMats = %d\n\n\n\n\n", numberOfSatableMats);
+	#if(debug)
+		printf("numberOfSatableMats = %d\n\n\n\n\n", numberOfSatableMats);
+	#endif
 }
 
 

@@ -56,6 +56,7 @@
 		<Unit filename="materials_and_cells.h" />
 		<Unit filename="selection_gui.h" />
 		<Unit filename="unused.h" />
+		<Unit filename="world_gen.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

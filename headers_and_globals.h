@@ -31,28 +31,31 @@ unsigned int SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT;
 
 #define SCREEN_BPP 32
 
-//The surfaces that will be used
+// The surfaces that will be used
 SDL_Surface *screen = 	NULL;
 SDL_Surface *text = 	NULL;
 SDL_Surface *icon = 	NULL;
-//The event structure that will be used
+// The event structure that will be used
 SDL_Event event;
 
-//the fint that will be used
+// the fint that will be used
 TTF_Font *font = NULL;
 
 //The color of the text
 SDL_Color textColor = { 255, 255, 255 };
 
-//id for changing materials
-//3 = water
+// id for changing materials
+// 3 = water
 int currentMat = 1;
 
-//mouse moddifier used for brushes
+// mouse moddifier used for brushes
 short mouseModifier = 0;
 
-
+// necessary function prototype.
 void setcell(int , int, int);
+
+// include all of the other header files that have functions and variables that will be used throughout the program.
+//#include "world_gen.h"
 #include "general_functions.h"
 #include "materials_and_cells.h"
 #include "selection_gui.h"

@@ -632,7 +632,7 @@ void init_material_attributes(void){
 	
 	mats[m_bottom_feeder].satEffect[0].satMat = m_bottom_feeder;		/// bottom feeders cannot survive when they are packed together
 	set_chance(mats[m_bottom_feeder].satEffect[0].chance, 100000);
-	mats[m_bottom_feeder].satEffect[0].decaySatGTE = 6; // must be completely surrounded by air to decay
+	mats[m_bottom_feeder].satEffect[0].decaySatGTE = 6; // must be partially surrounded by air to decay
 	mats[m_bottom_feeder].satEffect[0].decayIntoMat = m_air;
 	mats[m_bottom_feeder].satEffect[0].decayChance = 4000;
 	

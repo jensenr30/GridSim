@@ -12,8 +12,8 @@
 #define D_RIGHT	3	// D
 
 // the "- CELL_SIZE" part of the if statement is to make sure that we are on the same size of the error in the integer division in the GRID_WIDTH term.
-#define MAX_camera_x (MAX_GRID_WIDTH*3 - GRID_WIDTH - CELL_SIZE)
-#define MAX_camera_y (MAX_GRID_HEIGHT*3 - GRID_HEIGHT - CELL_SIZE)
+#define MAX_camera_x (GRID_WIDTH_ELEMENTS - GRID_WIDTH - CELL_SIZE)
+#define MAX_camera_y (GRID_HEIGHT_ELEMENTS - GRID_HEIGHT - CELL_SIZE)
 
 
 /// this makes sure that the size of the grid (in cells) is no larger than it's maximum (MAX_GRID_WIDTH and MAX_GRID_HEIGHT)
@@ -39,10 +39,12 @@ void verify_camera(){
 	if(camera_y < 0) camera_y = 0;
 	
 	//make sure the camera values are not too large. they mustn't overstep their bounds.
-	if(camera_x > MAX_camera_x)
+	if(camera_x > MAX_camera_x){
 		camera_x = MAX_camera_x;
-	if(camera_y > MAX_camera_y)
+	}
+	if(camera_y > MAX_camera_y){
 		camera_y = MAX_camera_y;
+	}
 }
 
 void setcell(int mousex, int mousey, int data)

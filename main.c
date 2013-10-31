@@ -67,6 +67,9 @@ int main( int argc, char* args[] )
 	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
 	int keyw=0, keya=0, keys=0, keyd=0;
 	unsigned lastPanTime = 0;
+	//last minute verification that the initial start up values for the grid size and the camera positions are valid.
+	verify_grid_and_cell_size();
+	verify_camera();
     //While the user hasn't quit
     while(1){
 

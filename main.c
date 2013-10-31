@@ -122,6 +122,7 @@ int main( int argc, char* args[] )
 				verify_grid_and_cell_size(); // make sure the window isn't too big for the cell size
 				
 				set_window_size(event.resize.w, event.resize.h);
+				verify_camera();
 			}
 
             if( event.type == SDL_KEYDOWN ){								///keyboard event

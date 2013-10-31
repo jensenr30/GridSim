@@ -32,7 +32,7 @@ void evaluate_grid(){
 	short int i,j,a,c; // i = x position in grid. j = y position in grid. k = material type being evaluated. a = type of material being affected. c = which cell around the material is being checked
 
 	// used to temporarily store the gravity value of the cell's material
-	int currentMat;
+	int cMat;
 	// used to temporarily store the gravity value of the cell material's gravity
 	char currentGrav;
 	// used to temporarily store the gravity value of the cell's saturation
@@ -51,19 +51,19 @@ void evaluate_grid(){
 		// the following variables are used in the part of the code that deals with slopes that are less than or equal to 1 (liquid-like materials: gravity < 0)
 		// they help keep track of what the material's surroundings are like.
 		// based on what these variables are calculted to be, the material will be put in different places, or not moved at all.
-	// these count how many cells away an obstruction is from the cell (not counting currentMat as an obstruction)
+	// these count how many cells away an obstruction is from the cell (not counting cMat as an obstruction)
 	// these are used for checking tunneling 
 	int cells_right_to_obstruction;
 	int cells_left_to_obstruction;
-	// these count how many cells away an obstruction is from the cell (counting currentMat as an obstruction)
+	// these count how many cells away an obstruction is from the cell (counting cMat as an obstruction)
 	// these are used for checking gradual grade slope
 	int cells_right_to_obstruction_sloping;
 	int cells_left_to_obstruction_sloping;
 	// these tell us how far away a cell of air is from one cell below our material (how far away, on the row below our material's cell, is the first air cell)
 	int cells_right_to_air;
 	int cells_left_to_air;
-	// these tell us how much material there is underneath our cell that is the same type as currentMat before there is some other material.
-	// these basically record how long of a stretch of currentMat there is under our material.
+	// these tell us how much material there is underneath our cell that is the same type as cMat before there is some other material.
+	// these basically record how long of a stretch of cMat there is under our material.
 	int length_of_mat_right;
 	int length_of_mat_left;
 	// these are true or false valuse that tell us if we have found valid length_of_mat_right and length_of_mat_left variables.
@@ -71,21 +71,22 @@ void evaluate_grid(){
 	bool found_length_of_mat_left;
 	
 	
-	for(j=GRID_HEIGHT-1; j>=0; j--){ // cycle through the rows
-		for(i=0; i<GRID_WIDTH; i++){ // cycle through each column for a single row
+	
+	for(j=GRID_HEIGHT-1+camera_y; j>=camera_y; j--){ // cycle through the rows
+		for(i=camera_x; i<GRID_WIDTH+camera_x; i++){ // cycle through each column for a single row
 			
 			// this resets the holdoff variables if there is a gap between the gravity material
 			// this polices the movement of material
-			if(grid[i+camera_x][j+camera_y].mat == m_air && grid[i+camera_x][j+1+camera_y].mat == m_air){
+			if(grid[i][j].mat == m_air && grid[i][j+1].mat == m_air){
 				holdOffLeft = 0;
 				holdOffRight = 0;
 				continue;
 			}
 			
 			// temporarily store the values of the gravity and material for the current cell
-			currentMat = grid[i+camera_x][j+camera_y].mat;
-			currentGrav = mats[currentMat].gravity;
-			currentSat = grid[i+camera_x][j+camera_y].sat;
+			cMat = grid[i][j].mat;
+			currentGrav = mats[cMat].gravity;
+			currentSat = grid[i][j].sat;
 			
 			//this decrements the holdoff mechanism. it acts as a way to police excessive material motion.
 			if(holdOffLeft>0)holdOffLeft--;
@@ -97,17 +98,17 @@ void evaluate_grid(){
 			if(currentGrav){
 				
 				/// material falls out of the bottom of the screen
-				if(j >= GRID_HEIGHT-1){
-					grid[i+camera_x][j+camera_y].mat = m_air;
-					grid[i+camera_x][j+camera_y].sat = m_no_saturation; // remove saturaiton of material once it falls out of the screen.
+				if(j >= GRID_HEIGHT+camera_y-1){
+					grid[i][j].mat = m_air;
+					grid[i][j].sat = m_no_saturation; // remove saturaiton of material once it falls out of the screen.
 				}
 				/// material falls a single cell
-				else if(grid[i+camera_x][j+1+camera_y].mat == m_air){
-					grid[i+camera_x][j+1+camera_y].mat = currentMat;
-					grid[i+camera_x][j+camera_y].mat = m_air;
+				else if(grid[i][j+1].mat == m_air){
+					grid[i][j+1].mat = cMat;
+					grid[i][j].mat = m_air;
 					//transfer saturation
-					grid[i+camera_x][j+1+camera_y].sat = currentSat;
-					grid[i+camera_x][j+camera_y].sat = m_no_saturation;
+					grid[i][j+1].sat = currentSat;
+					grid[i][j].sat = m_no_saturation;
 					holdOffLeft = 2; // is this really necessary? jesus. why is this necessary...?
 				}
 				
@@ -117,17 +118,17 @@ void evaluate_grid(){
 					
 					// the minimum slope that the material can fall down is a 1/1 or steeper
 					if(currentGrav > 0){
-						if(grid[i+1+camera_x][j+camera_y].mat == m_air || grid[i-1+camera_x][j+camera_y].mat == m_air){
+						if(grid[i+1][j].mat == m_air || grid[i-1][j].mat == m_air){
 							// initially set them both to 1. the for() loop will weed out the one(s) that won't work.
-							if(grid[i+1+camera_x][j+camera_y].mat == m_air) moveRight = 1;
+							if(grid[i+1][j].mat == m_air) moveRight = 1;
 							else moveRight = 0;
-							if(grid[i-1+camera_x][j+camera_y].mat == m_air) moveLeft  = 1;
+							if(grid[i-1][j].mat == m_air) moveLeft  = 1;
 							else moveLeft = 0;
 							// figure out
 							for(jg=1; jg<=currentGrav; jg++){
 								// if there is an obstruction in the path of the material falling down the slope, then set one of them to zero and break;
-								if(grid[i-1+camera_x][j+jg+camera_y].mat != m_air) moveLeft = 0;
-								if(grid[i+1+camera_x][j+jg+camera_y].mat != m_air) moveRight= 0;
+								if(grid[i-1][j+jg].mat != m_air) moveLeft = 0;
+								if(grid[i+1][j+jg].mat != m_air) moveRight= 0;
 							}
 							// this selects either the right or the left direction
 							if(moveLeft && moveRight){
@@ -135,21 +136,21 @@ void evaluate_grid(){
 								else moveRight = 0;
 							}
 							if(moveLeft){
-								grid[i+camera_x][j+camera_y].mat = m_air; // remove the material
+								grid[i][j].mat = m_air; // remove the material
 								
 								if(i!=0){
-									grid[i-1+camera_x][j+currentGrav+camera_y].mat = currentMat; // place the new material only if it is in a valid place
-									grid[i-1+camera_x][j+currentGrav+camera_y].sat = currentSat;
+									grid[i-1][j+currentGrav].mat = cMat; // place the new material only if it is in a valid place
+									grid[i-1][j+currentGrav].sat = currentSat;
 								}
-								grid[i+camera_x][j+camera_y].sat = m_no_saturation; // remove saturation
+								grid[i][j].sat = m_no_saturation; // remove saturation
 							}
 							else if(moveRight){
-								grid[i+camera_x][j+camera_y].mat = m_air; // remove the material
+								grid[i][j].mat = m_air; // remove the material
 								if(i<GRID_WIDTH-1){
-									grid[i+1+camera_x][j+currentGrav+camera_y].mat = currentMat; // place new material only if it is in a valid place
-									grid[i+1+camera_x][j+currentGrav+camera_y].sat = currentSat;
+									grid[i+1][j+currentGrav].mat = cMat; // place new material only if it is in a valid place
+									grid[i+1][j+currentGrav].sat = currentSat;
 								}
-								grid[i+camera_x][j+camera_y].sat = m_no_saturation;
+								grid[i][j].sat = m_no_saturation;
 							}
 						}
 					} // if( gravity is positive) steep slope
@@ -171,7 +172,7 @@ void evaluate_grid(){
 						cells_left_to_air = 0;
 						// if the material underneath the cell we are evaluating is the same as the material in the cell we are evaluating,
 						// then the length of mat is 0 to start. otherwise the length of the material is invalid and is set to -1.
-						if(grid[camera_x+i][camera_y+j+1].mat == currentMat){
+						if(grid[i][j+1].mat == cMat){
 							length_of_mat_right = 0;
 							length_of_mat_left =  0;
 							found_length_of_mat_right = false;
@@ -193,25 +194,25 @@ void evaluate_grid(){
 							
 							// get how far it is to the nearest obstruction to the right. only set this if it has not been set before.
 							//this set is for tunneling
-							if( (cells_right_to_obstruction==-currentGrav+1) && grid[camera_x+i+ig][camera_y+j].mat != m_air && grid[camera_x+i+ig][camera_y+j].mat != currentMat) cells_right_to_obstruction = ig;
+							if( (cells_right_to_obstruction==-currentGrav+1) && grid[i+ig][j].mat != m_air && grid[i+ig][j].mat != cMat) cells_right_to_obstruction = ig;
 							// get how far it is to the nearest obstruction to the  left. only set this if it has not been set before.
-							if( (cells_left_to_obstruction==-currentGrav+1)  && grid[camera_x+i-ig][camera_y+j].mat != m_air && grid[camera_x+i-ig][camera_y+j].mat != currentMat )  cells_left_to_obstruction = ig;
+							if( (cells_left_to_obstruction==-currentGrav+1)  && grid[i-ig][j].mat != m_air && grid[i-ig][j].mat != cMat )  cells_left_to_obstruction = ig;
 							
 							// get how far it is to the nearest obstruction to the right. only set this if it has not been set before.
 							// this set is for gravity slope testing.
-							if( (cells_right_to_obstruction_sloping==-currentGrav+1) && grid[camera_x+i+ig][camera_y+j].mat != m_air) cells_right_to_obstruction_sloping = ig;
+							if( (cells_right_to_obstruction_sloping==-currentGrav+1) && grid[i+ig][j].mat != m_air) cells_right_to_obstruction_sloping = ig;
 							// get how far it is to the nearest obstruction to the  left. only set this if it has not been set before.
-							if( (cells_left_to_obstruction_sloping==-currentGrav+1)  && grid[camera_x+i-ig][camera_y+j].mat != m_air) cells_left_to_obstruction_sloping = ig;
+							if( (cells_left_to_obstruction_sloping==-currentGrav+1)  && grid[i-ig][j].mat != m_air) cells_left_to_obstruction_sloping = ig;
 							
 							// get how far it is to the nearest air cell to the right. only set this if it has not been set before.
-							if( !cells_right_to_air && grid[camera_x+i+ig][camera_y+j+1].mat == m_air ) cells_right_to_air = ig;
+							if( !cells_right_to_air && grid[i+ig][j+1].mat == m_air ) cells_right_to_air = ig;
 							// get how far it is to the nearest air cell to the  left. only set this if it has not been set before.
-							if( !cells_left_to_air  && grid[camera_x+i-ig][camera_y+j+1].mat == m_air )  cells_left_to_air = ig;
+							if( !cells_left_to_air  && grid[i-ig][j+1].mat == m_air )  cells_left_to_air = ig;
 							
-							// get how far it is to the nearest non-currentMat cell to the right. only set this if it has not been set before.
-							if( !found_length_of_mat_right && grid[camera_x+i+ig][camera_y+j+1].mat != currentMat ) { length_of_mat_right = ig-1; found_length_of_mat_right = true; }
-							// get how far it is to the nearest non-currentMat cell to the  left. only set this if it has not been set before.
-							if( !found_length_of_mat_left  && grid[camera_x+i-ig][camera_y+j+1].mat != currentMat )  { length_of_mat_left = ig-1; found_length_of_mat_left = true; }
+							// get how far it is to the nearest non-cMat cell to the right. only set this if it has not been set before.
+							if( !found_length_of_mat_right && grid[i+ig][j+1].mat != cMat ) { length_of_mat_right = ig-1; found_length_of_mat_right = true; }
+							// get how far it is to the nearest non-cMat cell to the  left. only set this if it has not been set before.
+							if( !found_length_of_mat_left  && grid[i-ig][j+1].mat != cMat )  { length_of_mat_left = ig-1; found_length_of_mat_left = true; }
 							
 							//break if all of these values have been found
 							if( (cells_right_to_obstruction_sloping != -currentGrav+1) && (cells_left_to_obstruction_sloping != -currentGrav+1) && (cells_right_to_obstruction != -currentGrav+1) && (cells_left_to_obstruction != -currentGrav+1) && cells_right_to_air && cells_left_to_air && length_of_mat_right<0 && length_of_mat_left<0 ) break;
@@ -248,21 +249,21 @@ void evaluate_grid(){
 						// the material goes to the right
 						if(moveRight && !holdOffRight){
 							// put current cell data into new cell
-							grid[camera_x+i+cells_right_to_air][camera_y+j+1].mat = currentMat;
-							grid[camera_x+i+cells_right_to_air][camera_y+j+1].sat = currentSat;
+							grid[i+cells_right_to_air][j+1].mat = cMat;
+							grid[i+cells_right_to_air][j+1].sat = currentSat;
 							// erase current cell data
-							grid[camera_x+i][camera_y+j].mat = m_air;
-							grid[camera_x+i][camera_y+j].sat = m_no_saturation;
+							grid[i][j].mat = m_air;
+							grid[i][j].sat = m_no_saturation;
 							holdOffRight = -currentGrav;
 						}
 						// the material goes to the left.
 						if(moveLeft && !holdOffLeft){
 							// put current cell data into new cell
-							grid[camera_x+i-cells_left_to_air][camera_y+j+1].mat = currentMat;
-							grid[camera_x+i-cells_left_to_air][camera_y+j+1].sat = currentSat;
+							grid[i-cells_left_to_air][j+1].mat = cMat;
+							grid[i-cells_left_to_air][j+1].sat = currentSat;
 							// erase current cell data
-							grid[camera_x+i][camera_y+j].mat = m_air;
-							grid[camera_x+i][camera_y+j].sat = m_no_saturation;
+							grid[i][j].mat = m_air;
+							grid[i][j].sat = m_no_saturation;
 							holdOffLeft = -currentGrav;
 						}
 					} // tunneling and gradual grade slope
@@ -278,17 +279,17 @@ void evaluate_grid(){
 	// cMat		  :	the current material that we are trying to see if it gets saturated.
 	// matIndex	  :	the thing used to matIndex into the matSatOrder array to get a correct material to store int cMat.
 	// satEffIndex:	the index for going throught
-	// newi, newj :	the coordinates of the cells around the grid[i+camera_x][j+camera_y].mat being evaluated.
+	// newi, newj :	the coordinates of the cells around the grid[i][j].mat being evaluated.
 	// c		  :	used to indicate which cell around our cell is being evaluated.
-	short cMat;
+	//short cMat; // declared earlier
 	unsigned short satEffIndex, newi, newj;
 	bool firstEncounter;
 	
 	/// 2.1 EVALUATE SATURATION - the giant ass loop where the saturation is evaluated
-	for(i=0 ; i<GRID_WIDTH ; i++){ // go through each row
-		for(j=0 ; j<GRID_HEIGHT ; j++){ // go through each column
+	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){ // go through each row
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){ // go through each column
 			
-			cMat = grid[i+camera_x][j+camera_y].mat; // get correct material
+			cMat = grid[i][j].mat; // get correct material
 			
 			//go through each saturation effect of the material
 			for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
@@ -297,21 +298,21 @@ void evaluate_grid(){
 				if(mats[cMat].satEffect[satEffIndex].satMat == m_no_saturation) continue;
 				
 				//make sure the current cell has the current material, cMat, in it!! if not, continue;
-				if(cMat != grid[i+camera_x][j+camera_y].mat) continue;
+				if(cMat != grid[i][j].mat) continue;
 				
 				//check for saturation memory
 				if(mats[cMat].satEffect[satEffIndex].satMem == false){ // if there is no saturation memory
 					// if there is no memory, evaluate the satuation level each time.
-					grid[i+camera_x][j+camera_y].satLevelChange = 0;
+					grid[i][j].satLevelChange = 0;
 					// it needs to be saturated each cycle of evaluate_grid() when there is no memory.
-					grid[i+camera_x][j+camera_y].satChange = m_no_saturation;
+					grid[i][j].satChange = m_no_saturation;
 				}
 				/*
 				else{ // if there is saturation memory
 					// there is no change in the saturation level.
-					grid[i+camera_x][j+camera_y].satLevelChange = m_no_change;
+					grid[i][j].satLevelChange = m_no_change;
 					// there is no change in the saturation
-					grid[i+camera_x][j+camera_y].satChange = m_no_change;
+					grid[i][j].satChange = m_no_change;
 				}
 				*/
 				
@@ -323,7 +324,7 @@ void evaluate_grid(){
 				//  	3 M 4
 				//  	5 6 7
 				for(c=0 ; c<8 ; c++){
-					//get correct newi and newj values to plug into grid[newi+camera_x][newj+camera_y].mat
+					//get correct newi and newj values to plug into grid[newi][newj].mat
 					switch(c){
 					case 0: newi = i-1;	newj = j-1;
 						break;
@@ -343,47 +344,48 @@ void evaluate_grid(){
 						break;
 					}
 					// if newi and newj are in UNACCEPTABLE places, continue to the next neighbor cell
-					if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
+					if(newi < camera_x || newi >= GRID_WIDTH+camera_x || newj < camera_y || newj >= GRID_HEIGHT+camera_y) continue;
 				
 					// if the material near this cell is the right type to saturate it
-					if(grid[newi+camera_x][newj+camera_y].mat == mats[cMat].satEffect[satEffIndex].satMat){
+					if(grid[newi][newj].mat == mats[cMat].satEffect[satEffIndex].satMat){
 						
 						if(roll_ht(mats[cMat].satEffect[satEffIndex].chance[c])){ // determine if it will become saturated based on roll_ht function.
-							grid[i+camera_x][j+camera_y].satChange = mats[cMat].satEffect[satEffIndex].satMat;
+							grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
 							// absorbs the material if required. it only absorbs if it isn't already saturated.
-							if(grid[i+camera_x][j+camera_y].sat != grid[newi+camera_x][newj+camera_y].mat && mats[cMat].satEffect[satEffIndex].absorb) grid[newi+camera_x][newj+camera_y].matChange = m_air;
+							if(grid[i][j].sat != grid[newi][newj].mat && mats[cMat].satEffect[satEffIndex].absorb) grid[newi][newj].matChange = m_air;
 						}
 						// increment the satLevel if needed.
 						if(firstEncounter){
-							grid[i+camera_x][j+camera_y].satLevelChange = 1;
+							grid[i][j].satLevelChange = 1;
 							firstEncounter = 0;
 							}
 						else
-							grid[i+camera_x][j+camera_y].satLevelChange++;
+							grid[i][j].satLevelChange++;
 					}
 				}
 			}
 		}
 	}
+	
 	apply_grid_changes(); // apply changes from the SATURATION APPLY part of this function.
 	
 	
 	
 	/// 2.2 SATURATION DECAY
-	for(i=0 ; i<GRID_WIDTH ; i++){
-		for(j=0 ; j<GRID_HEIGHT ; j++){
-			if(grid[i+camera_x][j+camera_y].sat != m_no_saturation){ // if there is a valid saturation here
+	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
+			if(grid[i][j].sat != m_no_saturation){ // if there is a valid saturation here
 				//store current material here for convenience
-				cMat = grid[i+camera_x][j+camera_y].mat;
+				cMat = grid[i][j].mat;
 				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
-					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i+camera_x][j+camera_y].sat){ // if this is the right saturation
+					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i][j].sat){ // if this is the right saturation
 						//check for the right saturaion levels. if you don't have the right sat levels, just move on to the next satEffect. (continue)
-						if(grid[i+camera_x][j+camera_y].satLevel < mats[cMat].satEffect[satEffIndex].decaySatGTE || grid[i+camera_x][j+camera_y].satLevel > mats[cMat].satEffect[satEffIndex].decaySatLTE) continue;
+						if(grid[i][j].satLevel < mats[cMat].satEffect[satEffIndex].decaySatGTE || grid[i][j].satLevel > mats[cMat].satEffect[satEffIndex].decaySatLTE) continue;
 						
 						// roll for saturation-initiated decay 
 						if(roll_ht( mats[cMat].satEffect[satEffIndex].decayChance )){
-							grid[i+camera_x][j+camera_y].matChange = mats[cMat].satEffect[satEffIndex].decayIntoMat;
-							grid[i+camera_x][j+camera_y].satChange = mats[cMat].satEffect[satEffIndex].decayIntoSat;
+							grid[i][j].matChange = mats[cMat].satEffect[satEffIndex].decayIntoMat;
+							grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].decayIntoSat;
 						}
 					}
 				}
@@ -395,18 +397,18 @@ void evaluate_grid(){
 	
 	
 	/// 3. AFFECTS AND DECAY - this giant-ass for loop is where we find out which cells need to be changed.
-	for(i=0 ; i<GRID_WIDTH ; i++){
-		for(j=0 ; j<GRID_HEIGHT ; j++){
+	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
 			// air doesn't do anything. that is it's definition.
-			if(grid[i+camera_x][j+camera_y].mat == m_air) continue;
+			if(grid[i][j].mat == m_air) continue;
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
 				
 				//evaluate the affectMaterial structure (this will apply correct changes to the cellMat array)
-				evaluate_affectMaterial(i, j, &mats[grid[i+camera_x][j+camera_y].mat].affectMat[a] );
+				evaluate_affectMaterial(i, j, &mats[grid[i][j].mat].affectMat[a] );
 				
 			}
 			// check for decay.
-			if(roll_ht( mats[ grid[i+camera_x][j+camera_y].mat ].decayChance) ) grid[i+camera_x][j+camera_y].matChange = mats[ grid[i+camera_x][j+camera_y].mat ].decayIntoMat; // if, by chance, it is time to decay, then decay into your proper type.
+			if(roll_ht( mats[ grid[i][j].mat ].decayChance) ) grid[i][j].matChange = mats[ grid[i][j].mat ].decayIntoMat; // if, by chance, it is time to decay, then decay into your proper type.
 		}
 	}
 	apply_grid_changes(); // apply changes from the AFFECTS AND DECAY and decay part of this function.
@@ -420,11 +422,11 @@ void evaluate_grid(){
 void reset_grid_changes(){
 	int i,j;
 	//reset cellMatChanges and cellSatChanges
-	for(i=0 ; i<GRID_WIDTH ; i++){
-		for(j=0 ; j<GRID_HEIGHT ; j++){
-			grid[i+camera_x][j+camera_y].matChange = m_no_change;
-			grid[i+camera_x][j+camera_y].satChange = m_no_change;
-			grid[i+camera_x][j+camera_y].satLevelChange = m_no_change;
+	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
+			grid[i][j].matChange = m_no_change;
+			grid[i][j].satChange = m_no_change;
+			grid[i][j].satLevelChange = m_no_change;
 		}
 	}
 }
@@ -434,22 +436,19 @@ void reset_grid_changes(){
 
 void apply_grid_changes(){
 	int i,j;
-	for(i=0 ; i<GRID_WIDTH ; i++){
-		for(j=0 ; j<GRID_HEIGHT ; j++){
+	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
 			//if the material at [i][j] needs to be changed (updated) then change it
-			if(grid[i+camera_x][j+camera_y].matChange != m_no_change) grid[i+camera_x][j+camera_y].mat = grid[i+camera_x][j+camera_y].matChange;
+			if(grid[i][j].matChange != m_no_change) grid[i][j].mat = grid[i][j].matChange;
 			//if the saturation at [i][j] needs to be changed (updated) then change it
-			if(grid[i+camera_x][j+camera_y].satChange != m_no_change) grid[i+camera_x][j+camera_y].sat = grid[i+camera_x][j+camera_y].satChange;
+			if(grid[i][j].satChange != m_no_change) grid[i][j].sat = grid[i][j].satChange;
 			//if the saturation level at [i][j] needs to be changed (updated) then change it.
-			if(grid[i+camera_x][j+camera_y].satLevelChange != m_no_change) grid[i+camera_x][j+camera_y].satLevel = grid[i+camera_x][j+camera_y].satLevelChange;
-		}
-	}
-	//reset cellMatChanges and cellSatChanges
-	for(i=0 ; i<GRID_WIDTH ; i++){
-		for(j=0 ; j<GRID_HEIGHT ; j++){
-			grid[i+camera_x][j+camera_y].matChange = m_no_change;
-			grid[i+camera_x][j+camera_y].satChange = m_no_change;
-			grid[i+camera_x][j+camera_y].satLevelChange = m_no_change;
+			if(grid[i][j].satLevelChange != m_no_change) grid[i][j].satLevel = grid[i][j].satLevelChange;
+			
+			//reset grid changes
+			grid[i][j].matChange = m_no_change;
+			grid[i][j].satChange = m_no_change;
+			grid[i][j].satLevelChange = m_no_change;
 		}
 	}
 }
@@ -488,33 +487,33 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 	case m_dont_care:
 		break;
 	case m_no_saturation:
-		if(grid[i+camera_x][j+camera_y].sat != m_no_saturation) return;
+		if(grid[i][j].sat != m_no_saturation) return;
 		break;
 	case m_any_of_my_sats:
 		validSat = false; // by default, we have not yet detected a valid saturation.
 		for(c=0 ; c<MAX_NUMBER_OF_SATURATIONS ; c++){
-			if(mats[grid[i+camera_x][j+camera_y].mat].satEffect[c].satMat == m_no_saturation) // if you have reached an null satEffect...
+			if(mats[grid[i][j].mat].satEffect[c].satMat == m_no_saturation) // if you have reached an null satEffect...
 				break; // ...break out of the for(c) loop
 				
 			// if there is a valid saturation, set validSat true and break out of the for(c) loop.
-			if(grid[i+camera_x][j+camera_y].sat == mats[grid[i+camera_x][j+camera_y].mat].satEffect[c].satMat){
+			if(grid[i][j].sat == mats[grid[i][j].mat].satEffect[c].satMat){
 					validSat = true;
 				break;
 			}
 		}
 		if(validSat == false) return; // false condition. if this material is not saturated with one of its valid saturations, then quit this affectMat.
 		//if our material isn't saturated enough, return
-		if(grid[i+camera_x][j+camera_y].satLevel < affMat->satGTE) return;
+		if(grid[i][j].satLevel < affMat->satGTE) return;
 		//if our material is too saturated, return
-		if(grid[i+camera_x][j+camera_y].satLevel > affMat->satLTE) return;
+		if(grid[i][j].satLevel > affMat->satLTE) return;
 		break;
 	default: // default conditions. there is a single saturation we are looking for. and we have to be the saturation range.
 		//if the saturation here isn't right, return
-		if(grid[i+camera_x][j+camera_y].sat != affMat->satNeeded) return;
+		if(grid[i][j].sat != affMat->satNeeded) return;
 		//if our material isn't saturated enough, return
-		if(grid[i+camera_x][j+camera_y].satLevel < affMat->satGTE) return;
+		if(grid[i][j].satLevel < affMat->satGTE) return;
 		//if our material is too saturated, return
-		if(grid[i+camera_x][j+camera_y].satLevel > affMat->satLTE) return;
+		if(grid[i][j].satLevel > affMat->satLTE) return;
 		break;
 	}
 	
@@ -548,24 +547,24 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 			if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
 		
 			// if there is a valid material or if you can use any material
-			if( affMat->matBefore == grid[newi+camera_x][newj+camera_y].mat || affMat->matBefore == m_dont_care){
+			if( affMat->matBefore == grid[newi][newj].mat || affMat->matBefore == m_dont_care){
 				// if there is a valid saturation or if you can use any saturation
-				if( affMat->satBefore == grid[newi+camera_x][newj+camera_y].sat || affMat->satBefore == m_dont_care){
+				if( affMat->satBefore == grid[newi][newj].sat || affMat->satBefore == m_dont_care){
 					// rolling
 					if(roll_ht(affMat->chance[c])){
 						// change the material only if it needs changing.
-						if(affMat->matAfter != m_no_change) grid[newi+camera_x][newj+camera_y].matChange = affMat->matAfter;
+						if(affMat->matAfter != m_no_change) grid[newi][newj].matChange = affMat->matAfter;
 						// change the saturation only if it needs changing. also change the saturation level to a default of 1
 						if(affMat->satAfter != m_no_change) {
-								grid[newi+camera_x][newj+camera_y].satChange = affMat->satAfter;
-								grid[newi+camera_x][newj+camera_y].satLevelChange = 1;
+								grid[newi][newj].satChange = affMat->satAfter;
+								grid[newi][newj].satLevelChange = 1;
 						}
 						
 						// check to see if the original material will change because of it having completed an affectMat
 						if(affMat->changeOrigMat != m_no_change) 			// if the material changes after it affects neighboring cells
-							grid[i+camera_x][j+camera_y].matChange = affMat->changeOrigMat; 		// change the material
+							grid[i][j].matChange = affMat->changeOrigMat; 		// change the material
 						if(affMat->changeOrigSat != m_no_change) 			// if the saturation of our material changes after our material affects neighboring cells
-							grid[i+camera_x][j+camera_y].satChange = affMat->changeOrigSat; 		// change the saturation of our material.
+							grid[i][j].satChange = affMat->changeOrigSat; 		// change the saturation of our material.
 					}
 				}
 			}

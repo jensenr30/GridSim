@@ -1,0 +1,30 @@
+
+>	Start GridSim by opening the "game" folder and running "GridSim" exe
+>	or simply double click the "_Start_GridSim" bat file
+
+--------------------------------------------------------------
+	CONTROLS				FEATURE
+--------------------------------------------------------------
+	Left click				Place material into the grid
+	Right click				Remove material from the grid
+
+	Scroll up/down			Zoom in/out
+
+	WASD					Pan the screen around
+	
+	Space Bar				Pause
+
+	C						Clear the entire grid
+
+	R						Randomise the grid
+
+	Left  Arrow Key			speed up the simulation
+	Right Arrow Key			slow down the simulation
+--------------------------------------------------------------
+
+
+	The game is built on the premise that materials interact with other materials.
+	Part of the game is discovering these little interaction rules.
+	The interaction rules of the game may change from version to version.
+	So with each new version, there can be changes to old materials behaviors.
+	Enjoy exploring.

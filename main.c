@@ -7,7 +7,7 @@ int main( int argc, char* args[] )
 	srand(time(NULL));
 
     //mouse variables and cell types
-    int x, y, sleepTime = 64, paused = 0, countVar = 0;
+    int x, y, sleepTime = 0, paused = 0, countVar = 0;
 
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
@@ -24,25 +24,49 @@ int main( int argc, char* args[] )
     //Update the screen
     if( SDL_Flip( screen ) == -1 ) return 3;
 
-    //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to air
+    //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
-
-
-	int i,j;
-///-------------------------------------
- //putting test materials into grid
     
+    //this sets up some surfaces that the selection gui needs to run efficiently
+    if( init_tempGuiScreen() == false){
+		MessageBox(NULL, "Couldn't Initialize selection gui surface: tempGuiScreen", "Error", MB_OK);
+		return -4;
+    }
+    
+    
+	/*
+	CELL_SIZE = 4;
+	int i;//
+	//putting test materials into grid
+    
+    for(i=0; i<GRID_WIDTH; i++){
+		if(get_rand(1,4)==1)
+			grid[i+camera_x][GRID_HEIGHT-1-get_rand(7,15)+camera_y].mat = m_plant_root;
+		if(get_rand(1,10)==10)
+			grid[i+camera_x][camera_y+get_rand(20,35)].mat = m_spring;
+		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
+		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
+		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
+    }
+    */
+    CELL_SIZE = 8;
+    sleepTime = 0;
+	//int i;//
+	//putting test materials into grid
+    
+    /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){
 		for(j=26 ; j<GRID_HEIGHT ; j+=20){
 			grid[i][j].mat = m_anti_scurge;
 		}
     }
+    */
     
-    sleepTime = 0;
- //--------------------------------------
+	//--------------------------------------
 	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
-	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_grass;
-
+	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
+	int keyw=0, keya=0, keys=0, keyd=0;
+	unsigned lastPanTime = 0;
     //While the user hasn't quit
     while(1){
 
@@ -57,19 +81,21 @@ int main( int argc, char* args[] )
 			}
 
 
-            if( event.type == SDL_MOUSEBUTTONDOWN ){
+            if( event.type == SDL_MOUSEBUTTONDOWN ){						/// mouse down
 				x = event.motion.x;
 				y = event.motion.y;
                 if( event.button.button == SDL_BUTTON_LEFT ){
                     mouseStatusLeft = 1;
                 }
-
                 else if( event.button.button == SDL_BUTTON_RIGHT ){
                     mouseStatusRight = 1;
                 }
+                else if( event.button.button == SDL_BUTTON_WHEELUP )
+					zoom_in(x,y);
+				else if( event.button.button == SDL_BUTTON_WHEELDOWN )
+					zoom_out(x,y);
             }
-
-            if(event.type == SDL_MOUSEBUTTONUP){
+            else if(event.type == SDL_MOUSEBUTTONUP){						/// mouse up
 				x = event.motion.x;
 				y = event.motion.y;
                 if( event.button.button == SDL_BUTTON_LEFT ){
@@ -79,33 +105,70 @@ int main( int argc, char* args[] )
                     mouseStatusRight = 0;
                 }
             }
-            if( event.type == SDL_MOUSEMOTION ){
+            else if( event.type == SDL_MOUSEMOTION ){						/// mouse motion
 				x = event.motion.x;
 				y = event.motion.y;
             }
+            else if(event.type == SDL_VIDEORESIZE){							/// window resize
+				
+				float new_cell_size = CELL_SIZE * event.resize.h/((float)SCREEN_HEIGHT); // adjust the pixel size.
+				if(new_cell_size - ((int)new_cell_size) >= 0.5f) CELL_SIZE = new_cell_size + 1;
+				else CELL_SIZE = new_cell_size;
+				SCREEN_WIDTH = event.resize.w;
+				SCREEN_HEIGHT = event.resize.h;
+				verify_grid_and_cell_size(); // make sure the window isn't too big for the cell size
+				
+				set_window_size(event.resize.w, event.resize.h);
+			}
 
-            if( event.type == SDL_KEYDOWN ){
+            if( event.type == SDL_KEYDOWN ){								///keyboard event
                 switch( event.key.keysym.sym ){
-                    case SDLK_UP: break; //change block type up
-                    case SDLK_DOWN: break; // change block type down
-                    case SDLK_c: reset_cells();  break;//clear the screen
-                    case SDLK_p: print_saturation_data(); break; // prints the cellSat[][] array to stdout. this is for debuggin purposes.
-                    case SDLK_r:  randomize_grid(); break; // randomize grid
-                    case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
-                    case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
-                    case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
-                    case SDLK_EQUALS: zoomplus(); break; //zoom in
-                    case SDLK_MINUS: zoomminus(); break; //zoom out
-                    case SDLK_ESCAPE: quit = true; // quit with escape
-                    default: break;
-                    }
-                }
+				case SDLK_UP: break; //change block type up
+				case SDLK_DOWN: break; // change block type down
+				case SDLK_c: reset_cells();  break;//clear the screen
+				case SDLK_p: print_saturation_data(); break; // prints the cellSat[][] array to stdout. this is for debuggin purposes.
+				case SDLK_r:  randomize_grid(); break; // randomize grid
+				case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
+				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
+				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
+				case SDLK_ESCAPE: quit = true; // quit with escape
+				case SDLK_w: keyw=1; break; // store key state
+				case SDLK_a: keya=1; break;
+				case SDLK_s: keys=1; break;
+				case SDLK_d: keyd=1; break;
+				default: break;
+				}
+			}
+			if( event.type == SDL_KEYUP ){								///keyboard event
+                switch( event.key.keysym.sym ){
+				case SDLK_w: keyw=0; break;//lastPanTime=0; break; // store key state
+				case SDLK_a: keya=0; break;//lastPanTime=0; break;
+				case SDLK_s: keys=0; break;//lastPanTime=0; break;
+				case SDLK_d: keyd=0; break;//lastPanTime=0; break;
+				default: break;
+				}
+			}
+                
 
     	} // end while(event)
 		//no more events to handle at the moment.
 		
+		//this handles time-controlled panning
+		if(SDL_GetTicks() - MIN_PAN_INTERVAL > lastPanTime){
+			if(keyw) pan(D_UP);
+			if(keya) pan(D_LEFT);
+			if(keys) pan(D_DOWN);
+			if(keyd) pan(D_RIGHT);
+			lastPanTime = SDL_GetTicks();
+			#if (debug)
+				printf("\nlastPanTime = %d\n", lastPanTime);
+			#endif
+		}
+		
 		//checks if the mouse is held or not
         if(mouseStatusLeft == 1 && mouseModifier == 0){
+			//make sure the mouse isn't inside either of the two GUIs.
+			if(y >= 50 && x < SCREEN_WIDTH - 200)
             setcell(x, y, currentMat);
             }
 

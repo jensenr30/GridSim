@@ -1,0 +1,165 @@
+make it so that all cells are evaluated, then the changes are applied.
+if you evaluate fire, then apply fire's effects, that will skew the simulation.
+we need to have all materials being evaluated, then their effects need to be applied to the grid.
+that way, everything will have an equal chance of affecting something.
+
+------------------------------------------------------------------------------------------------------
+
+give blocks modifiers.
+allow grass to be modified by fire. This will basically mean that the grass is "on fire".
+allow grass to be modified by water. this will make the grass "hydrated"
+allow dirt to be modified by water. this will make the ground "moist"
+
+Add another member to the material struct.
+make it the matEffects member.
+it will describe how being saturated changes its behavior and such.
+i.e. for grass:
+	if(satured with fire){
+		30% chance of burning up
+		25% chance of spreading fire to air around it.
+	}
+
+------------------------------------------------------------------------------------------------------
+
+make a array of "cell" structures for the cell data.
+
+struct cell{
+	//the material our cell is made up of
+	short m;
+	// the material that our cell is saturated with
+	short s;
+	// the level of saturation the material has. if the material is completely surreounded by fire, the l = 8. if there is only one fire block, then the level would be l = 1.
+	char l;
+} cells[SCREEN_WIDTH][SCREEN_HEIGHT];
+
+then change ALL OF THE PARTS IN THE CODE where it uses "cellData[][]" to this: "cells[][].m"
+
+------------------------------------------------------------------------------------------------------
+
+Make different grades of gravity. for instance,
+make it so that water seeks TRUELY it's own level by checking for any open spots just below its level.
+make it so that salt stacks at a 45 degree angle like so:
+		#
+	   ###
+	  #####
+	 #######
+	#########
+   ###########
+  #############
+ ###############
+#################
+
+	make gradeLength
+	and  gradeDepth
+in the materials structure.
+
+	gradeLength tells you how far away an air cell can be for the block to fill that air cell
+	gradeDepth tells you how deep the hole must be in order for the material to fill it.
+	
+To make a 45 degree angle like the salt stack shown above, simply set both to 1.
+that would mean that the air hole must be at least 1 cell below the cell that holds the material trying to move and...
+the air hole can be no more than 1 cell away.
+
+if you had:
+	gradeLength = 3;
+	gradeDepth  = 1;
+then the stack would look something like this:
+
+		 #
+	  #######
+   #############
+###################
+
+if you made the gradeLength really really big, something might act like water and seek it's own level
+
+##########################################
+
+if you had
+	gradeLength = 1;
+	gradeDepth  = 2;
+your stack of materials might look something like this:
+
+		#
+		#
+	   ###
+	   ###
+	  #####
+	  #####
+	 #######
+	 #######
+
+------------------------------------------------------------------------------------------------------
+
+fire spreading leaves holes in grass. making the spreading based on modifying the grass with fire when fire is next to it might be a good idea.
+that might make things look more organic.
+
+do this by saturating grass with fire.
+
+make grass spreading based on how much water there is around the grass...? or maybe just add gravity to water... this can be achieved through saturation if I add levels of saturation.
+
+Ideas ideas ideas...
+
+------------------------------------------------------------------------------------------------------
+
+HIGH PRIORITY
+
+make it so mud can get saturated with water. that water is then passed to another mud/dirt block below it.
+in this way, water can saturate more than just the top of a pile of dirt.
+ 
+------------------------------------------------------------------------------------------------------
+
+
+ HIGH PRIORITY
+ 
+ have a way of showing which cells are saturated with what.
+ 
+ here is a diagram:
+ 
+		 . - color of material in cell
+		 # - color of material saturating cell
+ 
+1x1 // no indication of the saturating material
+	. 
+
+2x2 // small indication of the saturating material
+	. .
+	. #
+
+4x4 // decent indication
+	. . . .
+	. # # .
+	. # # .
+	. . . .
+
+8x8 // good show of saturating material color.
+	. . . . . . . .
+	. . . . . . . .
+	. . # # # # . .
+	. . # # # # . .
+	. . # # # # . .
+	. . # # # # . .
+	. . . . . . . .
+	. . . . . . . .
+
+and so on in this order. each other cell size should similarly have the color of the saturating material only take up a quarter of the area (and be centered on the cell)
+
+------------------------------------------------------------------------------------------------------
+
+make the GRID_SIZE based on the gui width. that way we can achieve maximum efficiency. cells beneath the gui window(s) will not be evaluated.
+
+
+------------------------------------------------------------------------------------------------------
+ 
+ HIGH priority
+ 
+ make grass_roots want to pass water to the grass_roots below them. (low probability of passing water to the grass_roots to the side of them. super low priority of passing water to the roots above them.)
+ 
+ make saturated grass_roots colored differently than normal grass_roots?? that would be nice. to see the water moving through.
+ 
+ this will probably require that you make the satEffect[].affectMat be evaluated before the decay of saturated materials.
+ whatever. that makes sense anyway. do it.
+ 
+ make grass_roots grow grass 
+
+------------------------------------------------------------------------------------------------------
+

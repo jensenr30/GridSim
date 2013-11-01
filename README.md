@@ -5,13 +5,13 @@ In this repository, the .exe is NOT updated with the project. It is ignored for 
 
 **conventions:**
 
-added			+
+added				+
 
-removed			-
+removed				-
 
-revised			^
+updated/revisedchanged		^  or ~
 
-fixed bug 		%
+fixed bug				%
 
 ##Contact
 *Jensen*

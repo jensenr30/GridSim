@@ -20,9 +20,9 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-fexpensive-optimizations" />
 					<Add option="-Os" />
 					<Add option="-O3" />
-					<Add option="-O2" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -43,6 +43,9 @@
 		<Unit filename="cell_engine.h" />
 		<Unit filename="general_functions.h" />
 		<Unit filename="headers_and_globals.h" />
+		<Unit filename="icon.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -50,6 +53,7 @@
 		<Unit filename="materials_and_cells.h" />
 		<Unit filename="selection_gui.h" />
 		<Unit filename="unused.h" />
+		<Unit filename="world_gen.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -1,0 +1,291 @@
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+[6:33:30 PM] Jackson B: do you think there will be a way for falling elements to displace water it hits, to give a sinking feel?
+[6:33:53 PM | Edited 6:34:30 PM] Jackson B: cuz right now it just sits on top of the water and eventually gets covered like any other of the common falling rabble
+[6:34:11 PM] Jen: yeah
+[6:34:16 PM] Jen: that could be done
+[6:34:19 PM | Edited 6:34:21 PM] Jen: i've thought about that
+[6:34:32 PM] Jen: I would basically just have a flag and a density
+[6:34:46 PM] Jen: I have yet to do that.
+[6:34:52 PM] Jen: i'll add it to the list
+[6:34:59 PM] Jackson B: will doing that displace the water or move over it?
+[6:35:14 PM] Jen: i would think it would just switch places with it
+[6:35:21 PM] Jackson B: ok
+[6:35:38 PM] Jen: or maybe...
+[6:35:47 PM] Jen: it would rush up the side...
+[6:35:49 PM] Jen: hmmm
+[6:35:52 PM] Jen: interesting stuff...
+[6:36:02 PM] Jackson B: that's where i was getting at
+
+------------------------------------------------------------------------------------------------------
+
+make the gravity checking simpler:
+
+after you know that the block cannot fall straight down, immidiately calculate a few things:
+check the distance between it and the nearest obstacle (block that is not itself) on it's row (within the range of the material's gravity)
+then check the distance between it and the next lowest open cell.
+
+calculate these so that later you can do simple numberical if statements with no loops and generate a result.
+
+------------------------------------------------------------------------------------------------------
+
+make a pipeline that can carry water upwards.
+
+------------------------------------------------------------------------------------------------------
+
+make a system of dual or even triple colors where there can be verticle or horizontal stripes on materials that have dual/triple colors.
+
+the color of a normal materials is solid:
+
+- - - -
+- - - -
+- - - -
+
+the color of a striped block would look like this:
+
+# - # -
+# - # -
+# - # -
+# - # -
+
+or maybe it should be checkered
+
+# - # -
+- # - #
+# - # -
+- # - #
+
+yeah maybe this. or maybe that could be a flag?
+
+in the mats structure:
+
+colorType;
+
+#define ct_solid 0
+#define ct_striped 1
+#define ct_checkered 2
+(etc...)
+
+------------------------------------------------------------------------------------------------------
+
+use threads to evaluate multiple sections of the saturation of the screen at once.
+maybe use four threads total to evaluate the four quarters of the screen.
+that would be awesome. the game might preform faster if the process was chopped up into smaller pieces and handled by different threads.
+
+if I start running into dual write errors (where more than one thread tries to overwrite the same data simultaneiously)
+then I may have to evaluate the four quarters individually, but leave a border between all of them so that their data writing doesn't interfere with each other.
+Then after the four quarters are evaluated, the border can be evaluated.
+
+------------------------------------------------------------------------------------------------------
+
+add a portal feature.
+make it two blocks that send out tendril like things around them in random directions until they finally meet.
+when they meet, their connection makes a portal.
+where does the portal go? i don't know yet.
+
+------------------------------------------------------------------------------------------------------
+
+chicken and magic. not together necessarily.
+just.
+chicken.
+and also,
+magic.
+add dungeons and books that contain magic spells so that you have to collect these books at the beginning of every game to use magic.
+maybe there is one dungeon per world that contains the magic book you need.
+maybe there are other dungeons. filled with other crap too.
+like maybe some treasure?
+
+------------------------------------------------------------------------------------------------------
+
+the places where you don't go, time doesn't pass.
+what if you have an algorithm that makes time pass very slowly in the regions where you are not.
+for instsance, what if, every time the screen is updated in the player field of view, a few rows of the rest of the world are evaluated from top to bottom.
+special care would have to be taken to ensure that this extra evaluation of the rest of the grid does NOT overlap with the player's screen.
+
+evaluating too much of the world beyond the player's field of view would become too processing intense and would ultimately only hinder play.
+
+however, I think it would be a great idea to divert processing power to the rest of the grid when possible.
+maybe there would be some special interest in the immidiate area around the player?
+
+It would be nice if evaluating things outside the player's field of view would act as a damper to regulate the speed at which the game plays inside the player's field of view.
+that would be great because then the game could be played at a relatively contant speed while enhancing the overall feel of the dynamicness of the map.
+
+maybe we could have a similar thing that tekkit has: world anchors!
+that way that specific location will get some kind of advantage in terms of evaluation speed.
+
+[12:51:03 AM] I'm thinking about diverting processing power to evaluating the grid outside the player's field of view when the game is running too fast
+[12:51:16 AM] Jen: i.e. when the player zooms in, the frame rate WOULD increase, but now that extra processing power gets used to evaluate the rest of the world.
+[12:51:21 AM] Jen: that could WORK!
+[12:51:38 AM] Jen: and then the world move very slowly when you are not there
+[12:51:43 AM] Jen: but it would still move SOME
+[12:51:45 AM] Jen: xD
+[12:51:49 AM] Jen: i'm going to try that sometime.
+[12:52:04 AM] Jen: that would also act as a great way to regulate the speed at which the game can be played.
+
+------------------------------------------------------------------------------------------------------
+
+ should make gurren laggan pixel art with gridsim
+
+------------------------------------------------------------------------------------------------------
+
+make a key on the keyboard forces straight lines wne using the cursor
+
+------------------------------------------------------------------------------------------------------
+
+[12:18:02 AM] Jen: i think it would be neat if plant would produce something when you kill it
+[12:18:11 AM] Jen: or maybe I could nerf plant growth and make plants more valuable
+[12:18:21 AM] Jen: or make different types of plants
+[12:18:29 AM] Jen: maybe make a weed that grows really fast
+[12:18:34 AM] Jen: but doesn't really do much
+[12:18:50 AM] Jen: and then make a plant that when you harvest you get some small change of getting food or something really useful.
+[12:18:56 AM] Jen: so then you could farm shit like a boss.
+
+------------------------------------------------------------------------------------------------------
+
+add a window capture feature. allow it to export to png,jpg,bmp.
+
+------------------------------------------------------------------------------------------------------
+
+make an option to either replace existing material or only place material in un-filled cells when adding material to the matrix.
+also make an option to only delete certain types of material when erasing from the grid.
+
+------------------------------------------------------------------------------------------------------
+
+idea from patar:
+make the panning of the screen mapped to the motion of the mouse.
+if the user middle clicks (or maybe presses alt) then the mouse will function as a method of panning the screen.
+this is VERY HIGH PRIORITY
+
+------------------------------------------------------------------------------------------------------
+
+make a varible background color. maybe a gradient? that would be easily done with openGL.
+make sunsets and dark nights and blue days.
+or you could make it so that the daytime sky has a random color. (it would be consistant on that world, but it would be random when the world is generated.
+that could be like a random variable for world generation: SKY_COLOR.
+maybe some skies would be a "classic" sky-blue whereas others might be a kind of rust colored atmosphere. still others could be greenish or reddish.
+
+------------------------------------------------------------------------------------------------------
+
+use openGL for graphics instead of SDL. keep SDL for the user input but switch to OpenGL for all rendering of rectangles
+
+http://lazyfoo.net/SDL_tutorials/lesson36/index.php
+
+------------------------------------------------------------------------------------------------------
+
+optimize the structures with the most used data types in the first 128 bytes according to this website:
+https://en.wikibooks.org/wiki/Optimizing_C%2B%2B/Code_optimization/Faster_operations
+
+------------------------------------------------------------------------------------------------------
+
+add world generation. make rock as the bottom layers, and dirt and grass as the top layers.
+add tree spawning and caves and lakes and underground water pockets.
+
+------------------------------------------------------------------------------------------------------
+
+add a playable part of the game where the player wanders the world and survives.
+
+------------------------------------------------------------------------------------------------------
+
+add weather to the game. rain? snow? maybe add a snow block?
+make weird weather.
+make some weather or seasons that aren't just your run-of-the-mill spring, summer, autum, and winter.
+make a season where drain-o rains down from the sky and kills shit.
+or make a season where the inherent grid of the game starts to show (i.e. the grid of cells that the game is comprised of starts to become visible.
+the cells start to show a shadow of an outline.
+there is a season that shows the very grid of the game itself!
+call it Fruam
+
+------------------------------------------------------------------------------------------------------
+
+add a copy/cut/paste system.
+add a history system to undo and redo
+
+------------------------------------------------------------------------------------------------------
+
+make it so that when you press G, it makes ALL blocks (except ROCK) obey gravity. that way you can stack shit.
+
+------------------------------------------------------------------------------------------------------
+
+make it so that when you place materials, you don't replace others.
+e.g. when you place fire, it doesn't replace rock. it only gets placed in places where there is nothing (where there is air).
+
+------------------------------------------------------------------------------------------------------
+
+PREFORMANCE INCREASE
+modify the print_cells to only print cells that have changed. i.e. only print the elements in the grid[][].matChanged that are NOT M_no_change
+# update #
+this would no longer work because gravity doesn't fuck around with matChanged.
+
+------------------------------------------------------------------------------------------------------
+
+make rippling water. (low priority)
+
+------------------------------------------------------------------------------------------------------
+
+make animals that jump around.
+They eat grass.
+when they feast on grass, there is some chance that they will give disgusting animal birth to another wild beast.
+humans can eat them.
+these animals and humans would probably not be materials.
+I would have to make a seperate thing like an "entity" that can have more complex behavioral rules.
+
+
+------------------------------------------------------------------------------------------------------
+
+TREE GENERATION:
+M_wood
+make a material called "wood".
+this material will have an 80% chance of spawning more wood in the cell directly above it.
+it will have a 20% chance of spawning a material called "wood_branch" directly above it
+
+M_wood_branch
+woodbranch will have a relatively high chance of spawning leaves in the air around it.
+woodbranch will then have a smaller chance of spawning more branches where the leaves are.
+wood_branch has a good possibility of spawning "wood_end".
+
+M_wood_end
+wood_end only spawns leaves_end and some leaves in the air around itself.
+
+M_leaves
+leaves have a small chance of spawning other leaves around themselves.
+they have a much much higher chance of spawning "leaves_end"
+
+M_leaves_end
+leaves_end have a very very very small chance of spawning fruit in the air around them.
+once the fruit is spawned, it then saturates the leaves with it's fruitiness and the leaves can no longer spawn fruit.
+
+All of the above materials can be burnt.
+However, they should burn for different lengths of time.
+From fastest burning to slowest burning:
+
+	fast->	leaves_end
+			leaves
+			wood_end
+			wood_branch
+	slow->	wood
+leaves_end have a very very very small chance of spawning fruit in the air around them.
+once the fruit is spawned, it then saturates the leaves with it's fruitiness and the leaves can no longer spawn fruit.
+
+------------------------------------------------------------------------------------------------------
+
+add a search bar in the selection gui.
+allow the user to search through all the materials by name.
+
+also allow the user to filter the materials by category:
+	allow the user to only show block with/without gravity (and maybe allow to specifically search by gravity grade)
+
+------------------------------------------------------------------------------------------------------
+
+give grass an affinity to growing on the surface of dirt/mud.
+
+------------------------------------------------------------------------------------------------------

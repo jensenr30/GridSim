@@ -1,4 +1,17 @@
  
+ void set_window_size(int w, int h){
+	screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_SWSURFACE | SDL_RESIZABLE );
+	
+	//If there was an error setting up the screen
+	if(screen == NULL )
+	{
+		exit(111);
+	}
+}
+ 
+ 
+ 
+ 
 SDL_Surface *load_image( char* filename ){
     //Temporary storage for the image that is loaded
     SDL_Surface* loadedImage = NULL;
@@ -22,6 +35,11 @@ SDL_Surface *load_image( char* filename ){
     return optimizedImage;
 }
 
+//this returns a pointer to an SDL_Surface
+SDL_Surface *create_surface(int width, int height){
+	return SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0x000000);
+}
+
 void apply_surface( int x, int y,  SDL_Surface* source, SDL_Surface* destination ){
     //make a temporary rectangle to hold offsets
     SDL_Rect offset;
@@ -41,7 +59,7 @@ int init(){
 	}
 	
 	//Set up the screen
-	screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );
+	set_window_size(SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	//If there was an error setting up the screen
 	if(screen == NULL ){
@@ -49,9 +67,9 @@ int init(){
 	}
 	
 	//Set the window caption
-	SDL_WM_SetCaption( "GridSim 0.1 - working copy", NULL );
+	SDL_WM_SetCaption( "GridSim 0.3", NULL );
 	
-	//SDL_Wm_SetIcon( icon ); // sets the icon of the windows and taskbar item
+	
 	
 	//If everything initialized fine
 	return true;
@@ -68,6 +86,10 @@ int load_files(){
 		return false;
 	}
 	*/
+	
+	icon = SDL_LoadBMP("game icon.ico");
+	SDL_WM_SetIcon(icon, NULL); // sets the icon of the windows and taskbar item
+	
 	//Initialize SDL_ttf
     if( TTF_Init() == -1 )
     {

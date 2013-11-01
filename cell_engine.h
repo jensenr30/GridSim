@@ -72,9 +72,37 @@ void evaluate_grid(){
 	
 	
 	
-	for(j=GRID_HEIGHT-1+camera_y; j>=camera_y; j--){ // cycle through the rows
+	for(j=GRID_HEIGHT+camera_y-1; j>=camera_y; j--){ // cycle through the rows
+		// make sure the indexes are not out of bounds
+		if(j < 0){
+			#if(debug)
+				printf("function evaluate_grid():\nError: j is outside of bounds.\nj = %d\n\n",j);
+			#endif
+			j = 0;
+		}
+		else if(j >= GRID_HEIGHT_ELEMENTS){
+			#if(debug)
+				printf("function evaluate_grid():\nError: j is outside of bounds.\nj = %d\n\n",j);
+			#endif
+			break;
+		}
 		for(i=camera_x; i<GRID_WIDTH+camera_x; i++){ // cycle through each column for a single row
 			
+			// make sure the indexes are not out of bounds
+			if(i < 0){
+				#if(debug)
+					printf("function evaluate_grid():\nError: i is outside of bounds.\ni = %d\n\n",i);
+				#endif
+				i = 0;
+			}
+			else if(i >= GRID_WIDTH_ELEMENTS){
+				#if(debug)
+					printf("function evaluate_grid():\nError: i is outside of bounds.\ni = %d\n\n",i);
+				#endif
+				break;
+			}
+			
+			if(grid[i][j].mat == m_air) continue;
 			// this resets the holdoff variables if there is a gap between the gravity material
 			// this polices the movement of material
 			if(grid[i][j].mat == m_air && grid[i][j+1].mat == m_air){
@@ -286,8 +314,8 @@ void evaluate_grid(){
 	bool firstEncounter;
 	
 	/// 2.1 EVALUATE SATURATION - the giant ass loop where the saturation is evaluated
-	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){ // go through each row
-		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){ // go through each column
+	for(i=camera_x ; i<GRID_WIDTH+camera_x && i<GRID_WIDTH_ELEMENTS ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y && j<GRID_HEIGHT_ELEMENTS; j++){
 			
 			cMat = grid[i][j].mat; // get correct material
 			
@@ -372,8 +400,8 @@ void evaluate_grid(){
 	
 	
 	/// 2.2 SATURATION DECAY
-	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
-		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
+	for(i=camera_x ; i<GRID_WIDTH+camera_x && i<GRID_WIDTH_ELEMENTS ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y && j<GRID_HEIGHT_ELEMENTS; j++){
 			if(grid[i][j].sat != m_no_saturation){ // if there is a valid saturation here
 				//store current material here for convenience
 				cMat = grid[i][j].mat;
@@ -397,8 +425,8 @@ void evaluate_grid(){
 	
 	
 	/// 3. AFFECTS AND DECAY - this giant-ass for loop is where we find out which cells need to be changed.
-	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
-		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
+	for(i=camera_x ; i<GRID_WIDTH+camera_x && i<GRID_WIDTH_ELEMENTS ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y && j<GRID_HEIGHT_ELEMENTS; j++){
 			// air doesn't do anything. that is it's definition.
 			if(grid[i][j].mat == m_air) continue;
 			for(a=0 ; a<MAX_NUMBER_OF_MATERIAL_INTERACTIONS; a++){ // check all the possible interactions
@@ -422,8 +450,8 @@ void evaluate_grid(){
 void reset_grid_changes(){
 	int i,j;
 	//reset cellMatChanges and cellSatChanges
-	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
-		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
+	for(i=camera_x ; i<GRID_WIDTH+camera_x && i<GRID_WIDTH_ELEMENTS ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y && j<GRID_HEIGHT_ELEMENTS; j++){
 			grid[i][j].matChange = m_no_change;
 			grid[i][j].satChange = m_no_change;
 			grid[i][j].satLevelChange = m_no_change;
@@ -436,15 +464,14 @@ void reset_grid_changes(){
 
 void apply_grid_changes(){
 	int i,j;
-	for(i=camera_x ; i<GRID_WIDTH+camera_x ; i++){
-		for(j=camera_y ; j<GRID_HEIGHT+camera_y ; j++){
+	for(i=camera_x ; i<GRID_WIDTH+camera_x && i<GRID_WIDTH_ELEMENTS ; i++){
+		for(j=camera_y ; j<GRID_HEIGHT+camera_y && j<GRID_HEIGHT_ELEMENTS; j++){
 			//if the material at [i][j] needs to be changed (updated) then change it
 			if(grid[i][j].matChange != m_no_change) grid[i][j].mat = grid[i][j].matChange;
 			//if the saturation at [i][j] needs to be changed (updated) then change it
 			if(grid[i][j].satChange != m_no_change) grid[i][j].sat = grid[i][j].satChange;
 			//if the saturation level at [i][j] needs to be changed (updated) then change it.
 			if(grid[i][j].satLevelChange != m_no_change) grid[i][j].satLevel = grid[i][j].satLevelChange;
-			
 			//reset grid changes
 			grid[i][j].matChange = m_no_change;
 			grid[i][j].satChange = m_no_change;
@@ -544,7 +571,7 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 				break;
 			}
 			// if newi and newj are in UNACCEPTABLE places, continue to the next neighboring cell
-			if(newi < 0 || newi >= GRID_WIDTH || newj < 0 || newj >= GRID_HEIGHT) continue;
+			if(newi < 0 || newi >= GRID_WIDTH_ELEMENTS || newj < 0 || newj >= GRID_HEIGHT_ELEMENTS) continue;
 		
 			// if there is a valid material or if you can use any material
 			if( affMat->matBefore == grid[newi][newj].mat || affMat->matBefore == m_dont_care){
@@ -598,8 +625,8 @@ void print_cells(){
 	myRectangleSat.h = CELL_SIZE/2;
 	
 	// print out the grid
-    for(i = 0; i < GRID_WIDTH - wPos/CELL_SIZE; i++){
-        for(j = 0; j < GRID_HEIGHT; j++){
+    for(i = 0; i < GRID_WIDTH - wPos/CELL_SIZE && i+camera_x<GRID_WIDTH_ELEMENTS; i++){
+        for(j = 0; j < GRID_HEIGHT && j+camera_y<GRID_HEIGHT_ELEMENTS; j++){
         	//only print the material if it is not air
 			if(grid[i+camera_x][j+camera_y].mat != m_air){
 				myRectangleMat.x = i*CELL_SIZE;

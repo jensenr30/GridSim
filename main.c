@@ -164,9 +164,9 @@ int main( int argc, char* args[] )
 			if(keys) pan(D_DOWN);
 			if(keyd) pan(D_RIGHT);
 			lastPanTime = SDL_GetTicks();
-			#if (debug)
-				printf("\nlastPanTime = %d\n", lastPanTime);
-			#endif
+			//#if (debug)
+			//	printf("\nlastPanTime = %d\n", lastPanTime);
+			//#endif
 		}
 		
 		//checks if the mouse is held or not

@@ -119,6 +119,9 @@ void selectionGUI(int x, int y, int mouse)
 int oldx = 0;
 int oldy = 0;
 int BrushSize = 1;
+                    int r = 10;
+                    double a, b;
+                    float pi = 3.1415;
 
 //brushes structure
 struct Brushes
@@ -218,10 +221,66 @@ void brushesGUI(int x, int y, int mouse)
                 setcell(x,y-CELL_SIZE,currentMat);
                 break;
                 */
-            //larger basic brush
+            //star brush
             case 2:
-                for(i = 1; i < 10; i++) {
-                    for(j = 1; j < 20; j++) {
+                for(i = 1; i < r; i++) {
+                    a = cos(i*pi*2/r);
+                    b = sin(i*pi*2/r);
+                        if(i < a*r && i < b*r) {
+                            setcell(x,y,currentMat);
+                            setcell(x+CELL_SIZE*i,y,currentMat);
+                            setcell(x,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y,currentMat);
+                            setcell(x,y-CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                        }
+                        /*
+                        semi working
+                        setcell(x,y,currentMat);
+                        setcell(x+CELL_SIZE+a*r,y,currentMat);
+                        setcell(x,y+CELL_SIZE+a*r,currentMat);
+                        setcell(x-CELL_SIZE+a*r,y,currentMat);
+                        setcell(x,y-CELL_SIZE+a*r,currentMat);
+                        setcell(x+CELL_SIZE+a*r,y-CELL_SIZE+b*r,currentMat);
+                        setcell(x-CELL_SIZE+a*r,y+CELL_SIZE+b*r,currentMat);
+                        setcell(x+CELL_SIZE+a*r,y+CELL_SIZE+b*r,currentMat);
+                        setcell(x-CELL_SIZE+a*r,y-CELL_SIZE+b*r,currentMat);
+                        */
+
+                            /*
+                            int i, radius = 200, steps = 20;
+                            double a, b;
+                            float pi = 3.1415;
+                            SDL_Rect startUpRect;
+                            zoom(64);
+                            for(i = 0; i < steps; i++){
+                            //startUpRect.h = 32;
+                            //startUpRect.w = 32;
+                            a = cos(  i * pi * 2 / steps );
+                            b = sin(  i * pi * 2 / steps );
+                            startUpRect.x = (SCREEN_WIDTH/2 - 30 + a * radius);
+                            startUpRect.y = (SCREEN_HEIGHT/2 - 30 + b * radius);
+                            apply_item_coor( i_GAK_blue, startUpRect.x, startUpRect.y);
+                            //SDL_FillRect( screen , &startUpRect , 0xffffff);
+                            Sleep(900/steps);
+                            SDL_Flip(screen);
+                        }
+                        */
+                        /*if(i <= a && j <= b) {
+                            setcell(x,y,currentMat);
+                            setcell(x+CELL_SIZE*i,y,currentMat);
+                            setcell(x,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y,currentMat);
+                            setcell(x,y-CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                            setcell(x-CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                            setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                            setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                        }
+                        */
                         /*setcell(x,y,currentMat);
                         setcell(x+CELL_SIZE*i,y,currentMat);
                         setcell(x,y+CELL_SIZE*i,currentMat);
@@ -232,6 +291,7 @@ void brushesGUI(int x, int y, int mouse)
                         setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
                         setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
                         */
+                        /*
                         setcell(x,y,currentMat);
                         setcell(x+CELL_SIZE*i,y,currentMat);
                         setcell(x,y+CELL_SIZE*i,currentMat);
@@ -241,6 +301,7 @@ void brushesGUI(int x, int y, int mouse)
                         setcell(x-CELL_SIZE*j/6,y+CELL_SIZE*j/6,currentMat);
                         setcell(x+CELL_SIZE*j/6,y+CELL_SIZE*j/6,currentMat);
                         setcell(x-CELL_SIZE*j/6,y-CELL_SIZE*j/6,currentMat);
+                        */
                         //setcell(x+CELL_SIZE*j/i/6,y-CELL_SIZE*j/i,currentMat);
                         //setcell(x-CELL_SIZE*j/i/6,y+CELL_SIZE*j/i,currentMat);
                         //setcell(x+CELL_SIZE*j/i/6,y+CELL_SIZE*j/i,currentMat);
@@ -260,11 +321,26 @@ void brushesGUI(int x, int y, int mouse)
                         setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
                         setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
                         */
-                    }
+                   // }
                 }
                 break;
-            //bigger square
+            //circle brush
             case 3:
+                for(i = 1; i < r; i++) {
+                    a = cos(i*pi*2/r);
+                    b = sin(i*pi*2/r);
+                        if(i < a*r && i < b*r) {
+                            setcell(x,y,currentMat);
+                            setcell(x+CELL_SIZE*i,y,currentMat);
+                            setcell(x,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y,currentMat);
+                            setcell(x,y-CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                        }
+                }
                 /*
                 setcell(x,y,currentMat);
                 setcell(x+CELL_SIZE,y,currentMat);
@@ -485,6 +561,8 @@ void cursorDisplay(x, y)
         //bigger square
         if(mouseModifier == 3)
         {
+            //cursorRectangle.x = x - x%CELL_SIZE - CELL_SIZE;
+            //cursorRectangle.y = y - y%CELL_SIZE - CELL_SIZE;
             cursorRectangle.x = x - CELL_SIZE*1.5;
             cursorRectangle.y = y - CELL_SIZE*1.5;
             cursorRectangle.w = CELL_SIZE*3;

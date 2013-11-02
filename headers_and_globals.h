@@ -61,6 +61,7 @@ void setcell(int , int, int);
 #include "materials_and_cells.h"
 #include "selection_gui.h"
 #include "cell_engine.h"
+#include "graphics.h"
 #include "map_editor.h"
 #include "world_gen.h"
 

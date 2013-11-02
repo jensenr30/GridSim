@@ -1,4 +1,5 @@
 
+#define SHOW_WORLD_GEN 1
 
 // these are the different world types that can be generated.
 // these values are not meant to be combined through bit-wise ORing.
@@ -18,7 +19,9 @@
 /// recursive function that generates a landscape inside an array
 // the top_material is an array to a pointer that tell you the height of the landscape at any given point.
 // the function will evaluate from lowIndex to highIndex in the top_material[] array.
-void gen_landscape(int *top_material, int lowIndex, int highIndex, int matLowBound, int matHighBound, float slope){
+// landscape material is only a necessary variable if you plan on showing the creation of the landscape.
+// if you don't care about visually showing the landscape being built, then just send landscapeMaterial anything (e.g. m_air, m_earth, m_mud, etc...)
+void gen_landscape(int *top_material, int lowIndex, int highIndex, int matLowBound, int matHighBound, float slope, int landscapeMaterial){
 	
 	// stop evaluating if there is no space between the lowIndex and the highIndex (or if, for some crazy reason, the lowIndex because HIGHER than the highIndex...)
 	if(lowIndex+1 >= highIndex) return;
@@ -29,20 +32,23 @@ void gen_landscape(int *top_material, int lowIndex, int highIndex, int matLowBou
 	top_material[middleIndex] = (top_material[lowIndex] + top_material[highIndex])/2;		// take the average value between the indexes (linear interpolation)
 	top_material[middleIndex] += get_rand((int)(((float)(lowIndex-highIndex)*slope)/2.0), (int)(((float)(highIndex-lowIndex)*slope)/2.0f));		// generate some variance to the average value between the indexes.
 	
-	// if the new top_material value is too big, evaluate it again.
-	if(top_material[middleIndex] >= matHighBound){
-		gen_landscape(top_material, lowIndex, highIndex, matLowBound, matHighBound, slope);
+	// if the new top_material value is out of bounds, try again
+	if(top_material[middleIndex] >= matHighBound || top_material[middleIndex] < matLowBound){
+		gen_landscape(top_material, lowIndex, highIndex, matLowBound, matHighBound, slope, landscapeMaterial);
 		return;
 	}
-	// if the new top_material value is too small, evaluate it again.
-	if(top_material[middleIndex] < matLowBound){
-		gen_landscape(top_material, lowIndex, highIndex, matLowBound, matHighBound, slope);
-		return;
+	// if the user wants to visually see the world getting built, then so be it.
+	#if(SHOW_WORLD_GEN)
+	grid[middleIndex][GRID_HEIGHT_ELEMENTS-1-top_material[middleIndex]].mat = landscapeMaterial;
+	if(highIndex-lowIndex > GRID_WIDTH_ELEMENTS/64){
+		print_cells();
+		SDL_Flip(screen);
 	}
+	#endif // SHOW_WORLD_GEN
 	
 	//now recursively preform the function on the two new midpoints
-	gen_landscape(top_material, lowIndex, middleIndex, matLowBound, matHighBound, slope);
-	gen_landscape(top_material, middleIndex, highIndex, matLowBound, matHighBound, slope);
+	gen_landscape(top_material, lowIndex, middleIndex, matLowBound, matHighBound, slope, landscapeMaterial);
+	gen_landscape(top_material, middleIndex, highIndex, matLowBound, matHighBound, slope, landscapeMaterial);
 }
 
 
@@ -111,14 +117,25 @@ void gen_world(int worldType, int worldFlag){
 	top_rock[GRID_WIDTH_ELEMENTS-1]	= get_rand(rockline_min, rockline_max-1);
 	
 	// generate the top_rock array
-	gen_landscape(top_rock, 0, GRID_WIDTH_ELEMENTS-1, rockline_min, rockline_max, rock_slope);
+	gen_landscape(top_rock, 0, GRID_WIDTH_ELEMENTS-1, rockline_min, rockline_max, rock_slope, m_rock);
 	
 	//fill up the rock area.
 	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
-		for(j=GRID_HEIGHT_ELEMENTS-top_rock[i]-2; j<GRID_HEIGHT_ELEMENTS; j++){
+		for(j=GRID_HEIGHT_ELEMENTS-top_rock[i]-1; j<GRID_HEIGHT_ELEMENTS; j++){
 			grid[i][j].mat = m_rock;
 		}
 	}
+	
+	int top_earth[GRID_WIDTH_ELEMENTS]; // this keeps track of the top layer of earth.
+	
+	int earth_average_above_rock = 4; // average of 4 blocks of dirt above rock.
+	
+	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
+		for(j=GRID_HEIGHT_ELEMENTS-top_rock[i]-2; j>=GRID_HEIGHT_ELEMENTS-top_rock[i]-2-earth_average_above_rock; j--){
+			grid[i][j].mat = m_earth;
+		}
+	}
+	
 }
 
 

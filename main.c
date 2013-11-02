@@ -163,7 +163,7 @@ int main( int argc, char* args[] )
 				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
 				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
 				case SDLK_ESCAPE: quit = true; // quit with escape
-				case SDLK_w: world_gen(w_normal,0); break; // generate a world
+				case SDLK_w: gen_world(w_normal,0); break; // generate a world
 				/*
 				case SDLK_w: keyw=1; break; // store key state
 				case SDLK_a: keya=1; break;

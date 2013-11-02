@@ -15,9 +15,45 @@
 //#define wf_
 
 
+/// recursive function that generates a landscape inside an array
+// the top_material is an array to a pointer that tell you the height of the landscape at any given point.
+// the function will evaluate from lowIndex to highIndex in the top_material[] array.
+void gen_landscape(int *top_material, int lowIndex, int highIndex, int matLowBound, int matHighBound, float slope){
+	
+	// stop evaluating if there is no space between the lowIndex and the highIndex (or if, for some crazy reason, the lowIndex because HIGHER than the highIndex...)
+	if(lowIndex+1 >= highIndex) return;
+	// find the middleIndex between the low and high Indexes.
+	int middleIndex = (lowIndex+highIndex)/2;
+	
+	//calculate the value at the midpoint
+	top_material[middleIndex] = (top_material[lowIndex] + top_material[highIndex])/2;		// take the average value between the indexes (linear interpolation)
+	top_material[middleIndex] += get_rand((int)(((float)(lowIndex-highIndex)*slope)/2.0), (int)(((float)(highIndex-lowIndex)*slope)/2.0f));		// generate some variance to the average value between the indexes.
+	
+	// if the new top_material value is too big, evaluate it again.
+	if(top_material[middleIndex] >= matHighBound){
+		gen_landscape(top_material, lowIndex, highIndex, matLowBound, matHighBound, slope);
+		return;
+	}
+	// if the new top_material value is too small, evaluate it again.
+	if(top_material[middleIndex] < matLowBound){
+		gen_landscape(top_material, lowIndex, highIndex, matLowBound, matHighBound, slope);
+		return;
+	}
+	
+	//now recursively preform the function on the two new midpoints
+	gen_landscape(top_material, lowIndex, middleIndex, matLowBound, matHighBound, slope);
+	gen_landscape(top_material, middleIndex, highIndex, matLowBound, matHighBound, slope);
+}
+
+
+void gen_landscape_relative(int *top_material, int top_material_relative, int lowIndex, int highIndex, int matLowBoundRelative, int matHighBoundRelative, int slope){
+	
+}
+
+
 /// this function will overwrite the data in grid[][] and generate a world inside it!
 // send it a world type and a worldflag and it should 
-void world_gen(int worldType, int worldFlag){
+void gen_world(int worldType, int worldFlag){
 	/*
 	//clear the grid
 	reset_cells();
@@ -49,6 +85,43 @@ void world_gen(int worldType, int worldFlag){
 		
 	}
 	*/
+	
+	//clean grid
+	reset_cells();
+	
+	int i,j;
+	/// all of these numbers are relative to the bottom cell in the grid (grid[i][GRID_WIDTH_ELEMENTS-1])
+	
+	// these just tell us the height band of where top of the rock layer can be generated
+	// rockline_max is exclusive, rockline_min is inclusive. the domain would be [rockling_min,rockline_max) for integer numbers.
+	int rockline_max=500, rockline_min=200;
+	// this is an array that tells us for myColumn, the highest point where there is rock = top_rock[myColumn]
+	int top_rock[GRID_WIDTH_ELEMENTS];
+	// the larger the slope is,  the more steep and sharp the slopes can be.
+	// the smaller the slope is, the smoother and duller the landscape will be.
+	float rock_slope = 0.9;
+	
+	//set default values to top_rock array (this is just so that the elements are not left un-initialized. they should all be overwritten
+	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
+		top_rock[i] = 0; // default value. this will get overwritten.
+	}
+	
+	//get initial points at the left and right sides of the map
+	top_rock[0]						= get_rand(rockline_min, rockline_max-1);
+	top_rock[GRID_WIDTH_ELEMENTS-1]	= get_rand(rockline_min, rockline_max-1);
+	
+	// generate the top_rock array
+	gen_landscape(top_rock, 0, GRID_WIDTH_ELEMENTS-1, rockline_min, rockline_max, rock_slope);
+	
+	//fill up the rock area.
+	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
+		for(j=GRID_HEIGHT_ELEMENTS-top_rock[i]-2; j<GRID_HEIGHT_ELEMENTS; j++){
+			grid[i][j].mat = m_rock;
+		}
+	}
 }
+
+
+
 
 

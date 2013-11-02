@@ -121,16 +121,21 @@ void clean_up(){
 }
 
 /// returns a random number from lowBound to highBound.
-/// i.e. if you call:
-///		get_rand(3,7);
-/// then you could get: 3, 4, 5, 6, 7 as a return value.
-#define get_rand(lowBound, highBound) (rand()%((highBound) - (lowBound) + 1) + (lowBound))
-/*
+// e.g. if you call:
+//		get_rand(3,7);
+// then you could get: 3, 4, 5, 6, 7 as a return value.
+//#define get_rand(lowBound, highBound) (rand()%((highBound) - (lowBound) + 1) + (lowBound))
+
 int get_rand(lowBound, highBound){
-	int diff = highBound - lowBound;
-	return ( rand() % (diff+1) ) + lowBound;
+	
+	// if the lowBound is higher than the highBound, then flip them around and return that.
+	if(highBound < lowBound){
+		return get_rand(highBound, lowBound);
+	}
+	
+	return ( rand() % (highBound-lowBound+1) ) + lowBound;
 }
-*/
+
 
 
 

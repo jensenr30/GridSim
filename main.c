@@ -65,11 +65,24 @@ int main( int argc, char* args[] )
 	//--------------------------------------
 	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
 	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
-	int keyw=0, keya=0, keys=0, keyd=0;
-	unsigned lastPanTime = 0;
+	
+	
+	//int keyw=0, keya=0, keys=0, keyd=0;
+	//unsigned lastPanTime = 0;
+	bool alt = 0; // this keeps track of the state of the alt key
+	//these variables store the position of the user's cursor at the moment that the user decided to pan the screen
+	int mouse_x_when_pan=0;
+	int mouse_y_when_pan=0;
+	// these are for keeping track of the motion of the mouse when the user is panning. these keep the panning from being really jumpy.
+	// without them, there is a truncation error when adjusting the camera_x and camera_y materials and re-setting the mouse coordinates to its original state.
+	// these keep track of the truncation error and add it to the next operation so that the mouse motion feels fluid.
+	int remainder_panning_motion_x=0;
+	int remainder_panning_motion_y=0;
+	
 	//last minute verification that the initial start up values for the grid size and the camera positions are valid.
 	verify_grid_and_cell_size();
 	verify_camera();
+	
     //While the user hasn't quit
     while(1){
 
@@ -82,7 +95,6 @@ int main( int argc, char* args[] )
 				clean_up();
 				return 0;
 			}
-
 
             if( event.type == SDL_MOUSEBUTTONDOWN ){						/// mouse down
 				x = event.motion.x;
@@ -111,6 +123,21 @@ int main( int argc, char* args[] )
             else if( event.type == SDL_MOUSEMOTION ){						/// mouse motion
 				x = event.motion.x;
 				y = event.motion.y;
+				// if the alt key (camera panning key) is down and the coordinates have changed, then let the screen be panned!
+				if(alt && x != mouse_x_when_pan && y != mouse_y_when_pan){
+					// this adjusts the x-axis camera (this scales with the CELL_SIZE)
+					camera_x += (x-mouse_x_when_pan+remainder_panning_motion_x)/CELL_SIZE;
+					camera_y += (y-mouse_y_when_pan+remainder_panning_motion_y)/CELL_SIZE;
+					//calculate the remainders of the mouse motion.
+					// these values represent the motion of the mouse that is not utilized by the discrete nature of the operation on the camera_x and camera_y values.
+					remainder_panning_motion_x = (x-mouse_x_when_pan+remainder_panning_motion_x) - (int)((x-mouse_x_when_pan+remainder_panning_motion_x)/CELL_SIZE)*CELL_SIZE;
+					remainder_panning_motion_y = (y-mouse_y_when_pan+remainder_panning_motion_y) - (int)((y-mouse_y_when_pan+remainder_panning_motion_y)/CELL_SIZE)*CELL_SIZE;
+					// make sure the camera is not out of bounds.
+					verify_camera();
+					
+					//reset the user's curcor position to the original position the curcor was in when the user started panning the camera
+					SDL_WarpMouse(mouse_x_when_pan, mouse_y_when_pan);
+				}
             }
             else if(event.type == SDL_VIDEORESIZE){							/// window resize
 				
@@ -136,19 +163,42 @@ int main( int argc, char* args[] )
 				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
 				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
 				case SDLK_ESCAPE: quit = true; // quit with escape
+				/*
 				case SDLK_w: keyw=1; break; // store key state
 				case SDLK_a: keya=1; break;
 				case SDLK_s: keys=1; break;
 				case SDLK_d: keyd=1; break;
+				*/
+				case SDLK_LALT:
+				case SDLK_RALT:
+					// store the state of the alt key.
+					alt = 1;
+					// turn off the cursor
+					SDL_ShowCursor(SDL_DISABLE);
+					// store the position of the mouse. this will allow the program to make the cursor stay stationary
+					mouse_x_when_pan = x;
+					mouse_y_when_pan = y;
+					//reset the remainder mouse motion variables for x and y.
+					remainder_panning_motion_x = 0;
+					remainder_panning_motion_y = 0;
+					break;
 				default: break;
 				}
 			}
 			if( event.type == SDL_KEYUP ){								///keyboard event
                 switch( event.key.keysym.sym ){
+				/*
 				case SDLK_w: keyw=0; break;//lastPanTime=0; break; // store key state
 				case SDLK_a: keya=0; break;//lastPanTime=0; break;
 				case SDLK_s: keys=0; break;//lastPanTime=0; break;
 				case SDLK_d: keyd=0; break;//lastPanTime=0; break;
+				*/
+				case SDLK_LALT:
+				case SDLK_RALT:
+					// show the cursor again.
+					SDL_ShowCursor(SDL_ENABLE);
+					alt = 0;
+					break;
 				default: break;
 				}
 			}
@@ -156,7 +206,7 @@ int main( int argc, char* args[] )
 
     	} // end while(event)
 		//no more events to handle at the moment.
-		
+		/*
 		//this handles time-controlled panning
 		if(SDL_GetTicks() - MIN_PAN_INTERVAL > lastPanTime){
 			if(keyw) pan(D_UP);
@@ -168,7 +218,7 @@ int main( int argc, char* args[] )
 			//	printf("\nlastPanTime = %d\n", lastPanTime);
 			//#endif
 		}
-		
+		*/
 		//checks if the mouse is held or not
         if(mouseStatusLeft == 1 && mouseModifier == 0){
 			//make sure the mouse isn't inside either of the two GUIs.
@@ -202,9 +252,11 @@ int main( int argc, char* args[] )
         //displays brushes and misc gui
         brushesGUI(x, y, mouseStatusLeft);
         
-        //displays cursor
-        cursorDisplay(x, y);
-
+        // If the user is not panning, then it is fine to show the cursor.
+        if(!alt){
+			//displays cursor
+			cursorDisplay(x, y);
+        }
         //updates the screen
         SDL_Flip( screen );
 

@@ -625,7 +625,7 @@ void print_cells(){
 	myRectangleSat.h = CELL_SIZE/2;
 	
 	// print out the grid
-    for(i = 0; i < GRID_WIDTH - wPos/CELL_SIZE && i+camera_x<GRID_WIDTH_ELEMENTS; i++){
+    for(i = 0; i < GRID_WIDTH - GUI_W/CELL_SIZE; i++){
         for(j = 0; j < GRID_HEIGHT && j+camera_y<GRID_HEIGHT_ELEMENTS; j++){
         	//only print the material if it is not air
 			if(grid[i+camera_x][j+camera_y].mat != m_air){

@@ -4,6 +4,7 @@
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
 #include "time.h"
+#include <math.h>
 
 //definitions
 #define MAX_COUNT  150

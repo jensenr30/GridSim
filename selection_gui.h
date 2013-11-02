@@ -4,32 +4,31 @@
 SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
 // main button controls
-#define firstColumn 190
-#define firstRow 80
+#define XPosForGUISelectionStart 190
+#define YPosFromGUISide 80
 #define widthButton 20
 #define heightButton 20
-#define rowSpacingMultiplier 1.45 
+#define rowSpacingMultiplier 1.45
 #define columnSpacingMultiplier 1.618
 #define selectionBoxSize 3
 
 // main gui variables
-#define xPos (SCREEN_WIDTH - 200)
-#define yPos 0
-#define wPos 200
+//these replaced the xPos, yPos, wPos, and hPos definitions
+#define GUI_X (SCREEN_WIDTH - 200)
+#define GUI_Y 0
+#define GUI_W 200
+#define GUI_H SCREEN_HEIGHT
 
 // selection box positions
 // you have to keep these as number values
-short 	xSel = DEFAULT_SCREEN_WIDTH - firstColumn - selectionBoxSize,
-		ySel = firstRow - selectionBoxSize,
-		wSel = widthButton + selectionBoxSize * 2,
-		hSel = heightButton + selectionBoxSize * 2;
+short xSel = DEFAULT_SCREEN_WIDTH - XPosForGUISelectionStart - selectionBoxSize, ySel = YPosFromGUISide - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
 
 
 // this is where the gui is stored graphically to save processing power.
 SDL_Surface *tempGuiScreen;
 // this sets up the selection gui temp surface.
 bool init_tempGuiScreen(){
-	tempGuiScreen = create_surface(wPos,SCREEN_HEIGHT);
+	tempGuiScreen = create_surface(GUI_W,SCREEN_HEIGHT);
 	if(tempGuiScreen == NULL) return false;
 	else return true;
 }
@@ -39,9 +38,10 @@ bool init_tempGuiScreen(){
 void selectionGUI(int x, int y, int mouse)
 {
 	//this is the height of the gui
-	int hPos = SCREEN_HEIGHT;
+	int GUI_H = SCREEN_HEIGHT;
 	// this keeps track of whether or not you have printed the gui before or not.
 	static bool firstTimeThrough = true;
+	
 	// this variable stores the last screen height. It is used to tell if the screen height has changed.
 	static int storeScreenHeight = DEFAULT_SCREEN_HEIGHT;
 	if(SCREEN_HEIGHT != storeScreenHeight){
@@ -49,8 +49,9 @@ void selectionGUI(int x, int y, int mouse)
 		init_tempGuiScreen();
 		firstTimeThrough = true;
 	}
+	
 	// only re-print the gui if the user has clicked inside it.
-	if((x>=xPos && x<=xPos+wPos && y>yPos && y<yPos+hPos && mouse)||firstTimeThrough){
+	if((x>=GUI_X && x<=GUI_X+GUI_W && y>GUI_Y && y<GUI_Y+GUI_H && mouse)||firstTimeThrough){
 		//reset this, as it is no longer your first time through printing the selection gui.
 		if(firstTimeThrough) firstTimeThrough = false;
 		// variables to step through array
@@ -58,8 +59,8 @@ void selectionGUI(int x, int y, int mouse)
 		
 		// steps through the array and sets the icons of each material
 		// varaibles for keeping track of were to put the icons
-		j = xPos + widthButton/2;
-		k = firstRow;
+    j = GUI_X + widthButton/2;
+    k = YPosFromGUISide;
 		for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
 			if(j + widthButton < SCREEN_WIDTH){
 				// sets icons
@@ -72,7 +73,7 @@ void selectionGUI(int x, int y, int mouse)
 				// reduces i by 1 so that it doesn't skip a material
 				i--;
 				// resets j
-				j = xPos + widthButton/2;
+            j = GUI_X + widthButton/2;
 				// increases k for the next line
 				k = k + heightButton * columnSpacingMultiplier;
 			}
@@ -85,8 +86,8 @@ void selectionGUI(int x, int y, int mouse)
 		// main window
 		guiRectangle.x = 0;
 		guiRectangle.y = 0;
-		guiRectangle.w = wPos;
-		guiRectangle.h = hPos;
+	guiRectangle.w = GUI_W;
+	guiRectangle.h = GUI_H;
 		SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , 0x181818);
 		
 		// box under text color
@@ -113,8 +114,8 @@ void selectionGUI(int x, int y, int mouse)
 		SDL_FreeSurface( text );
 		
 		// selection box
-		selectionBox.x = xSel - xPos;
-		selectionBox.y = ySel - yPos;
+		selectionBox.x = xSel - GUI_X;
+		selectionBox.y = ySel - GUI_Y;
 		selectionBox.w = wSel;
 		selectionBox.h = hSel;
 		SDL_FillRect( /*screen*/tempGuiScreen , &selectionBox , 0xffffff);
@@ -122,8 +123,8 @@ void selectionGUI(int x, int y, int mouse)
 		// prints a rectangle for each material icon
 		for( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
 			if(mats[i].name == NULL) {continue;}
-			guiRectangle.x = matIcon[i].x - xPos;
-			guiRectangle.y = matIcon[i].y - yPos;
+			guiRectangle.x = matIcon[i].x - GUI_X;
+			guiRectangle.y = matIcon[i].y - GUI_Y;
 			guiRectangle.w = widthButton;
 			guiRectangle.h = heightButton;
 			SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[i].color);
@@ -145,7 +146,7 @@ void selectionGUI(int x, int y, int mouse)
 			}
 		}
 	}
-	apply_surface(xPos,yPos, tempGuiScreen, screen);
+	apply_surface(GUI_X,GUI_Y, tempGuiScreen, screen);
 }
 
 #define MAX_BRUSHES 7
@@ -157,6 +158,10 @@ void selectionGUI(int x, int y, int mouse)
 
 int oldx = 0;
 int oldy = 0;
+int BrushSize = 1;
+                    int r = 10;
+                    double a, b;
+                    float pi = 3.1415;
 
 //brushes structure
 struct Brushes
@@ -166,19 +171,15 @@ struct Brushes
     int y;
 }Brushes[MAX_BRUSHES];
 
-
-//brushes struct array
-//BrushTypes Brushes[MAX_BRUSHES];
-
 //brushs and speed control
 void brushesGUI(int x, int y, int mouse)
 {
     //variables to step through array
     int i, j;
-        
+
     //define rectangle for cursor
     SDL_Rect brushesRectangle;
- 
+
     //default setting
     j = xPosFromEdge + brushButtonWidth/2;
     //steps through the array and fill it with data for each button
@@ -187,14 +188,14 @@ void brushesGUI(int x, int y, int mouse)
         Brushes[i].y = yPosFromEdge;
         j = j + (brushButtonWidth * brushSpacingMultiplier);
     }
-    
+
     //main window
 	brushesRectangle.x = 0;
 	brushesRectangle.y = 0;
-	brushesRectangle.w = xPos;
+	brushesRectangle.w = GUI_X;
 	brushesRectangle.h = 50;
     SDL_FillRect( screen , &brushesRectangle , 0x181818);
-    
+
     //assigns text to brush names
     Brushes[0].name = "Standard";
     Brushes[1].name = "Basic";
@@ -203,14 +204,14 @@ void brushesGUI(int x, int y, int mouse)
     Brushes[4].name = "Horizontal";
     Brushes[5].name = "Vertical";
     Brushes[6].name = "Line Tool";
-    
+
     //prints text
     text = TTF_RenderText_Blended( font, Brushes[mouseModifier].name , textColor );
-    
+
     //apply text to screen
     apply_surface( 10, 0, text, screen );
     SDL_FreeSurface( text );
-    
+
     //prints a rectangle for each material icon
     for( i = 0; i < MAX_BRUSHES; i++ ){
         brushesRectangle.x = Brushes[i].x;
@@ -231,37 +232,157 @@ void brushesGUI(int x, int y, int mouse)
             }
         }
     }
-    
+
     //brushes
+    //BRUSHES? WHAT THE FUCK ABOUT BRUSHES? xD
     if(mouse == 1)
     {
         switch(mouseModifier){
             //basic brush
             case 1:
+                for(i = 1; i < 10; i++) {
+                    for(j = 1; j < 10; j++) {
+                        setcell(x,y,currentMat);
+                        setcell(x+CELL_SIZE*i,y,currentMat);
+                        setcell(x,y+CELL_SIZE*i,currentMat);
+                        setcell(x-CELL_SIZE*i,y,currentMat);
+                        setcell(x,y-CELL_SIZE*i,currentMat);
+                        setcell(x+CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                        setcell(x-CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                        setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                        setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat); 
+                    }
+                }
+                break;
+                /*
                 setcell(x,y,currentMat);
                 setcell(x+CELL_SIZE,y,currentMat);
                 setcell(x,y+CELL_SIZE,currentMat);
                 setcell(x-CELL_SIZE,y,currentMat);
                 setcell(x,y-CELL_SIZE,currentMat);
                 break;
-            //larger basic brush
+                */
+            //star brush
             case 2:
-                setcell(x,y,currentMat);
-                setcell(x+CELL_SIZE,y,currentMat);
-                setcell(x,y+CELL_SIZE,currentMat);
-                setcell(x-CELL_SIZE,y,currentMat);
-                setcell(x,y-CELL_SIZE,currentMat);
-                setcell(x+CELL_SIZE*2,y,currentMat);
-                setcell(x,y+CELL_SIZE*2,currentMat);
-                setcell(x-CELL_SIZE*2,y,currentMat);
-                setcell(x,y-CELL_SIZE*2,currentMat);
-                setcell(x+CELL_SIZE,y-CELL_SIZE,currentMat);
-                setcell(x-CELL_SIZE,y+CELL_SIZE,currentMat);
-                setcell(x+CELL_SIZE,y+CELL_SIZE,currentMat);
-                setcell(x-CELL_SIZE,y-CELL_SIZE,currentMat);
+                for(i = 1; i < r; i++) {
+                    a = cos(i*pi*2/r);
+                    b = sin(i*pi*2/r);
+                        if(i < a*r && i < b*r) {
+                            setcell(x,y,currentMat);
+                            setcell(x+CELL_SIZE*i,y,currentMat);
+                            setcell(x,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y,currentMat);
+                            setcell(x,y-CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                        }
+                        /*
+                        semi working
+                        setcell(x,y,currentMat);
+                        setcell(x+CELL_SIZE+a*r,y,currentMat);
+                        setcell(x,y+CELL_SIZE+a*r,currentMat);
+                        setcell(x-CELL_SIZE+a*r,y,currentMat);
+                        setcell(x,y-CELL_SIZE+a*r,currentMat);
+                        setcell(x+CELL_SIZE+a*r,y-CELL_SIZE+b*r,currentMat);
+                        setcell(x-CELL_SIZE+a*r,y+CELL_SIZE+b*r,currentMat);
+                        setcell(x+CELL_SIZE+a*r,y+CELL_SIZE+b*r,currentMat);
+                        setcell(x-CELL_SIZE+a*r,y-CELL_SIZE+b*r,currentMat);
+                        */
+
+                            /*
+                            int i, radius = 200, steps = 20;
+                            double a, b;
+                            float pi = 3.1415;
+                            SDL_Rect startUpRect;
+                            zoom(64);
+                            for(i = 0; i < steps; i++){
+                            //startUpRect.h = 32;
+                            //startUpRect.w = 32;
+                            a = cos(  i * pi * 2 / steps );
+                            b = sin(  i * pi * 2 / steps );
+                            startUpRect.x = (SCREEN_WIDTH/2 - 30 + a * radius);
+                            startUpRect.y = (SCREEN_HEIGHT/2 - 30 + b * radius);
+                            apply_item_coor( i_GAK_blue, startUpRect.x, startUpRect.y);
+                            //SDL_FillRect( screen , &startUpRect , 0xffffff);
+                            Sleep(900/steps);
+                            SDL_Flip(screen);
+                        }
+                        */
+                        /*if(i <= a && j <= b) {
+                            setcell(x,y,currentMat);
+                            setcell(x+CELL_SIZE*i,y,currentMat);
+                            setcell(x,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y,currentMat);
+                            setcell(x,y-CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                            setcell(x-CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                            setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                            setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                        }
+                        */
+                        /*setcell(x,y,currentMat);
+                        setcell(x+CELL_SIZE*i,y,currentMat);
+                        setcell(x,y+CELL_SIZE*i,currentMat);
+                        setcell(x-CELL_SIZE*i,y,currentMat);
+                        setcell(x,y-CELL_SIZE*i,currentMat);
+                        setcell(x+CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                        setcell(x-CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                        setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                        setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                        */
+                        /*
+                        setcell(x,y,currentMat);
+                        setcell(x+CELL_SIZE*i,y,currentMat);
+                        setcell(x,y+CELL_SIZE*i,currentMat);
+                        setcell(x-CELL_SIZE*i,y,currentMat);
+                        setcell(x,y-CELL_SIZE*i,currentMat);
+                        setcell(x+CELL_SIZE*j/6,y-CELL_SIZE*j/6,currentMat);
+                        setcell(x-CELL_SIZE*j/6,y+CELL_SIZE*j/6,currentMat);
+                        setcell(x+CELL_SIZE*j/6,y+CELL_SIZE*j/6,currentMat);
+                        setcell(x-CELL_SIZE*j/6,y-CELL_SIZE*j/6,currentMat);
+                        */
+                        //setcell(x+CELL_SIZE*j/i/6,y-CELL_SIZE*j/i,currentMat);
+                        //setcell(x-CELL_SIZE*j/i/6,y+CELL_SIZE*j/i,currentMat);
+                        //setcell(x+CELL_SIZE*j/i/6,y+CELL_SIZE*j/i,currentMat);
+                        //setcell(x-CELL_SIZE*j/i/6,y-CELL_SIZE*j/i,currentMat);
+                            /*
+                        //setcell(x,y,currentMat);
+                        setcell(x+CELL_SIZE,y,currentMat);
+                        setcell(x,y+CELL_SIZE,currentMat);
+                        setcell(x-CELL_SIZE,y,currentMat);
+                        setcell(x,y-CELL_SIZE,currentMat);
+                        setcell(x+CELL_SIZE*i*2,y,currentMat);
+                        setcell(x,y+CELL_SIZE*i*2,currentMat);
+                        setcell(x-CELL_SIZE*i*2,y,currentMat);
+                        setcell(x,y-CELL_SIZE*i*2,currentMat);
+                        setcell(x+CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                        setcell(x-CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                        setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
+                        setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
+                        */
+                   // }
+                }
                 break;
-            //bigger square
+            //circle brush
             case 3:
+                for(i = 1; i < r; i++) {
+                    a = cos(i*pi*2/r);
+                    b = sin(i*pi*2/r);
+                        if(i < a*r && i < b*r) {
+                            setcell(x,y,currentMat);
+                            setcell(x+CELL_SIZE*i,y,currentMat);
+                            setcell(x,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y,currentMat);
+                            setcell(x,y-CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x+CELL_SIZE*i,y+CELL_SIZE*i,currentMat);
+                            setcell(x-CELL_SIZE*i,y-CELL_SIZE*i,currentMat);
+                        }
+                }
+                /*
                 setcell(x,y,currentMat);
                 setcell(x+CELL_SIZE,y,currentMat);
                 setcell(x,y+CELL_SIZE,currentMat);
@@ -272,6 +393,27 @@ void brushesGUI(int x, int y, int mouse)
                 setcell(x+CELL_SIZE,y-CELL_SIZE,currentMat);
                 setcell(x-CELL_SIZE,y+CELL_SIZE,currentMat);
                 break;
+                */
+            case 4:
+                setcell(x,y,currentMat);
+                //setcell(x+CELL_SIZE,y,currentMat);
+                //setcell(x,y+CELL_SIZE,currentMat);
+                //setcell(x-CELL_SIZE,y,currentMat);
+                //setcell(x,y-CELL_SIZE,currentMat);
+                setcell(x-(BrushSize/CELL_SIZE),y,currentMat);
+                setcell(x,y-(BrushSize/CELL_SIZE),currentMat);
+                setcell(x-CELL_SIZE+(BrushSize/CELL_SIZE),y,currentMat);
+                setcell(x,y-CELL_SIZE+(BrushSize/CELL_SIZE),currentMat);
+                //setcell(x+CELL_SIZE,y-CELL_SIZE,currentMat);
+                //setcell(x-CELL_SIZE,y+CELL_SIZE,currentMat);
+                //setcell(x+CELL_SIZE,y+CELL_SIZE,currentMat);
+                //setcell(x-CELL_SIZE,y-CELL_SIZE,currentMat);
+                break;
+            case 5:
+                BrushSize++;
+                mouseModifier = 4;
+                break;
+                /*
             //vertical line
             case 4:
                 setcell(x,y,currentMat);
@@ -288,25 +430,26 @@ void brushesGUI(int x, int y, int mouse)
                 setcell(x,y+CELL_SIZE*2,currentMat);
                 setcell(x,y-CELL_SIZE*2,currentMat);
                 break;
+                */
             //line tool
             case 6:
                 /*
-                if(){
+                if(x == 1){
                     setcell(x, y, currentMat);
                 }
                 oldx = x;
                 oldy = y;
                 setcell((oldx + x),(oldy + y),currentMat);
-                */
                 break;
-                
+                */
             default:
+                setcell(x,y,currentMat);
                 break;
         }
     }
-        
+
         /* if statement way
-        
+
         //basic brush
         if(mouseModifier == 1)
         {
@@ -316,7 +459,7 @@ void brushesGUI(int x, int y, int mouse)
             setcell(x-CELL_SIZE,y,currentMat);
             setcell(x,y-CELL_SIZE,currentMat);
         }
-        
+
         //larger basic brush
         if(mouseModifier == 2)
         {
@@ -334,7 +477,7 @@ void brushesGUI(int x, int y, int mouse)
             setcell(x+CELL_SIZE,y+CELL_SIZE,currentMat);
             setcell(x-CELL_SIZE,y-CELL_SIZE,currentMat);
         }
-        
+
         //bigger square
         if(mouseModifier == 3)
         {
@@ -348,7 +491,7 @@ void brushesGUI(int x, int y, int mouse)
             setcell(x+CELL_SIZE,y-CELL_SIZE,currentMat);
             setcell(x-CELL_SIZE,y+CELL_SIZE,currentMat);
         }
-        
+
         //vertical line
         if(mouseModifier == 4)
         {
@@ -358,7 +501,7 @@ void brushesGUI(int x, int y, int mouse)
             setcell(x+CELL_SIZE*2,y,currentMat);
             setcell(x-CELL_SIZE*2,y,currentMat);
         }
-        
+
         //horizontal line
         if(mouseModifier == 5)
         {
@@ -368,7 +511,7 @@ void brushesGUI(int x, int y, int mouse)
             setcell(x,y+CELL_SIZE*2,currentMat);
             setcell(x,y-CELL_SIZE*2,currentMat);
         }
-        
+
         //line tool
         if(mouseModifier == 6)
         {
@@ -376,7 +519,7 @@ void brushesGUI(int x, int y, int mouse)
             oldy = y;
             setcell((oldx + x),(oldy + y),currentMat);
         }
-        
+
     }*/
 }
 
@@ -388,15 +531,15 @@ void cursorDisplay(x, y)
         cursorRectangle.y = 0;
         cursorRectangle.w = CELL_SIZE;
         cursorRectangle.h = CELL_SIZE;
-        
+
         //print recagle for base cursor
         cursorRectangle.x = x - CELL_SIZE/2;
         cursorRectangle.y = y - CELL_SIZE/2;
         cursorRectangle.w = cursorRectangle.h = CELL_SIZE;
         SDL_FillRect( screen , &cursorRectangle , mats[currentMat].color);
-        
+
         //updates cursor to what it the cursor is about to print
-        
+
         //basic brush
         if(mouseModifier == 1)
         {
@@ -404,61 +547,63 @@ void cursorDisplay(x, y)
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y - CELL_SIZE*1.5;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
             //left
             cursorRectangle.x = x - CELL_SIZE*1.5;
             cursorRectangle.y = y - CELL_SIZE/2;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
             //bottom
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y + CELL_SIZE/2;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
             //right
             cursorRectangle.x = x + CELL_SIZE/2;
             cursorRectangle.y = y - CELL_SIZE/2;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-           
+
         }
-        
+
         //bigger basic brush
         if(mouseModifier == 2)
         {
-            
+
             cursorRectangle.x = x - CELL_SIZE*1.5;
             cursorRectangle.y = y - CELL_SIZE*1.5;
             cursorRectangle.w = CELL_SIZE*3;
             cursorRectangle.h = CELL_SIZE*3;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
             //top
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y - CELL_SIZE*2.5;
             cursorRectangle.w = CELL_SIZE;
             cursorRectangle.h = CELL_SIZE;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
             //left
             cursorRectangle.x = x - CELL_SIZE*2.5;
             cursorRectangle.y = y - CELL_SIZE/2;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
             //bottom
             cursorRectangle.x = x - CELL_SIZE/2;
             cursorRectangle.y = y + CELL_SIZE*1.5;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
             //right
             cursorRectangle.x = x + CELL_SIZE*1.5;
             cursorRectangle.y = y - CELL_SIZE/2;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
-            
+
         }
-        
+
         //bigger square
         if(mouseModifier == 3)
         {
+            //cursorRectangle.x = x - x%CELL_SIZE - CELL_SIZE;
+            //cursorRectangle.y = y - y%CELL_SIZE - CELL_SIZE;
             cursorRectangle.x = x - CELL_SIZE*1.5;
             cursorRectangle.y = y - CELL_SIZE*1.5;
             cursorRectangle.w = CELL_SIZE*3;

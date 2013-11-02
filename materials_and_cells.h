@@ -838,14 +838,14 @@ void init_material_attributes(void){
 		if(validMatSat){
 			// put the material type into the array at the right point.
 			matSatOrder[numberOfSatableMats] = i;
-			#if(debug)
+			#if(DEBUG_GRIDSIM)
 				printf("matSatOrder[%d] = %d\n", numberOfSatableMats, matSatOrder[numberOfSatableMats]); // print to the output debug file
-			#endif //debug
+			#endif
 			// increment the number of materials that be saturated that we have.
 			numberOfSatableMats++;
 		}
 	}
-	#if(debug)
+	#if(DEBUG_GRIDSIM)
 		printf("numberOfSatableMats = %d\n\n\n\n\n", numberOfSatableMats);
 	#endif
 }

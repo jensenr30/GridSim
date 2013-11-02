@@ -38,6 +38,7 @@ void gen_landscape(int *top_material, int lowIndex, int highIndex, int matLowBou
 		return;
 	}
 	// if the user wants to visually see the world getting built, then so be it.
+	/* THIS IS THE OLD WAY OF DISPLAYING THE GENERATION OF THE WORLD
 	#if(SHOW_WORLD_GEN)
 	grid[middleIndex][GRID_HEIGHT_ELEMENTS-1-top_material[middleIndex]].mat = landscapeMaterial;
 	if(highIndex-lowIndex > GRID_WIDTH_ELEMENTS/64){
@@ -45,7 +46,7 @@ void gen_landscape(int *top_material, int lowIndex, int highIndex, int matLowBou
 		SDL_Flip(screen);
 	}
 	#endif // SHOW_WORLD_GEN
-	
+	*/
 	//now recursively preform the function on the two new midpoints
 	gen_landscape(top_material, lowIndex, middleIndex, matLowBound, matHighBound, slope, landscapeMaterial);
 	gen_landscape(top_material, middleIndex, highIndex, matLowBound, matHighBound, slope, landscapeMaterial);

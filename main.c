@@ -33,7 +33,6 @@ int main( int argc, char* args[] )
 		return -4;
     }
     
-    
 	/*
 	CELL_SIZE = 4;
 	int i;//
@@ -215,7 +214,7 @@ int main( int argc, char* args[] )
 			if(keys) pan(D_DOWN);
 			if(keyd) pan(D_RIGHT);
 			lastPanTime = SDL_GetTicks();
-			//#if (debug)
+			//#if (DEBUG_GRIDSIM)
 			//	printf("\nlastPanTime = %d\n", lastPanTime);
 			//#endif
 		}
@@ -258,6 +257,7 @@ int main( int argc, char* args[] )
 			//displays cursor
 			cursorDisplay(x, y);
         }
+        
         //updates the screen
         SDL_Flip( screen );
 

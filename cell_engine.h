@@ -75,13 +75,13 @@ void evaluate_grid(){
 	for(j=GRID_HEIGHT+camera_y-1; j>=camera_y; j--){ // cycle through the rows
 		// make sure the indexes are not out of bounds
 		if(j < 0){
-			#if(debug)
+			#if(DEBUG_GRIDSIM)
 				printf("function evaluate_grid():\nError: j is outside of bounds.\nj = %d\n\n",j);
 			#endif
 			j = 0;
 		}
 		else if(j >= GRID_HEIGHT_ELEMENTS){
-			#if(debug)
+			#if(DEBUG_GRIDSIM)
 				printf("function evaluate_grid():\nError: j is outside of bounds.\nj = %d\n\n",j);
 			#endif
 			break;
@@ -90,13 +90,13 @@ void evaluate_grid(){
 			
 			// make sure the indexes are not out of bounds
 			if(i < 0){
-				#if(debug)
+				#if(DEBUG_GRIDSIM)
 					printf("function evaluate_grid():\nError: i is outside of bounds.\ni = %d\n\n",i);
 				#endif
 				i = 0;
 			}
 			else if(i >= GRID_WIDTH_ELEMENTS){
-				#if(debug)
+				#if(DEBUG_GRIDSIM)
 					printf("function evaluate_grid():\nError: i is outside of bounds.\ni = %d\n\n",i);
 				#endif
 				break;
@@ -246,7 +246,7 @@ void evaluate_grid(){
 							if( (cells_right_to_obstruction_sloping != -currentGrav+1) && (cells_left_to_obstruction_sloping != -currentGrav+1) && (cells_right_to_obstruction != -currentGrav+1) && (cells_left_to_obstruction != -currentGrav+1) && cells_right_to_air && cells_left_to_air && length_of_mat_right<0 && length_of_mat_left<0 ) break;
 						}//end for looping through the horizontal elements around the material
 						/*
-						#if ( debug )
+						#if ( DEBUG_GRIDSIM )
 							printf("\ncells_right_to_obstruction = %d\n", cells_right_to_obstruction);
 							printf("cells_left_to_obstruction = %d\n", cells_left_to_obstruction);
 							printf("cells_right_to_air = %d\n", cells_right_to_air);

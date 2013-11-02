@@ -50,3 +50,90 @@ void print_cells(){
 }
 
 
+
+
+//this draws a line on the screen from point (x1,y1) to point (x2,y2)
+// this draws the line (mathematically) from the centers of the two pixels.
+void draw_line(SDL_Surface *theSurface, int x1, int y1, int x2, int y2, int thickness, int lineColor){
+	//this is the rectangle describing the pixel to color in.
+	SDL_Rect myPixel;
+	myPixel.w = 1;
+	myPixel.h = 1;
+	
+	//handle lines with no x-difference
+	if(x1 == x2){
+		// this handles the special case that the line is a point
+		if(y1 == y2){
+			// draw a point
+			myPixel.x = x1;
+			myPixel.y = y1;
+			SDL_FillRect(theSurface, &myPixel, lineColor);
+			// done drawing a point. that's all folks!
+			return;
+		}
+		//this handles the special case the the line is a verticle line (slope infinity)
+		// this swaps the x and y values so that the function draws a line with a finite slope (zero)
+		draw_line(theSurface,y1,x1,y2,x2,thickness,lineColor);
+		return;
+	}
+	
+	float slope = (float)(y2-y1)/(float)(x2-x1);
+	//generate an absolute value of the slope
+	float absval_slope = slope;
+	if(slope < 1) absval_slope *= -1;
+	float x,y;
+	//this is used to mathematically determine where the line should be.
+	float line_value;
+	
+	// if the absolute value of the slope is less than 1, index through the x values
+	if(absval_slope < 1){
+		
+		// swap the points around if x1 > x2
+		if(x1 > x2){
+			
+			int tempval=x1;	// store x1
+			x1 = x2;		// put x2 into x1
+			x2 = tempval;	// put the value that used to be in x1 into x2.
+			tempval = y1;	// store y1
+			y1 = y2;		// put y2 into y1
+			y2 = tempval;	// put the value that used to be in y1 into y2.
+		}
+		
+		for(x=x1+0.5,myPixel.x=x1; x<x2; x+=1.0,myPixel.x++){
+			line_value = slope*x +y1;
+			myPixel.y = line_value; // integer assignment. truncate decimal places
+			// if the line_value has decimal place value greater than or equal to 0.5, then round up.
+			if(line_value-(int)line_value >= 0.5) myPixel.y++;
+				
+			SDL_FillRect(theSurface, &myPixel, lineColor);
+		}
+	}
+	// otherwise, the absolute value of the slope is greater to or equal to one, so index through the y values
+	else{
+		
+		// swap the points around if y1 > y2
+		if(x1 > x2){
+			int tempval=x1;	// store x1
+			x1 = x2;		// put x2 into x1
+			x2 = tempval;	// put the value that used to be in x1 into x2.
+			tempval = y1;	// store y1
+			y1 = y2;		// put y2 into y1
+			y2 = tempval;	// put the value that used to be in y1 into y2.
+		}
+		
+		
+		for(y=y1+0.5,myPixel.y=y1; y<y2; y+=1.0,myPixel.y++){
+			line_value = slope*y + x1;
+			myPixel.x = line_value; // integer assignment. truncate decimal places
+			// if the line_value has decimal place value greater than or equal to 0.5, then round up.
+			if(line_value-(int)line_value >= 0.5) myPixel.x++;
+				
+			SDL_FillRect(theSurface, &myPixel, lineColor);
+		}
+	}
+	
+}
+
+
+
+

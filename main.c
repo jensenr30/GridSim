@@ -257,7 +257,7 @@ int main( int argc, char* args[] )
 			//displays cursor
 			cursorDisplay(x, y);
         }
-        
+        draw_line(screen,100,200,200,300,1,0xff00ff);
         //updates the screen
         SDL_Flip( screen );
 

@@ -87,7 +87,7 @@ void draw_line(SDL_Surface *theSurface, int x1, int y1, int x2, int y2, int thic
 	
 	// if the absolute value of the slope is less than 1, index through the x values
 	if(absval_slope < 1){
-		
+		/* OLD CODE FOR GRADUAL SLOPE LINES
 		// swap the points around if x1 > x2
 		if(x1 > x2){
 			
@@ -107,10 +107,36 @@ void draw_line(SDL_Surface *theSurface, int x1, int y1, int x2, int y2, int thic
 				
 			SDL_FillRect(theSurface, &myPixel, lineColor);
 		}
+		*/
+		//all of this assumes that x1 <= x2
+		float pixel_offset = 0.5;
+		//x2 is greater than x1
+		int low_x = x1;
+		int high_x = x2;
+		int ref_y = y1;		// this is the reference y. this is where we start
+		
+		// this takes care of the special case of x1 being bigger than x2.
+		if(x1 > x2){
+			pixel_offset *= -1;
+			//x2 is less than x1
+			low_x = x2;
+			high_x = x1;
+			ref_y = y2;
+		}
+		
+		
+		for(x=low_x+pixel_offset,myPixel.x=low_x; x<high_x; x+=1,myPixel.x++){
+			line_value = (x-low_x)*slope + ref_y;
+			myPixel.y = line_value; // integer assignment. truncate decimal places
+			// if the line_value has decimal place value greater than or equal to 0.5, then round up.
+			if(line_value-(int)line_value > 0.5) myPixel.y++;
+				
+			SDL_FillRect(theSurface, &myPixel, lineColor);
+		}
 	}
 	// otherwise, the absolute value of the slope is greater to or equal to one, so index through the y values
 	else{
-		
+		/*
 		// swap the points around if y1 > y2
 		if(x1 > x2){
 			int tempval=x1;	// store x1
@@ -120,13 +146,31 @@ void draw_line(SDL_Surface *theSurface, int x1, int y1, int x2, int y2, int thic
 			y1 = y2;		// put y2 into y1
 			y2 = tempval;	// put the value that used to be in y1 into y2.
 		}
+		*/
 		
 		
-		for(y=y1+0.5,myPixel.y=y1; y<y2; y+=1.0,myPixel.y++){
-			line_value = slope*y + x1;
+		//all of this assumes that y1 <= y2
+		float pixel_offset = 0.5;
+		//y2 is greater than y1
+		int low_y = y1;
+		int high_y = y2;
+		int ref_x = x1;		// this is the reference x. this is where we start
+		
+		// this takes care of the special case of y1 being bigger than y2.
+		if(y1 > y2){
+			pixel_offset *= -1;
+			//y2 is less than y1
+			low_y = y2;
+			high_y = y1;
+			ref_x = x2;
+		}
+		
+		
+		for(y=low_y+pixel_offset,myPixel.y=low_y; y<high_y; y+=1,myPixel.y++){
+			line_value = (y-low_y)/slope + ref_x;
 			myPixel.x = line_value; // integer assignment. truncate decimal places
 			// if the line_value has decimal place value greater than or equal to 0.5, then round up.
-			if(line_value-(int)line_value >= 0.5) myPixel.x++;
+			if(line_value-(int)line_value > 0.5) myPixel.x++;
 				
 			SDL_FillRect(theSurface, &myPixel, lineColor);
 		}

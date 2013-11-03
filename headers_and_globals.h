@@ -32,6 +32,9 @@ unsigned int SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT;
 
 #define SCREEN_BPP 32
 
+//global variable that tells us if the game is paused or not
+int paused = 0;
+
 // The surfaces that will be used
 SDL_Surface *screen = 	NULL;
 SDL_Surface *text = 	NULL;

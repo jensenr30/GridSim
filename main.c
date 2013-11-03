@@ -1,29 +1,32 @@
 #include "headers_and_globals.h"
 
+
+
+
 int main( int argc, char* args[] ) 
 {
 	
 	//get a random seed.
 	srand(time(NULL));
-
+	
     //mouse variables and cell types
-    int x, y, sleepTime = 0, paused = 0, countVar = 0;
-
+    int x, y, sleepTime = 0, countVar = 0;
+	
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
-
+	
 	//make sure the program waits for a quit
 	int quit = false;
-
+	
     //Initialize
     if( init() == false ) return 1;
-
+	
     //Load the files
     if( load_files() == false ) return 2;
-
+	
     //Update the screen
     if( SDL_Flip( screen ) == -1 ) return 3;
-
+	
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
     
@@ -84,17 +87,17 @@ int main( int argc, char* args[] )
 	
     //While the user hasn't quit
     while(1){
-
+		
     	//While there's an event to handle
     	while( SDL_PollEvent( &event ) ){
-
+			
     		//If the user has Xed out the window
     		if( event.type == SDL_QUIT || quit == true ){
 				//Quit the program
 				clean_up();
 				return 0;
 			}
-
+			
             if( event.type == SDL_MOUSEBUTTONDOWN ){						/// mouse down
 				x = event.motion.x;
 				y = event.motion.y;
@@ -150,7 +153,7 @@ int main( int argc, char* args[] )
 				set_window_size(event.resize.w, event.resize.h);
 				verify_camera();
 			}
-
+			
             if( event.type == SDL_KEYDOWN ){								///keyboard event
                 switch( event.key.keysym.sym ){
 				case SDLK_UP: break; //change block type up
@@ -203,7 +206,7 @@ int main( int argc, char* args[] )
 				}
 			}
                 
-
+		
     	} // end while(event)
 		//no more events to handle at the moment.
 		/*
@@ -225,7 +228,7 @@ int main( int argc, char* args[] )
 			if(y >= 50 && x < SCREEN_WIDTH - 200)
             setcell(x, y, currentMat);
             }
-
+		
         else if(mouseStatusRight == 1 && mouseModifier == 0){
             deletecell(x, y, currentMat);
         }
@@ -236,19 +239,19 @@ int main( int argc, char* args[] )
         {
             sleepTime = 0;
         }
-
+		
         //evealuate cells
         if(countVar >= sleepTime && paused != 1){
             evaluate_grid();
             countVar = 0;
         }
-
+		
         //updates screen with cells
         print_cells();
-
+		
         //displays selection gui
         selectionGUI(x, y, mouseStatusLeft);
-        
+		
         //displays brushes and misc gui
         brushesGUI(x, y, mouseStatusLeft);
         
@@ -257,20 +260,10 @@ int main( int argc, char* args[] )
 			//displays cursor
 			cursorDisplay(x, y);
         }
-<<<<<<< Updated upstream
-        draw_line(screen,100,200,200,300,1,0xff00ff);
-=======
         
-        
-        //testing the line_draw function
-        draw_line(screen, 100, 100, 200, 200, 1, 0xff7fff);
-        //draw_line(screen, 100, 200, 200, 100, 1, 0xff7fff);
-        
-        
->>>>>>> Stashed changes
         //updates the screen
         SDL_Flip( screen );
-
+		
     }// end while(quit == false)
 
 

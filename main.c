@@ -257,7 +257,17 @@ int main( int argc, char* args[] )
 			//displays cursor
 			cursorDisplay(x, y);
         }
+<<<<<<< Updated upstream
         draw_line(screen,100,200,200,300,1,0xff00ff);
+=======
+        
+        
+        //testing the line_draw function
+        draw_line(screen, 100, 100, 200, 200, 1, 0xff7fff);
+        //draw_line(screen, 100, 200, 200, 100, 1, 0xff7fff);
+        
+        
+>>>>>>> Stashed changes
         //updates the screen
         SDL_Flip( screen );
 

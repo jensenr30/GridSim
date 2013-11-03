@@ -120,6 +120,21 @@ void gen_world(int worldType, int worldFlag){
 	// generate the top_rock array
 	gen_landscape(top_rock, 0, GRID_WIDTH_ELEMENTS-1, rockline_min, rockline_max, rock_slope, m_rock);
 	
+	/// this only works (well or at all) with a screen width of 1080 pixels
+	#if(SHOW_WORLD_GEN)
+	// dist is the distance between the sample points in the grid[][] array
+	int sections;
+	for(sections = 2; sections<=SCREEN_WIDTH/2; sections<<=1){
+		//draw_line(screen, 0,GRID_HEIGHT_ELEMENTS-1-top_rock[0], GRID_WIDTH_ELEMENTS/sections, GRID_HEIGHT_ELEMENTS-1-top_rock[GRID_WIDTH_ELEMENTS/sections], 1, mats[m_rock].color);
+		for(i=0; i<sections; i++){
+			draw_line(screen, i*SCREEN_WIDTH/sections,  SCREEN_HEIGHT-1-top_rock[i*SCREEN_WIDTH/sections],  (i+1)*(SCREEN_WIDTH-1)/sections,  SCREEN_HEIGHT-1-top_rock[(i+1)*(SCREEN_WIDTH-1)/sections],  1, 0xff7fff);
+		}
+		SDL_Flip(screen);
+		SDL_Delay(333);
+	}
+	#endif
+	
+	
 	//fill up the rock area.
 	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
 		for(j=GRID_HEIGHT_ELEMENTS-top_rock[i]-1; j<GRID_HEIGHT_ELEMENTS; j++){

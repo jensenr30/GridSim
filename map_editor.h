@@ -112,23 +112,5 @@ void zoom_out(int mousex, int mousey)
 	verify_camera();
 }
 
-void pan(int direction){
-	switch(direction){
-	case D_UP:
-		camera_y -= MAX_CELL_SIZE/CELL_SIZE + 6;
-		break;
-	case D_LEFT:
-		camera_x -= MAX_CELL_SIZE/CELL_SIZE + 6;
-		break;
-	case D_DOWN:
-		camera_y += MAX_CELL_SIZE/CELL_SIZE + 6;
-		break;
-	case D_RIGHT:
-		camera_x += MAX_CELL_SIZE/CELL_SIZE + 6;
-		break;
-	}
-	verify_camera();
-}
-
 
 

@@ -11,7 +11,7 @@
 #define false 0 // c++ adaption
 #define true 1  // c++ adaption
 
-#define debug 1 // this is the varibale that tells us whether we want to debug or not.
+#define DEBUG_GRIDSIM 1 // this is the varibale that tells us whether we want to debug or not.
 
 //allowing us to efficiently use the 'bool' type
 #define bool char // 1 byte of information for a bool. not perfect, but better than using 4 bytes! :D
@@ -31,6 +31,9 @@ unsigned int SCREEN_WIDTH = DEFAULT_SCREEN_WIDTH;
 unsigned int SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT;
 
 #define SCREEN_BPP 32
+
+//global variable that tells us if the game is paused or not
+int paused = 0;
 
 // The surfaces that will be used
 SDL_Surface *screen = 	NULL;
@@ -61,7 +64,9 @@ void setcell(int , int, int);
 #include "materials_and_cells.h"
 #include "selection_gui.h"
 #include "cell_engine.h"
+#include "graphics.h"
 #include "map_editor.h"
+#include "world_gen.h"
 
 
 

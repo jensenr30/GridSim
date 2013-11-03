@@ -12,6 +12,10 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/GridSim" prefix_auto="1" extension_auto="1" />
@@ -42,6 +46,7 @@
 		</Linker>
 		<Unit filename="cell_engine.h" />
 		<Unit filename="general_functions.h" />
+		<Unit filename="graphics.h" />
 		<Unit filename="headers_and_globals.h" />
 		<Unit filename="icon.rc">
 			<Option compilerVar="WINDRES" />

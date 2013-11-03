@@ -75,13 +75,13 @@ void evaluate_grid(){
 	for(j=GRID_HEIGHT+camera_y-1; j>=camera_y; j--){ // cycle through the rows
 		// make sure the indexes are not out of bounds
 		if(j < 0){
-			#if(debug)
+			#if(DEBUG_GRIDSIM)
 				printf("function evaluate_grid():\nError: j is outside of bounds.\nj = %d\n\n",j);
 			#endif
 			j = 0;
 		}
 		else if(j >= GRID_HEIGHT_ELEMENTS){
-			#if(debug)
+			#if(DEBUG_GRIDSIM)
 				printf("function evaluate_grid():\nError: j is outside of bounds.\nj = %d\n\n",j);
 			#endif
 			break;
@@ -90,13 +90,13 @@ void evaluate_grid(){
 			
 			// make sure the indexes are not out of bounds
 			if(i < 0){
-				#if(debug)
+				#if(DEBUG_GRIDSIM)
 					printf("function evaluate_grid():\nError: i is outside of bounds.\ni = %d\n\n",i);
 				#endif
 				i = 0;
 			}
 			else if(i >= GRID_WIDTH_ELEMENTS){
-				#if(debug)
+				#if(DEBUG_GRIDSIM)
 					printf("function evaluate_grid():\nError: i is outside of bounds.\ni = %d\n\n",i);
 				#endif
 				break;
@@ -246,7 +246,7 @@ void evaluate_grid(){
 							if( (cells_right_to_obstruction_sloping != -currentGrav+1) && (cells_left_to_obstruction_sloping != -currentGrav+1) && (cells_right_to_obstruction != -currentGrav+1) && (cells_left_to_obstruction != -currentGrav+1) && cells_right_to_air && cells_left_to_air && length_of_mat_right<0 && length_of_mat_left<0 ) break;
 						}//end for looping through the horizontal elements around the material
 						/*
-						#if ( debug )
+						#if ( DEBUG_GRIDSIM )
 							printf("\ncells_right_to_obstruction = %d\n", cells_right_to_obstruction);
 							printf("cells_left_to_obstruction = %d\n", cells_left_to_obstruction);
 							printf("cells_right_to_air = %d\n", cells_right_to_air);
@@ -606,54 +606,7 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 
 
 
-/// this will print to the screen each material in each cell.
-void print_cells(){
-	
-    int i,j;
-	SDL_Rect myRectangle, myRectangleMat, myRectangleSat;
-	myRectangle.x = 0;
-	myRectangle.y = 0;
-	myRectangle.w = SCREEN_WIDTH;
-	myRectangle.h = SCREEN_HEIGHT;
-	// INITIAL BLACK BACKGROUND
-	SDL_FillRect( screen , &myRectangle , 0x000000);
-	
-	// constant cell sizes
-	myRectangleMat.w = CELL_SIZE;
-	myRectangleMat.h = CELL_SIZE;
-	myRectangleSat.w = CELL_SIZE/2;
-	myRectangleSat.h = CELL_SIZE/2;
-	
-	// print out the grid
-    for(i = 0; i < GRID_WIDTH - GUI_W/CELL_SIZE; i++){
-        for(j = 0; j < GRID_HEIGHT && j+camera_y<GRID_HEIGHT_ELEMENTS; j++){
-        	//only print the material if it is not air
-			if(grid[i+camera_x][j+camera_y].mat != m_air){
-				myRectangleMat.x = i*CELL_SIZE;
-				myRectangleMat.y = j*CELL_SIZE;
-				SDL_FillRect( screen , &myRectangleMat , mats[grid[i+camera_x][j+camera_y].mat].color);
-			}
-			//only print valid saturations
-			if( grid[i+camera_x][j+camera_y].sat != m_no_saturation ){
-				myRectangleSat.x = i*CELL_SIZE + myRectangleSat.w/2;
-				myRectangleSat.y = j*CELL_SIZE + myRectangleSat.h/2;
-				SDL_FillRect( screen , &myRectangleSat , mats[grid[i+camera_x][j+camera_y].sat].color);
-			}
-        }
-    }
-    
-    /*
-    // print the color of the saturations of each material in each cell
-    for(i = 0; i < GRID_WIDTH; i++){
-        for(j = 0; j < GRID_HEIGHT; j++){
-			if( grid[i][j].sat == m_no_saturation || grid[i][j].sat == m_air ) continue; // you don't need to print air. there is a black background being printed at the beginning of this print_cells() function.
-			myRectangleSat.x = i*CELL_SIZE + myRectangleSat.w/2;
-			myRectangleSat.y = j*CELL_SIZE + myRectangleSat.h/2;
-            SDL_FillRect( screen , &myRectangleSat , mats[grid[i][j].sat].color);
-        }
-    }
-    */
-}
+
 
 
 

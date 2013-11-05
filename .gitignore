@@ -1,7 +1,7 @@
 *.layout
 *.depend
-bin/Debug/GridSim.exe
-bin/Release/GridSim.exe
+bin/Debug/GridVenture.exe
+bin/Release/GridVenture.exe
 *.o
 
 *stderr.txt

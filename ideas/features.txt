@@ -2,7 +2,20 @@
 
 ------------------------------------------------------------------------------------------------------
 
+make the grid static, but make entities that roam arond and do stuff to the static grid.
+then you can control the grid, but not the entities.
+the entities themselves have their own things they do.
+but you can effect the grid and thus effect the entities:
+ex: you can make more grass and more cows will breed.
 
+a necessary feature:
+make goals.
+and have resource restrictions.
+have only so much grass and so much water to work with.
+and you have a goal.
+"Grow enough grass to breed 30 cows"
+and you get different ratings depending on how quickly you can achieve the goal.
+(idea from Daniel Halvorson)
 
 ------------------------------------------------------------------------------------------------------
 

@@ -7,7 +7,80 @@ he would have phisical form and be mostly in contorl of the rain.
 
 Maybe there are multiple demigods in the game. and you have to go on a quest for each one of them to unlock the weather that each one provides.
 
+------------------------------------------------------------------------------------------------------
+
+maybe there are doors that lead into other places in the game.
+like if there are castles, maybe there is a door on the castle that leads into the castle's interior.
+and the interior of the castle is an entirely different world that would resemble the interior of the castle.
+
+I dunno. I don't like this idea.
+
+I'd rather have portals that go to entirely different worlds.
+like portals that lead to different procedurally generated worlds.
+so there are an infinite amount of worlds that you can go to.
+or maybe every time you make a portal, it generated a new world for you.
+
+
+------------------------------------------------------------------------------------------------------
+
+I'm going to make different colored materials.
+make materials have two colors instead of just one!
+make blocks that have colored centers, colered sides, or maybe even stripes!
+and make a block with a gradient.
+There are going to be a lot of complex textures if I implement this.
+It would be smart to generate all of the textures (at boot) on a surface (a sprite sheet) and then simply blit the pre-rendered images (with clips) to the screen when updating the screen.
+so that instead of rendering the material each time, you can simply copy and paste what you have already rendered at program startup.
+
+------------------------------------------------------------------------------------------------------
 
 
 
+------------------------------------------------------------------------------------------------------
 
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------

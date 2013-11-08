@@ -32,7 +32,7 @@ void verify_grid_and_cell_size(){
 	if(SCREEN_HEIGHT/CELL_SIZE > MAX_GRID_HEIGHT)
 		CELL_SIZE = SCREEN_HEIGHT/MAX_GRID_HEIGHT + (1&&(SCREEN_HEIGHT%MAX_GRID_HEIGHT));
 }
-
+/*
 void verify_camera(){
 	//make sure the camera values are not too large. they mustn't overstep their bounds.
 	if(camera_x > MAX_camera_x){
@@ -45,7 +45,8 @@ void verify_camera(){
 	if(camera_x < 0) camera_x = 0;
 	if(camera_y < 0) camera_y = 0;
 }
-
+*/
+/*
 void setcell(int mouse_x, int mouse_y, int data)
 {
 	//calculate the grid position of the user's mouse click.
@@ -56,7 +57,8 @@ void setcell(int mouse_x, int mouse_y, int data)
 		grid[cell_x][cell_y].mat = data;
 	}
 }
-
+*/
+/*
 void deletecell(int mouse_x, int mouse_y, int data)
 {
 	//calculate the grid position of the user's mouse click.
@@ -67,13 +69,13 @@ void deletecell(int mouse_x, int mouse_y, int data)
 		grid[cell_x][cell_y].mat = 0;
 	}
 }
-
+*/
 
 
 void zoom_in(int mousex, int mousey)
 {
 	//store the old cell size
-	short old_cell_size = CELL_SIZE;
+	//short old_cell_size = CELL_SIZE;
 	
 	// modify cell size
     if(CELL_SIZE*CELL_STEP_UP < 1+CELL_SIZE)
@@ -83,16 +85,15 @@ void zoom_in(int mousex, int mousey)
 	verify_grid_and_cell_size();
 	
 	//adjust camera position
-	camera_x += (((SCREEN_WIDTH/old_cell_size) - (SCREEN_WIDTH/CELL_SIZE))*mousex)/SCREEN_WIDTH;
-	camera_y += (((SCREEN_HEIGHT/old_cell_size) - (SCREEN_HEIGHT/CELL_SIZE))*mousey)/SCREEN_HEIGHT;
-	
-	verify_camera();
+	//camera_x += (((SCREEN_WIDTH/old_cell_size) - (SCREEN_WIDTH/CELL_SIZE))*mousex)/SCREEN_WIDTH;
+	//camera_y += (((SCREEN_HEIGHT/old_cell_size) - (SCREEN_HEIGHT/CELL_SIZE))*mousey)/SCREEN_HEIGHT;
+	//verify_camera();
 }
 
 void zoom_out(int mousex, int mousey)
 {
 	//store the old cell size
-	short old_cell_size = CELL_SIZE;
+	//short old_cell_size = CELL_SIZE;
 	
 	// modify cell size
     if(CELL_SIZE*CELL_SIZE_DOWN < 1)
@@ -102,10 +103,9 @@ void zoom_out(int mousex, int mousey)
 	verify_grid_and_cell_size();
 	
 	//adjust camera position
-	camera_x -= (  ((SCREEN_WIDTH/CELL_SIZE)  - (SCREEN_WIDTH/old_cell_size))   * mousex) / SCREEN_WIDTH;
-	camera_y -= (  ((SCREEN_HEIGHT/CELL_SIZE) - (SCREEN_HEIGHT/old_cell_size))  * mousey) / SCREEN_HEIGHT;
-    
-	verify_camera();
+	//camera_x -= (  ((SCREEN_WIDTH/CELL_SIZE)  - (SCREEN_WIDTH/old_cell_size))   * mousex) / SCREEN_WIDTH;
+	//camera_y -= (  ((SCREEN_HEIGHT/CELL_SIZE) - (SCREEN_HEIGHT/old_cell_size))  * mousey) / SCREEN_HEIGHT;
+	//verify_camera();
 }
 
 

@@ -30,11 +30,6 @@ int main( int argc, char* args[] )
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
     
-    //this sets up some surfaces that the selection gui needs to run efficiently
-    if( init_tempGuiScreen() == false){
-		MessageBox(NULL, "Couldn't Initialize selection gui surface: tempGuiScreen", "Error", MB_OK);
-		return -4;
-    }
     
 	/*
 	CELL_SIZE = 4;
@@ -69,7 +64,9 @@ int main( int argc, char* args[] )
 	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
 	
 	
-	//int keyw=0, keya=0, keys=0, keyd=0;
+	// these keep track of the WASD keys.
+	int keyw=0, keya=0, keys=0, keyd=0;
+	/*
 	//unsigned lastPanTime = 0;
 	bool alt = 0; // this keeps track of the state of the alt key
 	//these variables store the position of the user's cursor at the moment that the user decided to pan the screen
@@ -80,10 +77,19 @@ int main( int argc, char* args[] )
 	// these keep track of the truncation error and add it to the next operation so that the mouse motion feels fluid.
 	int remainder_panning_motion_x=0;
 	int remainder_panning_motion_y=0;
-	
+	*/
 	//last minute verification that the initial start up values for the grid size and the camera positions are valid.
 	verify_grid_and_cell_size();
-	verify_camera();
+	
+	//generate a world to begin the game
+	gen_world(w_normal,0);
+	
+	// get default player data.
+	init_player_attributes(&player);
+	
+	player.x_pos = GRID_WIDTH_ELEMENTS/2;
+	player.y_pos = GRID_HEIGHT_ELEMENTS/2;
+	
 	
     //While the user hasn't quit
     while(1){
@@ -107,10 +113,12 @@ int main( int argc, char* args[] )
                 else if( event.button.button == SDL_BUTTON_RIGHT ){
                     mouseStatusRight = 1;
                 }
+                
                 else if( event.button.button == SDL_BUTTON_WHEELUP )
 					zoom_in(x,y);
 				else if( event.button.button == SDL_BUTTON_WHEELDOWN )
 					zoom_out(x,y);
+				
             }
             else if(event.type == SDL_MOUSEBUTTONUP){						/// mouse up
 				x = event.motion.x;
@@ -125,6 +133,7 @@ int main( int argc, char* args[] )
             else if( event.type == SDL_MOUSEMOTION ){						/// mouse motion
 				x = event.motion.x;
 				y = event.motion.y;
+				/*
 				// if the alt key (camera panning key) is down and the coordinates have changed, then let the screen be panned!
 				if(alt && x != mouse_x_when_pan && y != mouse_y_when_pan){
 					// this adjusts the x-axis camera (this scales with the CELL_SIZE)
@@ -140,6 +149,7 @@ int main( int argc, char* args[] )
 					//reset the user's curcor position to the original position the curcor was in when the user started panning the camera
 					SDL_WarpMouse(mouse_x_when_pan, mouse_y_when_pan);
 				}
+				*/
             }
             else if(event.type == SDL_VIDEORESIZE){							/// window resize
 				
@@ -151,7 +161,6 @@ int main( int argc, char* args[] )
 				verify_grid_and_cell_size(); // make sure the window isn't too big for the cell size
 				
 				set_window_size(event.resize.w, event.resize.h);
-				verify_camera();
 			}
 			
             if( event.type == SDL_KEYDOWN ){								///keyboard event
@@ -159,18 +168,18 @@ int main( int argc, char* args[] )
 				case SDLK_UP: break; //change block type up
 				case SDLK_DOWN: break; // change block type down
 				case SDLK_c: reset_cells();  break;//clear the screen
-				case SDLK_r:  randomize_grid(); break; // randomize grid
 				case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
 				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
 				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
 				case SDLK_ESCAPE: quit = true; // quit with escape
-				case SDLK_F1: gen_world(w_normal,0); break; // generate a world
-				/*
+				case SDLK_F1: gen_world(w_normal,wf_display_generation); break; // generate a world
+				
 				case SDLK_w: keyw=1; break; // store key state
 				case SDLK_a: keya=1; break;
 				case SDLK_s: keys=1; break;
 				case SDLK_d: keyd=1; break;
-				*/
+				
+				/*
 				case SDLK_LALT:
 				case SDLK_RALT:
 					// store the state of the alt key.
@@ -184,23 +193,26 @@ int main( int argc, char* args[] )
 					remainder_panning_motion_x = 0;
 					remainder_panning_motion_y = 0;
 					break;
+					*/
 				default: break;
 				}
 			}
 			if( event.type == SDL_KEYUP ){								///keyboard event
                 switch( event.key.keysym.sym ){
-				/*
+				
 				case SDLK_w: keyw=0; break;//lastPanTime=0; break; // store key state
 				case SDLK_a: keya=0; break;//lastPanTime=0; break;
 				case SDLK_s: keys=0; break;//lastPanTime=0; break;
 				case SDLK_d: keyd=0; break;//lastPanTime=0; break;
-				*/
+				
+				/*
 				case SDLK_LALT:
 				case SDLK_RALT:
 					// show the cursor again.
 					SDL_ShowCursor(SDL_ENABLE);
 					alt = 0;
 					break;
+				*/
 				default: break;
 				}
 			}
@@ -221,16 +233,23 @@ int main( int argc, char* args[] )
 			//#endif
 		}
 		*/
+		float itter;
+		//temporary player avatar handling
+		if(keyw) {player.y_pos -= 0.1*itter; itter *= 0.99; }
+		else itter = 5;
+		if(keya) player.x_pos -= 0.1;
+		if(keys) player.y_pos += 0.1;
+		if(keyd) player.x_pos += 0.1;
+		
+		grid[(int)player.x_pos][(int)player.y_pos].mat = m_test2;
+		
 		//checks if the mouse is held or not
         if(mouseStatusLeft == 1 && mouseModifier == 0){
 			//make sure the mouse isn't inside either of the two GUIs.
-			if(y >= 50 && x < SCREEN_WIDTH - 200)
-            setcell(x, y, currentMat);
-            }
+			//if(y >= 50 && x < SCREEN_WIDTH - 200)
+			//	setcell(x, y, currentMat);
+		}
 		
-        else if(mouseStatusRight == 1 && mouseModifier == 0){
-            deletecell(x, y, currentMat);
-        }
         
         //speed of gameplay
         countVar++;
@@ -247,18 +266,17 @@ int main( int argc, char* args[] )
 		
         //updates screen with cells
         print_cells();
-		
-        //displays selection gui
-        selectionGUI(x, y, mouseStatusLeft);
-		
-        //displays brushes and misc gui
-        brushesGUI(x, y, mouseStatusLeft);
         
-        // If the user is not panning, then it is fine to show the cursor.
-        if(!alt){
-			//displays cursor
-			cursorDisplay(x, y);
-        }
+        //generate player rectangle
+        SDL_Rect playerRect;
+		playerRect.x = SCREEN_WIDTH/2  - CELL_SIZE*player.width/2;
+		playerRect.y = SCREEN_HEIGHT/2 - CELL_SIZE*player.height/2;
+		playerRect.w = CELL_SIZE*player.width;
+		playerRect.h = CELL_SIZE*player.height;
+	
+        // print the character
+        SDL_FillRect(screen, &playerRect, 0xffff00);
+		
         
         //updates the screen
         SDL_Flip( screen );

@@ -21,11 +21,6 @@ int CELL_SIZE = 16;
 #define GRID_WIDTH_ELEMENTS 1920
 #define GRID_HEIGHT_ELEMENTS 1080
 
-// these are to control the view of the world. the camera allows the user to pan.
-// these are measured in CELLS! NOT PIXELS!
-int camera_x = GRID_WIDTH_ELEMENTS/2;
-int camera_y = GRID_HEIGHT_ELEMENTS/2;
-
 //this is how many different types of materials there can be in the game.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100 // the materials (i.e. m_earth, m_spring) can have values from 0-99
 
@@ -207,6 +202,7 @@ void init_cell_stuff(void){
 	reset_cells();
 }
 
+/*
 ///this randomizes the materials and saturations in the grid.
 ///this basically randomizes cellMat[][] and cellSat[][].
 void randomize_grid(){
@@ -226,3 +222,4 @@ void randomize_grid(){
 		}
 	}
 }
+*/

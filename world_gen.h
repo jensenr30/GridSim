@@ -12,7 +12,7 @@
 // for example: wf_rains
 
 // no world flags yet  xD  i will have to make some
-
+#define wf_display_generation	1
 //#define wf_
 
 
@@ -60,7 +60,7 @@ void gen_landscape_relative(int *top_material, int top_material_relative, int lo
 
 /// this function will overwrite the data in grid[][] and generate a world inside it!
 // send it a world type and a worldflag and it should 
-void gen_world(int worldType, int worldFlag){
+void gen_world(int worldType, long long  unsigned int worldFlag){
 	/*
 	//clear the grid
 	reset_cells();
@@ -97,9 +97,6 @@ void gen_world(int worldType, int worldFlag){
 	paused = 1;
 	CELL_SIZE = 1;
 	verify_grid_and_cell_size();
-	camera_x = MAX_camera_x;
-	camera_y = MAX_camera_y;
-	verify_camera();
 	
 	//clean grid
 	reset_cells();
@@ -129,29 +126,29 @@ void gen_world(int worldType, int worldFlag){
 	gen_landscape(top_rock, 0, GRID_WIDTH_ELEMENTS-1, rockline_min, rockline_max, rock_slope, m_rock);
 	
 	/// this only works (well or at all) with a screen width of 1080 pixels
-	#if(SHOW_WORLD_GEN)
-	SDL_Rect screenRect;
-	screenRect.x = screenRect.y = 0;
-	screenRect.w = SCREEN_WIDTH;
-	screenRect.h = SCREEN_HEIGHT;
-	// dist is the distance between the sample points in the grid[][] array
-	int sections;
-	
-	for(sections = 1; sections<=SCREEN_WIDTH/2; sections<<=1){
-		//blank screen
-		SDL_FillRect(screen, &screenRect, 0x000000);
-		//draw_line(screen, 0,GRID_HEIGHT_ELEMENTS-1-top_rock[0], GRID_WIDTH_ELEMENTS/sections, GRID_HEIGHT_ELEMENTS-1-top_rock[GRID_WIDTH_ELEMENTS/sections], 1, mats[m_rock].color);
-		for(i=0; i<sections; i++){
-			draw_line(screen, i*SCREEN_WIDTH/sections,  SCREEN_HEIGHT-1-top_rock[i*SCREEN_WIDTH/sections],  (i+1)*(SCREEN_WIDTH-1)/sections,  SCREEN_HEIGHT-1-top_rock[(i+1)*(SCREEN_WIDTH-1)/sections],  1, 0x0bf100);
-			draw_line(screen, i*SCREEN_WIDTH/sections,  SCREEN_HEIGHT-1-top_rock[i*SCREEN_WIDTH/sections]-4,  (i+1)*(SCREEN_WIDTH-1)/sections,  SCREEN_HEIGHT-1-top_rock[(i+1)*(SCREEN_WIDTH-1)/sections]-4,  1, 0x0bf100);
-		}
+	if(worldFlag & wf_display_generation){
+		SDL_Rect screenRect;
+		screenRect.x = screenRect.y = 0;
+		screenRect.w = SCREEN_WIDTH;
+		screenRect.h = SCREEN_HEIGHT;
+		// dist is the distance between the sample points in the grid[][] array
+		int sections;
 		
-		// display the lines that were just printed
-		SDL_Flip(screen);
-		// wait for a bit
-		SDL_Delay(500);
+		for(sections = 1; sections<=SCREEN_WIDTH/2; sections<<=1){
+			//blank screen
+			SDL_FillRect(screen, &screenRect, 0x000000);
+			//draw_line(screen, 0,GRID_HEIGHT_ELEMENTS-1-top_rock[0], GRID_WIDTH_ELEMENTS/sections, GRID_HEIGHT_ELEMENTS-1-top_rock[GRID_WIDTH_ELEMENTS/sections], 1, mats[m_rock].color);
+			for(i=0; i<sections; i++){
+				draw_line(screen, i*SCREEN_WIDTH/sections,  SCREEN_HEIGHT-1-top_rock[i*SCREEN_WIDTH/sections],  (i+1)*(SCREEN_WIDTH-1)/sections,  SCREEN_HEIGHT-1-top_rock[(i+1)*(SCREEN_WIDTH-1)/sections],  1, 0x0bf100);
+				draw_line(screen, i*SCREEN_WIDTH/sections,  SCREEN_HEIGHT-1-top_rock[i*SCREEN_WIDTH/sections]-4,  (i+1)*(SCREEN_WIDTH-1)/sections,  SCREEN_HEIGHT-1-top_rock[(i+1)*(SCREEN_WIDTH-1)/sections]-4,  1, 0x0bf100);
+			}
+			
+			// display the lines that were just printed
+			SDL_Flip(screen);
+			// wait for a bit
+			SDL_Delay(500);
+		}
 	}
-	#endif
 	
 	
 	//fill up the rock area.

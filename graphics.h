@@ -9,6 +9,7 @@ void print_cells(){
 	myRectangle.y = 0;
 	myRectangle.w = SCREEN_WIDTH;
 	myRectangle.h = SCREEN_HEIGHT;
+	
 	// INITIAL BLACK BACKGROUND
 	SDL_FillRect( screen , &myRectangle , 0x000000);
 	
@@ -17,7 +18,18 @@ void print_cells(){
 	myRectangleMat.h = CELL_SIZE;
 	
 	// print out the grid
-    for(i = 0; i < GRID_WIDTH - GUI_W/CELL_SIZE; i++){
+	for(i = 0; i < GRID_WIDTH; i++){
+        for(j = 0; j < GRID_HEIGHT; j++){
+        	//only print the material if it is not air
+			if(grid[i+((int)(player.x_pos))][j+((int)(player.y_pos))].mat != m_air){
+				myRectangleMat.x = i*CELL_SIZE - (int)((player.x_pos - ((int)player.x_pos))*CELL_SIZE);
+				myRectangleMat.y = j*CELL_SIZE - (int)((player.y_pos - ((int)player.y_pos))*CELL_SIZE);
+				SDL_FillRect( screen , &myRectangleMat , mats[grid[i+((int)(player.x_pos))][j+((int)(player.y_pos))].mat].color);
+			}
+        }
+    }
+	/* OLD GRID PRINTING 
+    for(i = 0; i < GRID_WIDTH; i++){
         for(j = 0; j < GRID_HEIGHT && j+camera_y<GRID_HEIGHT_ELEMENTS; j++){
         	//only print the material if it is not air
 			if(grid[i+camera_x][j+camera_y].mat != m_air){
@@ -27,6 +39,7 @@ void print_cells(){
 			}
         }
     }
+    */
 }
 
 

@@ -159,13 +159,12 @@ int main( int argc, char* args[] )
 				case SDLK_UP: break; //change block type up
 				case SDLK_DOWN: break; // change block type down
 				case SDLK_c: reset_cells();  break;//clear the screen
-				case SDLK_p: print_saturation_data(); break; // prints the cellSat[][] array to stdout. this is for debuggin purposes.
 				case SDLK_r:  randomize_grid(); break; // randomize grid
 				case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
 				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
 				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
 				case SDLK_ESCAPE: quit = true; // quit with escape
-				case SDLK_w: gen_world(w_normal,0); break; // generate a world
+				case SDLK_F1: gen_world(w_normal,0); break; // generate a world
 				/*
 				case SDLK_w: keyw=1; break; // store key state
 				case SDLK_a: keya=1; break;
@@ -242,7 +241,7 @@ int main( int argc, char* args[] )
 		
         //evealuate cells
         if(countVar >= sleepTime && paused != 1){
-            evaluate_grid();
+            evaluate_gravity(0,0,200,200);
             countVar = 0;
         }
 		

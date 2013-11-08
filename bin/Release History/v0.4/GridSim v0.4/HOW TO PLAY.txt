@@ -30,7 +30,7 @@ R
 P
 		print material and saturation data your window
 	
-W
+F1
 		world generation (in development)
 
 Left  Arrow Key

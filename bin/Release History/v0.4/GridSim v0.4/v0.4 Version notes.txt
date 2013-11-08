@@ -12,6 +12,10 @@ Released ####-##-## (#### ##th, 2013) ##:## PM GMT -6:00
 
 2.	Panning around the map was set to the Alt key in tandom with moving the mouse around. :3
 
+3.	Added manual world generation with the F1 key.
+
+4.	Materials no longer dissapear out the bottom of the screen.
+
 --------------------------------------------------------------
 >>>>		Developers:		<<<<
 --------------------------------------------------------------

@@ -54,8 +54,6 @@ void setcell(int mouse_x, int mouse_y, int data)
 	//make sure the user's cursor is inside the grid. (no negative values or values bigger than the grid size
 	if(cell_x >= 0 && cell_x < GRID_WIDTH_ELEMENTS && cell_y >= 0 && cell_y < GRID_HEIGHT_ELEMENTS){
 		grid[cell_x][cell_y].mat = data;
-		grid[cell_x][cell_y].sat = m_no_saturation;
-		grid[cell_x][cell_y].satLevel = 0;
 	}
 }
 
@@ -67,8 +65,6 @@ void deletecell(int mouse_x, int mouse_y, int data)
 	//make sure the user's cursor is inside the grid. (no negative values or values bigger than the grid size
 	if(cell_x >= 0 && cell_x < GRID_WIDTH_ELEMENTS && cell_y >= 0 && cell_y < GRID_HEIGHT_ELEMENTS){
 		grid[cell_x][cell_y].mat = 0;
-		grid[cell_x][cell_y].sat = m_no_saturation;
-		grid[cell_x][cell_y].satLevel = 0;
 	}
 }
 

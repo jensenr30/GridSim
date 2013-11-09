@@ -1,45 +1,48 @@
-
+#define EXTRA_GRID_SURFACE_LENGTHS 2
+void init_gridSurface(){
+	gridSurface = create_surface(GRID_WIDTH_ELEMENTS+EXTRA_GRID_SURFACE_LENGTHS*MAX_CELL_SIZE,GRID_HEIGHT_ELEMENTS+EXTRA_GRID_SURFACE_LENGTHS*MAX_CELL_SIZE);
+}
 
 /// this will print to the screen each material in each cell.
-void print_cells(){
-	
+void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
+    
+   
+    
     int i,j;
-	SDL_Rect myRectangle, myRectangleMat;
-	myRectangle.x = 0;
-	myRectangle.y = 0;
-	myRectangle.w = SCREEN_WIDTH;
-	myRectangle.h = SCREEN_HEIGHT;
-	
-	// INITIAL BLACK BACKGROUND
-	SDL_FillRect( screen , &myRectangle , 0x000000);
-	
+	SDL_Rect myRectangleMat;
 	// constant cell sizes
 	myRectangleMat.w = CELL_SIZE;
 	myRectangleMat.h = CELL_SIZE;
 	
+	//this is the upper corner of where the screen starts displaying grid data.
+	int i_start = (int)( (player.x_pos) - GRID_WIDTH/2  );
+	int j_start = (int)( (player.y_pos) - GRID_HEIGHT/2 );
+	// these are for indexing into the grid
+	int ig,jg;
+	//these are how far off the grid the player is.
+	//float adjust_x = -(player.x_pos - ((int)player.x_pos) )*CELL_SIZE;
+	//float adjust_y = -(player.x_pos - ((int)player.x_pos) )*CELL_SIZE;
+	
 	// print out the grid
-	for(i = 0; i < GRID_WIDTH; i++){
-        for(j = 0; j < GRID_HEIGHT; j++){
+	for(i = 0; i < GRID_WIDTH+EXTRA_GRID_SURFACE_LENGTHS; i++){
+		// this is used to index into the grid
+		ig = i+i_start;
+		if(ig < 0) ig = 0; // if ig is less than the minimum bound, make it equal to the minimum array index value.
+		if(ig > GRID_WIDTH_ELEMENTS+2) break; // if ig is larger than the largest array index value, quit.
+        for(j = 0; j < GRID_HEIGHT+EXTRA_GRID_SURFACE_LENGTHS; j++){
+        	// this is used to index into the grid
+			jg = j+j_start;
+			if(jg < 0) jg = 0; // if jg is less than the minimum bound, make it equal to the minimum bound
+			if(jg > GRID_HEIGHT_ELEMENTS+EXTRA_GRID_SURFACE_LENGTHS) break; // if jg is larger than the largest array index, quit.
+			
         	//only print the material if it is not air
-			if(grid[i+((int)(player.x_pos))][j+((int)(player.y_pos))].mat != m_air){
-				myRectangleMat.x = i*CELL_SIZE - (int)((player.x_pos - ((int)player.x_pos))*CELL_SIZE);
-				myRectangleMat.y = j*CELL_SIZE - (int)((player.y_pos - ((int)player.y_pos))*CELL_SIZE);
-				SDL_FillRect( screen , &myRectangleMat , mats[grid[i+((int)(player.x_pos))][j+((int)(player.y_pos))].mat].color);
-			}
-        }
-    }
-	/* OLD GRID PRINTING 
-    for(i = 0; i < GRID_WIDTH; i++){
-        for(j = 0; j < GRID_HEIGHT && j+camera_y<GRID_HEIGHT_ELEMENTS; j++){
-        	//only print the material if it is not air
-			if(grid[i+camera_x][j+camera_y].mat != m_air){
+			if(grid[ig][jg].mat != m_air){
 				myRectangleMat.x = i*CELL_SIZE;
 				myRectangleMat.y = j*CELL_SIZE;
-				SDL_FillRect( screen , &myRectangleMat , mats[grid[i+camera_x][j+camera_y].mat].color);
+				SDL_FillRect( gridSurface , &myRectangleMat , mats[grid[ig][jg].mat].color);
 			}
         }
     }
-    */
 }
 
 

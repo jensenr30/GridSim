@@ -30,6 +30,9 @@ int main( int argc, char* args[] )
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
     
+    // initialize the surface that the grid data will be printed to.
+    init_gridSurface();
+    
     
 	/*
 	CELL_SIZE = 4;
@@ -46,7 +49,6 @@ int main( int argc, char* args[] )
 		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
     }
     */
-    CELL_SIZE = 8;
     sleepTime = 0;
 	//int i;//
 	//putting test materials into grid
@@ -83,6 +85,7 @@ int main( int argc, char* args[] )
 	
 	//generate a world to begin the game
 	gen_world(w_normal,0);
+	CELL_SIZE = 8;
 	
 	// get default player data.
 	init_player_attributes(&player);
@@ -241,7 +244,7 @@ int main( int argc, char* args[] )
 		if(keys) player.y_pos += 0.1;
 		if(keyd) player.x_pos += 0.1;
 		
-		grid[(int)player.x_pos][(int)player.y_pos].mat = m_test2;
+		//grid[(int)player.x_pos][(int)player.y_pos].mat = m_test2; // this can produce segmentation fault errors without the proper checks and balances (which it currently does not have)
 		
 		//checks if the mouse is held or not
         if(mouseStatusLeft == 1 && mouseModifier == 0){
@@ -263,19 +266,44 @@ int main( int argc, char* args[] )
             evaluate_gravity(0,0,200,200);
             countVar = 0;
         }
+        /// ----------------------------------------------------------------
+        /// GRID PRINTING STUFF
+        /// ----------------------------------------------------------------
+        
+        // apply initial black background
+		SDL_Rect screenRect, gridSurfaceRect;
+		screenRect.x = 0;
+		screenRect.y = 0;
+		screenRect.w = SCREEN_WIDTH+CELL_SIZE;
+		screenRect.h = SCREEN_HEIGHT+CELL_SIZE;
+		SDL_FillRect( gridSurface , &screenRect , 0x000000);
+		screenRect.w = SCREEN_WIDTH;
+		screenRect.h = SCREEN_HEIGHT;
 		
-        //updates screen with cells
-        print_cells();
+		// generate the grid image
+        generate_grid_surface(gridSurface);
+        
+        
+        //these are how far off the grid the player is.
+		float adjust_x = (player.x_pos - ((int)player.x_pos) )*CELL_SIZE;
+		float adjust_y = (player.y_pos - ((int)player.y_pos) )*CELL_SIZE;
+        gridSurfaceRect.x = (int)adjust_x;//player.x_pos*CELL_SIZE;
+        gridSurfaceRect.y = (int)adjust_y;//player.y_pos*CELL_SIZE;
+        gridSurfaceRect.w = SCREEN_WIDTH;
+        gridSurfaceRect.h = SCREEN_HEIGHT;
+        // apply grid image
+        SDL_BlitSurface(gridSurface, &gridSurfaceRect, screen, &screenRect);
+        
+        
         
         //generate player rectangle
         SDL_Rect playerRect;
-		playerRect.x = SCREEN_WIDTH/2  - CELL_SIZE*player.width/2;
-		playerRect.y = SCREEN_HEIGHT/2 - CELL_SIZE*player.height/2;
+		playerRect.x = SCREEN_WIDTH/2  - CELL_SIZE*player.width;
+		playerRect.y = SCREEN_HEIGHT/2 - CELL_SIZE*player.height;
 		playerRect.w = CELL_SIZE*player.width;
 		playerRect.h = CELL_SIZE*player.height;
-	
         // print the character
-        SDL_FillRect(screen, &playerRect, 0xffff00);
+        SDL_FillRect(screen, &playerRect, 0x7f7f23);
 		
         
         //updates the screen

@@ -1,7 +1,5 @@
 //map editor
 
-#define MAX_CELL_SIZE 61
-#define MIN_CELL_SIZE 1
 #define CELL_STEP_UP 1.25f
 #define CELL_SIZE_DOWN 0.80f
 

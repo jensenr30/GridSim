@@ -112,9 +112,10 @@ int load_files(){
 
 void clean_up(){
 	//free the image
-	//SDL_FreeSurface( image );
-	//SDL_FreeSurface( text );
-	//SDL_FreeSurface( screen );
+	//SDL_FreeSurface(image);
+	//SDL_FreeSurface(text);
+	SDL_FreeSurface(gridSurface);
+	SDL_FreeSurface(screen);
 	
 	//Quit SDL
 	SDL_Quit();

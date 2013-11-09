@@ -11,7 +11,7 @@
 struct playerData{
 	
 	// x and y POSITION		in the grid (using the SDL coordinate system)
-	float x_pos; // on the left side of the avater (the 
+	float x_pos; // on the left side of the avater
 	float y_pos; // position of feet (lowest point on avatar)
 	
 	// x and y VELOCITY		in the grid (using the SDL coordinate system)
@@ -49,24 +49,48 @@ void init_player_attributes(struct playerData *datplayer){
 	datplayer->height = DEFAULT_PLAYER_HEIGHT;
 	
 	//set default jump velocity. this is negative (following the SDL coordinate convention)
-	datplayer->jumpVelocity = -0.085;
+	datplayer->jumpVelocity = -0.070;
 	
 	// set default walking speed. this is used for walking left and right. so just enter a positive value. evaluate_player_movement() will do the rest.
-	datplayer->walkSpeed = 0.055;
+	datplayer->walkSpeed = 0.026;
 	
 	// set default standing on ground state
 	datplayer->onTheGround = true;
 }
 
 
+// x is the left-most point of the rectangle
+// y is the lowest point of the rectangle
+// width extends to the right
+// height extends upwards
+bool is_mat_in_rect(float x, float y, float width, float height){
+	int i,j;
+	
+	int startj = 0;
+	if(x - (int)x != 0) width++;			// if the float x value is not exactly on an integer value, then evaluate one more cell to the right.
+	if(y - (int)y != 0){height++;startj=1;}	// if the float y value is not exactly on an integer value, then evaluate one more cell upward.
+	
+	for(i=0; i<width; i++){
+		for(j=startj; j<height; j++){
+			if(mats[grid[(int)x+i][(int)y-j].mat].collision) return true;
+		}
+	}
+	return false;
+}
 
-#define MIN_COLLISION_STEPS 10
+
+/*
+#define MIN_COLLISION_STEPS 5
 /// this checks to see if there is a collision with a block between starting point (x1,y1) and ending point (x2,y2).
 // if there is a collision, the x and y values are set to the last valid cell.
 // returns true if the player makes it alright
 // returns false if the player enocounters a collision
 // the algorithm takes a specified number of steps in calculating if there are any obstructions in the trajectory.
-bool is_collision(float x1, float y1, float x2, float y2, float *x_collision, float *y_collision){
+
+// (x1,y1) is the lower left beginning point of the target.
+// width extends the target rectangle to the right
+// height extends the target rectangle upwards. (these widths are not the conventional SDL rectangle widths.
+bool is_collision(float x1, float y1, float width, float height, float x2, float y2, float *x_collision, float *y_collision){
 	
 	// this is the number of step we will take along the line from (x1,y1) to (x2,y2)
 	// the square root term is used as a scaling factor. the farther the distance is to travel, the more intermediate steps should be taken.
@@ -85,10 +109,10 @@ bool is_collision(float x1, float y1, float x2, float y2, float *x_collision, fl
 	if(absval_diffy >= absval_diffx){				/// index through y
 		for(  j=1,y=y1;  j<=steps&&y<=y2;  j++,y=y1+(y2-y1)*(j/(steps))  ){
 			x = x1 + (x2-x1)*(j/steps); // calculate x index
-			if(mats[grid[(int)x][(int)y].mat].collision == true){
-				*x_collision = x1 + (x2-x1)*((j-1)/steps);		// report last valid x value
-				*y_collision = y1 + (y2-y1)*((j-1)/steps);		// report valid y value
-				return true;									// collision detected
+			if(is_mat_in_rect(x,y,width,height) == true){
+				*x_collision = (x1 + (x2-x1)*((j-1)/steps));		// report last valid x value
+				*y_collision = (int)(y1 + (y2-y1)*((j-1)/steps));		// report valid y value
+				return true;										// collision detected
 			}
 		}
 	}
@@ -96,10 +120,11 @@ bool is_collision(float x1, float y1, float x2, float y2, float *x_collision, fl
 	else{											/// index through x
 		for(  i=1,x=x1;  i<=steps;  i++,x=x1+(x2-x1)*(i/(steps))  ){
 			y = y1 + (y2-y1)*(i/steps); // calculate x index
-			if(mats[grid[(int)x][(int)y].mat].collision == true){
-				*x_collision = x1 + (x2-x1)*((i-1)/steps);	// report collision x value
-				*y_collision = y1 + (y2-y1)*((i-1)/steps);	// report collision y value
-				return true;								// collision detected
+			if(is_mat_in_rect(x,y,width,height) == true){
+				*x_collision = (int)(x1 + (x2-x1)*((i-1)/steps));// report collision x value
+				if(x2 > x1) *x_collision += 0.9999;
+				*y_collision = (y1 + (y2-y1)*((i-1)/steps));	// report collision y value
+				return true;									// collision detected
 			}
 		}
 	}
@@ -107,7 +132,7 @@ bool is_collision(float x1, float y1, float x2, float y2, float *x_collision, fl
 	
 	return false; // no collision
 }
-
+*/
 
 
 /// move the player from point a to point b
@@ -119,14 +144,17 @@ void move_player(struct playerData *datplayer, int millis){
 	float y2 = y1 + datplayer->y_vel*millis;
 	// these are for getting where there is a collision
 	float x,y;
+	
 	// if there is a collision, don't move
-	if( is_collision(x1,y1, x2,y2, &x,&y) ){ 
+	
+	if( is_collision(x1,y1,datplayer->width,datplayer->height, x2,y2, &x,&y) ){ 
 		datplayer->x_pos = x;
 		datplayer->y_pos = y;
 		datplayer->onTheGround = true;
 		datplayer->y_accel = 0;
 		datplayer->y_vel = 0;
 	}
+	
 	// otherwise, if there is no collision, move!
 	else{
 		datplayer->x_pos = x2;
@@ -135,14 +163,17 @@ void move_player(struct playerData *datplayer, int millis){
 }
 
 
+
 /// evaluate the physics of the player's motion.
 void evaluate_player_movement(struct playerData *datplayer, int keyup, int keyleft, int keydown, int keyright){
 	//----------------------------------------------------
 	// time stuff
 	//----------------------------------------------------
-	static int previousTicks = 0;						// the previous cycle's ticks (milliseconds since SDL library initialized) default to 0
-	int currentTicks = SDL_GetTicks();				// the current cycle's ticks (milliseconds since SDL library initialized)
+	static int previousTicks = 0;				// the previous cycle's ticks (milliseconds since SDL library initialized) default to 0
+	int currentTicks = SDL_GetTicks();			// the current cycle's ticks (milliseconds since SDL library initialized)
 	int millis = currentTicks - previousTicks;	// the difference in ticks (the time that has passed since the last cycle in milliseconds)
+	if(millis <= 0) return; 					// don't check player movement when time stops or runs backwards.
+	previousTicks = currentTicks;				// store current ticks in the previous ticks variable. it will be used next time.
 	//----------------------------------------------------
 	// checking key states
 	//----------------------------------------------------
@@ -170,23 +201,14 @@ void evaluate_player_movement(struct playerData *datplayer, int keyup, int keyle
 		datplayer->x_vel = -datplayer->walkSpeed;	// move left
 	}
 	
-	// don't check player movement when time stops or runs backwards.
-	if(millis <= 0) return;
-	
 	//move the player according to the player's velocity.
 	move_player(datplayer, millis);
-	// add velocities*time to the position
-	//datplayer->x_pos += datplayer->x_vel*millis;	// these should no longer be needed now that I have the move_player() function
-	//datplayer->y_pos += datplayer->y_vel*millis;
 	
 	// add accelerations*time to the velocities
 	datplayer->y_vel += datplayer->y_accel*millis;
 	datplayer->y_vel += datplayer->y_accel*millis;
 	
-	// limit the velocity of the player
+	// limit the velocity of the player to the terminal velocity
 	if(datplayer->y_vel > TERMINAL_VELOCITY) datplayer->y_vel = TERMINAL_VELOCITY;
 	if(datplayer->y_vel < -TERMINAL_VELOCITY) datplayer->y_vel = -TERMINAL_VELOCITY;
-	
-	// store current ticks in the previous ticks variable. it will be used next time.
-	previousTicks = currentTicks;
 }

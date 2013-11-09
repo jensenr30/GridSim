@@ -88,7 +88,7 @@ int main( int argc, char* args[] )
 	gen_world(w_normal,0);
 	int i,j;
 	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
-		for(j=600; j<GRID_HEIGHT_ELEMENTS; j++){
+		for(j=720; j<GRID_HEIGHT_ELEMENTS; j++){
 			grid[i][j].mat = m_rock;
 		}
 	}
@@ -249,9 +249,7 @@ int main( int argc, char* args[] )
 		
 		//checks if the mouse is held or not
         if(mouseStatusLeft == 1 && mouseModifier == 0){
-			//make sure the mouse isn't inside either of the two GUIs.
-			//if(y >= 50 && x < SCREEN_WIDTH - 200)
-			//	setcell(x, y, currentMat);
+			grid[x/CELL_SIZE+(int)player.x_pos-GRID_WIDTH/2][y/CELL_SIZE+(int)player.y_pos-GRID_HEIGHT/2].mat = m_earth;
 		}
 		
         
@@ -307,7 +305,7 @@ int main( int argc, char* args[] )
         SDL_FillRect(screen, &playerRect, 0xff00ff);
         
         // print the debugging information to the screen.
-        if(keyF3) print_debugging_information();
+        if(keyF3) print_debugging_information(x,y);
 		
         
         //updates the screen

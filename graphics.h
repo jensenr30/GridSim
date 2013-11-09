@@ -46,7 +46,7 @@ void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
 
 
 
-void print_debugging_information(){
+void print_debugging_information(int mousex, int mousey){
 	//----------------------------------------------------
 	// PRINT PLAYER POSITION INFORMATION
 	//----------------------------------------------------
@@ -77,7 +77,25 @@ void print_debugging_information(){
 	
 	
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
-	apply_surface(135, -7, textSurface, screen);							// apply text
+	apply_surface(145, -7, textSurface, screen);							// apply text
+	SDL_FreeSurface(textSurface);
+	//----------------------------------------------------
+	// PRINT MOUSE LOCATION INFO
+	//----------------------------------------------------
+	strcpy(textMessage, "x=");							// "x="
+	itoa(mousex, textDummy, 10);						// generate string of the mousex value
+	strcat(textMessage, textDummy);						// "x=1920"
+	
+	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
+	apply_surface(300, -7, textSurface, screen);						// apply text
+	SDL_FreeSurface(textSurface);
+	
+	strcpy(textMessage, "y=");							// "y="
+	itoa(mousey, textDummy, 10);						// generate string of the mousey value
+	strcat(textMessage, textDummy);						// "y=1080"
+	
+	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
+	apply_surface(372, -7, textSurface, screen);						// apply text
 	SDL_FreeSurface(textSurface);
 	//----------------------------------------------------
 	// PRINT TICKS INFORMATION
@@ -99,6 +117,17 @@ void print_debugging_information(){
 		strcat(textMessage,"0");
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
 	apply_surface(3, 33, textSurface, screen);						// apply text
+	SDL_FreeSurface(textSurface);
+	//----------------------------------------------------
+	// PRINT collision
+	//----------------------------------------------------
+	strcpy(textMessage,"collis=");
+	if(is_mat_in_rect(player.x_pos,player.y_pos,player.width, player.height))
+		strcat(textMessage,"1");
+	else
+		strcat(textMessage,"0");
+	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
+	apply_surface(150, 33, textSurface, screen);						// apply text
 	SDL_FreeSurface(textSurface);
 }
 

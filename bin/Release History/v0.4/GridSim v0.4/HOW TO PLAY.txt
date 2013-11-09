@@ -33,6 +33,9 @@ P
 F1
 		world generation (in development)
 
+F3
+		debug screen
+
 Left  Arrow Key
 		speed up the simulation
 

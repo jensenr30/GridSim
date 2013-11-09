@@ -68,7 +68,7 @@ int main( int argc, char* args[] )
 	
 	// these keep track of the WASD keys.
 	int keyw=0, keya=0, keys=0, keyd=0;
-	bool keyF3=0;
+	bool keyF3=true;
 	/*
 	//unsigned lastPanTime = 0;
 	bool alt = 0; // this keeps track of the state of the alt key
@@ -86,6 +86,12 @@ int main( int argc, char* args[] )
 	
 	//generate a world to begin the game
 	gen_world(w_normal,0);
+	int i,j;
+	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
+		for(j=600; j<GRID_HEIGHT_ELEMENTS; j++){
+			grid[i][j].mat = m_rock;
+		}
+	}
 	CELL_SIZE = 8;
 	
 	// get default player data.
@@ -298,7 +304,7 @@ int main( int argc, char* args[] )
 		playerRect.w = CELL_SIZE*player.width;
 		playerRect.h = CELL_SIZE*player.height;
         // print the character
-        SDL_FillRect(screen, &playerRect, 0x7f7f23);
+        SDL_FillRect(screen, &playerRect, 0xff00ff);
         
         // print the debugging information to the screen.
         if(keyF3) print_debugging_information();

@@ -60,7 +60,7 @@ void init_player_attributes(struct playerData *datplayer){
 
 
 
-#define MIN_COLLISION_STEPS 3
+#define MIN_COLLISION_STEPS 10
 /// this checks to see if there is a collision with a block between starting point (x1,y1) and ending point (x2,y2).
 // if there is a collision, the x and y values are set to the last valid cell.
 // returns true if the player makes it alright
@@ -81,43 +81,25 @@ bool is_collision(float x1, float y1, float x2, float y2, float *x_collision, fl
 	int i,j; // these are for indexing
 	float x,y; // these are the intermediate values when checking for obstacles on the line between the two points
 	
-	
 	// if there is a greater change in y than there is in x
-	if(absval_diffy > absval_diffx){				/// index through y
-		// get y1 to be less than or equal to y2 swap the points if necessary
-		if(y1 > y2){
-			int temp = y1;
-			y1 = y2;
-			y2 = temp;
-			temp = x1;
-			x1 = x2;
-			x2 = temp;
-		}
-		for(  j=0,y=y1;  j<=steps&&y<=y2;  j++,y=y1+absval_diffy*(j/(steps))  ){
+	if(absval_diffy >= absval_diffx){				/// index through y
+		for(  j=1,y=y1;  j<=steps&&y<=y2;  j++,y=y1+(y2-y1)*(j/(steps))  ){
 			x = x1 + (x2-x1)*(j/steps); // calculate x index
 			if(mats[grid[(int)x][(int)y].mat].collision == true){
-				*x_collision = x1 + (x2-x1)*((j-1)/steps);			// report last valid x value
-				*y_collision = y1 + absval_diffy*((j-1)/steps);		// report valid y value
-				return true;										// tell the caller that there WAS in fact a collision
+				*x_collision = x1 + (x2-x1)*((j-1)/steps);		// report last valid x value
+				*y_collision = y1 + (y2-y1)*((j-1)/steps);		// report valid y value
+				return true;									// collision detected
 			}
 		}
 	}
+	// if there is a greater change in x than there is in y
 	else{											/// index through x
-		// get x1 to be less than or equal to x2. swap the points if necessary
-		if(x1 > x2){
-			int temp = y1;
-			y1 = y2;
-			y2 = temp;
-			temp = x1;
-			x1 = x2;
-			x2 = temp;
-		}
-		for(  i=1,x=x1;  i<=steps&&x<=x2;  i++,x=x1+absval_diffx*(i/(steps))  ){
+		for(  i=1,x=x1;  i<=steps;  i++,x=x1+(x2-x1)*(i/(steps))  ){
 			y = y1 + (y2-y1)*(i/steps); // calculate x index
 			if(mats[grid[(int)x][(int)y].mat].collision == true){
-				*x_collision = x;	// report collision x value
-				*y_collision = y;	// report collision y value
-				return true;		// collision detected
+				*x_collision = x1 + (x2-x1)*((i-1)/steps);	// report collision x value
+				*y_collision = y1 + (y2-y1)*((i-1)/steps);	// report collision y value
+				return true;								// collision detected
 			}
 		}
 	}
@@ -140,7 +122,7 @@ void move_player(struct playerData *datplayer, int millis){
 	// if there is a collision, don't move
 	if( is_collision(x1,y1, x2,y2, &x,&y) ){ 
 		datplayer->x_pos = x;
-		datplayer->y_pos = (int)y; // round down (which means you will be standing on top of a block. not in it.)
+		datplayer->y_pos = y;
 		datplayer->onTheGround = true;
 		datplayer->y_accel = 0;
 		datplayer->y_vel = 0;

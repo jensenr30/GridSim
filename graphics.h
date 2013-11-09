@@ -66,6 +66,7 @@ void print_debugging_information(){
 	
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
 	apply_surface(3, -7, textSurface, screen);							// apply text
+	SDL_FreeSurface(textSurface);
 	
 	strcpy(textMessage," y_pos=");						// "y_pos="
 	itoa((int)player.y_pos,textDummy,10);				// generate integer portion of y_pos in string form
@@ -77,6 +78,7 @@ void print_debugging_information(){
 	
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
 	apply_surface(135, -7, textSurface, screen);							// apply text
+	SDL_FreeSurface(textSurface);
 	//----------------------------------------------------
 	// PRINT TICKS INFORMATION
 	//----------------------------------------------------
@@ -86,6 +88,7 @@ void print_debugging_information(){
 	
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
 	apply_surface(3, 13, textSurface, screen);						// apply text
+	SDL_FreeSurface(textSurface);
 	//----------------------------------------------------
 	// PRINT onTheGround
 	//----------------------------------------------------
@@ -96,6 +99,7 @@ void print_debugging_information(){
 		strcat(textMessage,"0");
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
 	apply_surface(3, 33, textSurface, screen);						// apply text
+	SDL_FreeSurface(textSurface);
 }
 
 

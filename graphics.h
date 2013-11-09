@@ -129,6 +129,9 @@ void print_debugging_information(int mousex, int mousey){
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
 	apply_surface(150, 33, textSurface, screen);						// apply text
 	SDL_FreeSurface(textSurface);
+	#if(0)
+	//printf("player.y_pos = %f\n",player.y_pos);
+	#endif
 }
 
 

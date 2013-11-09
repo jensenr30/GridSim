@@ -3,7 +3,7 @@
 #define DEFAULT_PLAYER_HEIGHT	3.0f
 
 // jump velocity in cells/millisecond (positive by SDL coordinate convention)
-#define GRAVITY_ACCEL 0.00022f
+#define GRAVITY_ACCEL 0.00018f
 // the fastest you can ever travel in cells/millsecond (positive by SDL coordinate convention)
 #define TERMINAL_VELOCITY 0.33f
 
@@ -25,6 +25,9 @@ struct playerData{
 	// this is the size of the user's avatar
 	float height;
 	float width;
+	
+	//the color of the player
+	int color;
 	
 	// the speed in cells/millisecond at which the player ascends upwards when jumping. (negative by SDL coordinate convention)
 	float jumpVelocity;
@@ -49,14 +52,37 @@ void init_player_attributes(struct playerData *datplayer){
 	datplayer->height = DEFAULT_PLAYER_HEIGHT;
 	
 	//set default jump velocity. this is negative (following the SDL coordinate convention)
-	datplayer->jumpVelocity = -0.070;
+	datplayer->jumpVelocity = -0.110;
 	
 	// set default walking speed. this is used for walking left and right. so just enter a positive value. evaluate_player_movement() will do the rest.
-	datplayer->walkSpeed = 0.026;
+	datplayer->walkSpeed = 0.045;
 	
 	// set default standing on ground state
-	datplayer->onTheGround = true;
+	datplayer->onTheGround = false;
+	
+	datplayer->color = 0xff0000;
 }
+
+bool is_player_standing_on_collision_material(struct playerData *datplayer){
+	//if(mats[grid[(int)datplayer->x_pos][(int)datplayer->y_pos+1].mat].collision == false && mats[grid[(int)datplayer->x_pos+1][(int)datplayer->y_pos+1].mat].collision == false)
+	
+	// if the user is not on an integer boundary,
+	//if(datplayer->y_pos - (int)datplayer->y_pos != 0) return false; //if the user is not at an integer boundary, then the user is not standing on anything.
+	
+	//find the row below the player's feet.
+	int rowbelow = (int)datplayer->y_pos;
+	
+	// find range of columns to look through (depending on the width of the player.
+	//int istart = (int)datplayer->x_pos;
+	//istop = istart + 
+	
+	// if the material the user is standing on is a collision type material AND if the user is standing on an integer boundary, then the user is said to be "standing on a collision material".
+	if(mats[grid[(int)datplayer->x_pos][rowbelow].mat].collision && datplayer->y_pos - (int)datplayer->y_pos == 0 )
+		return true;
+	else
+		return false;
+}
+
 
 
 // x is the left-most point of the rectangle
@@ -65,22 +91,25 @@ void init_player_attributes(struct playerData *datplayer){
 // height extends upwards
 bool is_mat_in_rect(float x, float y, float width, float height){
 	int i,j;
-	
 	int startj = 0;
 	if(x - (int)x != 0) width++;			// if the float x value is not exactly on an integer value, then evaluate one more cell to the right.
-	if(y - (int)y != 0){height++;startj=1;}	// if the float y value is not exactly on an integer value, then evaluate one more cell upward.
+	if(y - (int)y != 0)height++;	// if the float y value is not exactly on an integer value, then evaluate one more cell upward.
+	else startj = 1;
 	
 	for(i=0; i<width; i++){
 		for(j=startj; j<height; j++){
-			if(mats[grid[(int)x+i][(int)y-j].mat].collision) return true;
+			if(mats[grid[(int)x+i][(int)y-j].mat].collision){
+				return true;
+			}
 		}
 	}
 	return false;
+	
 }
 
 
-/*
-#define MIN_COLLISION_STEPS 5
+
+#define MIN_COLLISION_STEPS 10.0f
 /// this checks to see if there is a collision with a block between starting point (x1,y1) and ending point (x2,y2).
 // if there is a collision, the x and y values are set to the last valid cell.
 // returns true if the player makes it alright
@@ -91,10 +120,9 @@ bool is_mat_in_rect(float x, float y, float width, float height){
 // width extends the target rectangle to the right
 // height extends the target rectangle upwards. (these widths are not the conventional SDL rectangle widths.
 bool is_collision(float x1, float y1, float width, float height, float x2, float y2, float *x_collision, float *y_collision){
-	
 	// this is the number of step we will take along the line from (x1,y1) to (x2,y2)
 	// the square root term is used as a scaling factor. the farther the distance is to travel, the more intermediate steps should be taken.
-	int steps = MIN_COLLISION_STEPS + sqrtf( (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1) );
+	float steps = MIN_COLLISION_STEPS + sqrtf( (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1) );
 	
 	//calculate the absolute value of the difference in the x's and y's
 	float absval_diffx = x2-x1;
@@ -107,11 +135,11 @@ bool is_collision(float x1, float y1, float width, float height, float x2, float
 	
 	// if there is a greater change in y than there is in x
 	if(absval_diffy >= absval_diffx){				/// index through y
-		for(  j=1,y=y1;  j<=steps&&y<=y2;  j++,y=y1+(y2-y1)*(j/(steps))  ){
+		for(  j=1,y=y1;  j<=steps&&y<=y2;  j++,y=y1+(y2-y1)*(j/steps)  ){
 			x = x1 + (x2-x1)*(j/steps); // calculate x index
 			if(is_mat_in_rect(x,y,width,height) == true){
 				*x_collision = (x1 + (x2-x1)*((j-1)/steps));		// report last valid x value
-				*y_collision = (int)(y1 + (y2-y1)*((j-1)/steps));		// report valid y value
+				*y_collision = (y1 + (y2-y1)*((j-1)/steps));	// report valid y value
 				return true;										// collision detected
 			}
 		}
@@ -121,8 +149,7 @@ bool is_collision(float x1, float y1, float width, float height, float x2, float
 		for(  i=1,x=x1;  i<=steps;  i++,x=x1+(x2-x1)*(i/(steps))  ){
 			y = y1 + (y2-y1)*(i/steps); // calculate x index
 			if(is_mat_in_rect(x,y,width,height) == true){
-				*x_collision = (int)(x1 + (x2-x1)*((i-1)/steps));// report collision x value
-				if(x2 > x1) *x_collision += 0.9999;
+				*x_collision = (x1 + (x2-x1)*((i-1)/steps));// report collision x value
 				*y_collision = (y1 + (y2-y1)*((i-1)/steps));	// report collision y value
 				return true;									// collision detected
 			}
@@ -132,7 +159,8 @@ bool is_collision(float x1, float y1, float width, float height, float x2, float
 	
 	return false; // no collision
 }
-*/
+
+
 
 
 /// move the player from point a to point b
@@ -145,17 +173,59 @@ void move_player(struct playerData *datplayer, int millis){
 	// these are for getting where there is a collision
 	float x,y;
 	
-	// if there is a collision, don't move
 	
-	if( is_collision(x1,y1,datplayer->width,datplayer->height, x2,y2, &x,&y) ){ 
-		datplayer->x_pos = x;
-		datplayer->y_pos = y;
-		datplayer->onTheGround = true;
-		datplayer->y_accel = 0;
-		datplayer->y_vel = 0;
+	if( is_collision(x1,y1,datplayer->width,datplayer->height, x2,y2, &x,&y) ){
+		bool xonint = 0;				// default state is false
+		bool yonint = 0;				// default state is false
+		if(x - (int)x == 0) xonint = 1;	// check to see if the x value is on an integer value (e.g. 540.00000)
+		if(y - (int)y == 0) yonint = 1;	// check to see if the y value is on an integer value (e.g. 763.00000)
+		int columnleft  = (int)x-1;		// this is the column left of the player
+		int rowbelow = (int)y+1;		// this is the row below the player
+		if(yonint) rowbelow--;			// decrement
+		
+		// these are for keeping track of ing which directions there are materials blocking the player's movement.
+		int hitdown = true, hitup = true, hitleft = true, hitright = true;
+		int modifiedx = false, modifiedy = false;
+		/// FIX THIS!!
+		/// RIGHT NOW, THIS ONLY CHECKS ONE BLOCK AROUND THE PLAYER.
+		/// REWRITE IT SO THAT IT CHECKS ALL BLOCKS IN ALL FOUR DIRECTIONS OF THE PLAYER (USE FOR LOOPS AND USE THE PLAYER'S HEIGHT AND WIDTH AS LOOP BOUNDS)
+		//does the player hit a material below?
+		if(mats[grid[(int)x][rowbelow].mat].collision == true) hitdown = true;
+		//does the player hit a material below?
+		if(mats[grid[(int)x][rowbelow-1-(int)datplayer->height].mat].collision == true) hitup = true;
+		// does the player hit a material to the left?
+		if(mats[grid[columnleft][rowbelow-1].mat].collision == true) hitleft = true;
+		// does the player hit a material to the right?
+		if(mats[grid[columnleft+1+(int)datplayer->width][rowbelow-1].mat].collision == true) hitright = true;
+		
+		
+		if(hitdown){
+			datplayer->y_pos = rowbelow;
+			datplayer->onTheGround = true;
+			datplayer->y_vel = 0;
+			modifiedy = true;
+		}
+		/*
+		if(hitleft){
+			datplayer->x_pos = columnleft+1;
+			datplayer->x_vel = 0;
+			modifiedx = true;
+		}
+		if(hitright){
+			datplayer->x_pos = columnleft+1+datplayer->width;
+			datplayer->x_vel = 0;
+			modifiedx = true;
+		}
+		
+		if(!modifiedx){
+			datplayer->x_pos = x2;
+		}
+		*/
+		if(!modifiedy){
+			datplayer->y_pos = y2;
+		}
+			
 	}
-	
-	// otherwise, if there is no collision, move!
 	else{
 		datplayer->x_pos = x2;
 		datplayer->y_pos = y2;
@@ -177,11 +247,18 @@ void evaluate_player_movement(struct playerData *datplayer, int keyup, int keyle
 	//----------------------------------------------------
 	// checking key states
 	//----------------------------------------------------
-	// check if the player is on the ground.
-	if(mats[grid[(int)datplayer->x_pos][(int)datplayer->y_pos+1].mat].collision == false && mats[grid[(int)datplayer->x_pos+1][(int)datplayer->y_pos+1].mat].collision == false){
+	// check if the player is in the air
+	
+	if( is_player_standing_on_collision_material(&player)){
+		datplayer->onTheGround = true;
+		datplayer->y_accel = 0;
+		datplayer->y_vel = 0;
+	}
+	else{
 		datplayer->onTheGround = false;
 		datplayer->y_accel = GRAVITY_ACCEL;
 	}
+	
 	// jump
 	if(keyup && datplayer->onTheGround){
 		datplayer->y_vel = datplayer->jumpVelocity;

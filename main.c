@@ -98,7 +98,7 @@ int main( int argc, char* args[] )
 	init_player_attributes(&player);
 	
 	player.x_pos = GRID_WIDTH_ELEMENTS/2;
-	player.y_pos = GRID_HEIGHT_ELEMENTS/2;
+	player.y_pos = 715;
 	
 	
     //While the user hasn't quit
@@ -297,12 +297,12 @@ int main( int argc, char* args[] )
         
         //generate player rectangle
         SDL_Rect playerRect;
-		playerRect.x = SCREEN_WIDTH/2  - (CELL_SIZE*player.width)/2;
-		playerRect.y = SCREEN_HEIGHT/2 - (CELL_SIZE*player.height)/2;
+		playerRect.x = CELL_SIZE*(GRID_WIDTH/2);
+		playerRect.y = CELL_SIZE*(GRID_HEIGHT/2 - player.height);
 		playerRect.w = CELL_SIZE*player.width;
 		playerRect.h = CELL_SIZE*player.height;
         // print the character
-        SDL_FillRect(screen, &playerRect, 0xff00ff);
+        SDL_FillRect(screen, &playerRect, player.color);
         
         // print the debugging information to the screen.
         if(keyF3) print_debugging_information(x,y);

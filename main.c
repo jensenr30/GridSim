@@ -68,6 +68,7 @@ int main( int argc, char* args[] )
 	
 	// these keep track of the WASD keys.
 	int keyw=0, keya=0, keys=0, keyd=0;
+	bool keyF3=0;
 	/*
 	//unsigned lastPanTime = 0;
 	bool alt = 0; // this keeps track of the state of the alt key
@@ -166,18 +167,18 @@ int main( int argc, char* args[] )
 				set_window_size(event.resize.w, event.resize.h);
 			}
 			
-            if( event.type == SDL_KEYDOWN ){								///keyboard event
+            if( event.type == SDL_KEYDOWN ){		///keyboard event
                 switch( event.key.keysym.sym ){
-				case SDLK_UP: break; //change block type up
-				case SDLK_DOWN: break; // change block type down
-				case SDLK_c: reset_cells();  break;//clear the screen
-				case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; //speeds up the game
+				case SDLK_UP: break; 				//change block type up
+				case SDLK_DOWN: break; 				// change block type down
+				case SDLK_c: reset_cells();  break;	//clear the screen
+				case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; 									//speeds up the game
 				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
-				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; //pause the game
-				case SDLK_ESCAPE: quit = true; // quit with escape
+				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; 	//pause the game
+				case SDLK_ESCAPE: quit = true; 		// quit with escape
 				case SDLK_F1: gen_world(w_normal,wf_display_generation); break; // generate a world
-				
-				case SDLK_w: keyw=1; break; // store key state
+				case SDLK_F3: keyF3 ^= 1; break;	// toggle printing debugging information
+				case SDLK_w: keyw=1; break; 		// store key state
 				case SDLK_a: keya=1; break;
 				case SDLK_s: keys=1; break;
 				case SDLK_d: keyd=1; break;
@@ -202,12 +203,10 @@ int main( int argc, char* args[] )
 			}
 			if( event.type == SDL_KEYUP ){								///keyboard event
                 switch( event.key.keysym.sym ){
-				
-				case SDLK_w: keyw=0; break;//lastPanTime=0; break; // store key state
-				case SDLK_a: keya=0; break;//lastPanTime=0; break;
-				case SDLK_s: keys=0; break;//lastPanTime=0; break;
-				case SDLK_d: keyd=0; break;//lastPanTime=0; break;
-				
+				case SDLK_w: keyw=0; break; // store key state
+				case SDLK_a: keya=0; break;
+				case SDLK_s: keys=0; break;
+				case SDLK_d: keyd=0; break;
 				/*
 				case SDLK_LALT:
 				case SDLK_RALT:
@@ -236,13 +235,9 @@ int main( int argc, char* args[] )
 			//#endif
 		}
 		*/
-		float itter;
-		//temporary player avatar handling
-		if(keyw) {player.y_pos -= 0.1*itter; itter *= 0.99; }
-		else itter = 5;
-		if(keya) player.x_pos -= 0.1;
-		if(keys) player.y_pos += 0.1;
-		if(keyd) player.x_pos += 0.1;
+		
+		//evaluate the player's movements.
+		evaluate_player_movement(&player, keyw, keya, keys, keyd);
 		
 		//grid[(int)player.x_pos][(int)player.y_pos].mat = m_test2; // this can produce segmentation fault errors without the proper checks and balances (which it currently does not have)
 		
@@ -285,7 +280,7 @@ int main( int argc, char* args[] )
         
         
         //these are how far off the grid the player is.
-		float adjust_x = (player.x_pos - ((int)player.x_pos) )*CELL_SIZE;
+		float adjust_x = (player.x_pos - ((int)player.x_pos) )*CELL_SIZE/3;
 		float adjust_y = (player.y_pos - ((int)player.y_pos) )*CELL_SIZE;
         gridSurfaceRect.x = (int)adjust_x;//player.x_pos*CELL_SIZE;
         gridSurfaceRect.y = (int)adjust_y;//player.y_pos*CELL_SIZE;
@@ -298,12 +293,15 @@ int main( int argc, char* args[] )
         
         //generate player rectangle
         SDL_Rect playerRect;
-		playerRect.x = SCREEN_WIDTH/2  - CELL_SIZE*player.width;
-		playerRect.y = SCREEN_HEIGHT/2 - CELL_SIZE*player.height;
+		playerRect.x = SCREEN_WIDTH/2  - (CELL_SIZE*player.width)/2;
+		playerRect.y = SCREEN_HEIGHT/2 - (CELL_SIZE*player.height)/2;
 		playerRect.w = CELL_SIZE*player.width;
 		playerRect.h = CELL_SIZE*player.height;
         // print the character
         SDL_FillRect(screen, &playerRect, 0x7f7f23);
+        
+        // print the debugging information to the screen.
+        if(keyF3) print_debugging_information();
 		
         
         //updates the screen

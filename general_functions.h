@@ -99,8 +99,9 @@ int load_files(){
     
     //open font file
     font = TTF_OpenFont( "FreeMonoBold.ttf", 22 );
+    font16 = TTF_OpenFont( "FreeMonoBold.ttf", 16);
     
-    if (font == NULL)
+    if (font == NULL || font16 == NULL)
     {
         MessageBox(NULL, "all your base are belong to us", "Hello Gentelmen", MB_OK);
     }

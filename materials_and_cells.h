@@ -109,6 +109,9 @@ struct material {
 	// therefore, a gravity of -4 is actually a slope of 4^(-1) = 1/4.
 	// isn't math fun?
 	char gravity;
+	
+	// true or false: does this material have collision properties?
+	bool collision;
 
 	//material name
 	char *name;
@@ -127,9 +130,10 @@ void set_default_material_attributes(){
 	int i;
 	//DEFAULT MATERIAL VALUES:
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
-        mats[i].name = NULL;		// default no name
-		mats[i].gravity = 0;		// is not affected by gravity
-		mats[i].color = 0x000000;	//default color is black
+        mats[i].name = NULL;			// default no name
+		mats[i].gravity = 0;			// is not affected by gravity
+		mats[i].color = 0x000000;		//default color is black
+		mats[i].collision = false;		// default is a non-collision type material
 	}
 }
 
@@ -142,9 +146,11 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_earth].name = "Earth";
 	mats[m_earth].color = 0x8b672d;
+	mats[m_earth].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_plant].name = "Plant";
     mats[m_plant].color = 0x008951;//0x20e112;
+    mats[m_plant].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";
 	mats[m_water].gravity = -32;
@@ -163,17 +169,21 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_rock].name = "Rock";
 	mats[m_rock].color = 0x5A5651;
+	mats[m_rock].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_rubble].name = "Rubble";
 	mats[m_rubble].color = 0x715A63;
 	mats[m_rubble].gravity = 3;
+	mats[m_rubble].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_log].name = "Log";
 	mats[m_log].color = 0x7b5126;
+	mats[m_log].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_sand].name = "Sand";
 	mats[m_sand].gravity = -2;
 	mats[m_sand].color = 0xcfc1aa;
+	mats[m_sand].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	
 //-------------------------------------------------------------------------------------------------------------------------------

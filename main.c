@@ -175,19 +175,17 @@ int main( int argc, char* args[] )
 			
             if( event.type == SDL_KEYDOWN ){		///keyboard event
                 switch( event.key.keysym.sym ){
-				case SDLK_UP: break; 				//change block type up
-				case SDLK_DOWN: break; 				// change block type down
-				case SDLK_c: reset_cells();  break;	//clear the screen
-				case SDLK_LEFT: if(paused != 1) {sleepTime /= 2;} break; 									//speeds up the game
-				case SDLK_RIGHT: if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
-				case SDLK_SPACE: if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; 	//pause the game
-				case SDLK_ESCAPE: quit = true; 		// quit with escape
-				case SDLK_F1: gen_world(w_normal,wf_display_generation); break; // generate a world
-				case SDLK_F3: keyF3 ^= 1; break;	// toggle printing debugging information
-				case SDLK_w: keyw=1; break; 		// store key state
-				case SDLK_a: keya=1; break;
-				case SDLK_s: keys=1; break;
-				case SDLK_d: keyd=1; break;
+				case SDLK_c:		reset_cells();  break;	//clear the screen
+				case SDLK_LEFT:		if(paused != 1) {sleepTime /= 2;} break; 									//speeds up the game
+				case SDLK_RIGHT:	if(paused != 1) {if(sleepTime == 0){sleepTime = 1;} {sleepTime *= 2;} if(sleepTime > 2000) {sleepTime = 2000;}} break; //slows down the game
+				case SDLK_SPACE:	if(paused == 0) {paused = 1;} else if(paused == 1) {paused = 0;} break; 	//pause the game
+				//case SDLK_ESCAPE: quit = true; 		// quit with escape
+				case SDLK_F1:		gen_world(w_normal,wf_display_generation); break; // generate a world
+				case SDLK_F3:		keyF3 ^= 1; break;	// toggle printing debugging information
+				case SDLK_w:		keyw=1; break; 		// store key state
+				case SDLK_a:		keya=1; break;
+				case SDLK_s:		keys=1; break;
+				case SDLK_d:		keyd=1; break;
 				
 				/*
 				case SDLK_LALT:
@@ -284,14 +282,14 @@ int main( int argc, char* args[] )
 		screenRect.h = SCREEN_HEIGHT;
 		
 		// generate the grid image
-        generate_grid_surface(gridSurface);wa
+        generate_grid_surface(gridSurface);
         
         
         //these are how far off the grid the player is.
-		float adjust_x = (player.x_pos - ((int)player.x_pos) )*CELL_SIZE/3;
-		float adjust_y = (player.y_pos - ((int)player.y_pos) )*CELL_SIZE;
-        gridSurfaceRect.x = (int)adjust_x;//player.x_pos*CELL_SIZE;
-        gridSurfaceRect.y = (int)adjust_y;//player.y_pos*CELL_SIZE;
+		//float adjust_x = (player.x_pos - ((int)player.x_pos) )*CELL_SIZE/3;
+		//float adjust_y = (player.y_pos - ((int)player.y_pos) )*CELL_SIZE;
+        gridSurfaceRect.x = 0;//(int)adjust_x;//player.x_pos*CELL_SIZE;
+        gridSurfaceRect.y = 0;//(int)adjust_y;//player.y_pos*CELL_SIZE;
         gridSurfaceRect.w = SCREEN_WIDTH;
         gridSurfaceRect.h = SCREEN_HEIGHT;
         // apply grid image

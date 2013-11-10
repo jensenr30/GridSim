@@ -14,11 +14,11 @@ Released ####-##-## (#### ##th, 2013) ##:## PM GMT -6:00
 
 >	Added a character the the camera follows aorund the map.
 
->	Added manual world generation with the F1 key.
+>	Added manual world generation via the F1 key.
 
 >	Materials no longer dissapear out the bottom of the screen.
 
->	Added a debug screen that is accessable by pressing the F3 key.
+>	Added a debug screen. See it viato the F3 key.
 
 --------------------------------------------------------------
 >>>>		Developers:		<<<<

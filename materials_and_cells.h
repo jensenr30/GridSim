@@ -23,6 +23,9 @@ int CELL_SIZE = 16;
 #define GRID_WIDTH_ELEMENTS 1920
 #define GRID_HEIGHT_ELEMENTS 1080
 
+// this is a handy little definition to check to see if the some x and y values are within the grid boundaries
+#define within_grid_elements(x,y) (x>=0 && x<GRID_WIDTH_ELEMENTS-1 && y>=0 && y<GRID_HEIGHT_ELEMENTS)
+
 //this is how many different types of materials there can be in the game.
 #define MAX_NUMBER_OF_UNIQUE_MATERIALS 100 // the materials (i.e. m_earth, m_spring) can have values from 0-99
 

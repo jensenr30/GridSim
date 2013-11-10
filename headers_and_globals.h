@@ -30,10 +30,14 @@
 unsigned int SCREEN_WIDTH = DEFAULT_SCREEN_WIDTH;
 unsigned int SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT;
 
+
+
 #define SCREEN_BPP 32
 
 //global variable that tells us if the game is paused or not
 int paused = 0;
+// global variable that tells you the FPS of the game.
+int FPS = 0;
 
 // The surfaces that will be used
 SDL_Surface *screen = 		NULL;

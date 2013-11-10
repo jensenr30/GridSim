@@ -26,7 +26,7 @@ struct playerData{
 	float height;
 	float width;
 	
-	//the color of the player
+	//the base color of the player
 	int color;
 	
 	// the speed in cells/millisecond at which the player ascends upwards when jumping. (negative by SDL coordinate convention)
@@ -60,7 +60,7 @@ void init_player_attributes(struct playerData *datplayer){
 	// set default state of standing on a collision materia
 	datplayer->onCollMat = false;
 	
-	datplayer->color = 0xff0000;
+	datplayer->color = 0x987a5c;
 }
 
 /// tests to see if the position is valid for the player to be
@@ -89,16 +89,18 @@ void evaluate_player_movement(struct playerData *datplayer, int keyup, int keyle
 	if(millis <= 0) return; 					// don't check player movement when time stops or runs backwards.
 	previousTicks = currentTicks;				// store current ticks in the previous ticks variable. it will be used next time.
 	ticksSinceMotion += millis;					// add to the cumulative number of milliseconds that have passed since last movement
-	
+	//----------------------------------------------------
+	// standing on collision material checking
+	//----------------------------------------------------
+	// check to see if the player is standing on a collision type material
 	if(mats[grid[datplayer->x_pos][datplayer->y_pos].mat].collision){
-		datplayer->onCollMat = true;
-		datplayer->y_accel = 0;
+		datplayer->onCollMat = true;			// set the player's "standing on collision material" flag to true
+		datplayer->y_accel = 0;					// set accelteration to 0. (as of 2013-11-10 this doesn't do anything)
 	}
 	else{
-		datplayer->onCollMat = false;
-		datplayer->y_accel = GRAVITY_ACCEL;
+		datplayer->onCollMat = false;			// set the player's "standing on collision material" flag to false
+		datplayer->y_accel = GRAVITY_ACCEL;		// set the player's y acceleration to acceleration due to gravity
 	}
-	
 	
 	///---------------------------------------------------
 	/// this section of the code is only temporary.
@@ -129,4 +131,16 @@ void evaluate_player_movement(struct playerData *datplayer, int keyup, int keyle
 			datplayer->y_pos += moveVert;	// apply motion
 		}
 	}
+	//----------------------------------------------------
+	// position boundaries checking and enforcement
+	//----------------------------------------------------
+	//check to see if the outside the bounds of the game screen.
+	if(datplayer->x_pos < 0)
+		datplayer->x_pos = 0;						// lower bound enforcement on x
+	if(datplayer->x_pos >= GRID_WIDTH_ELEMENTS)
+		datplayer->x_pos = GRID_WIDTH_ELEMENTS-1;	// upper bound enforcement on x
+	if(datplayer->y_pos < 0)
+		datplayer->y_pos = 0;						// lower bound enforcement on y
+	if(datplayer->y_pos >= GRID_HEIGHT_ELEMENTS)
+		datplayer->y_pos = GRID_HEIGHT_ELEMENTS-1;	// upper bound enforcement on y
 }

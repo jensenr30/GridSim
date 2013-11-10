@@ -146,7 +146,7 @@ void gen_world(int worldType, long long  unsigned int worldFlag){
 			// display the lines that were just printed
 			SDL_Flip(screen);
 			// wait for a bit
-			SDL_Delay(500);
+			SDL_Delay(100);
 		}
 	}
 	

@@ -1,7 +1,9 @@
-// this tells us how many more cells of the grid needs to be rendered in order to ensure that there is no loss of grid at the edge of the screen.
-#define EXTRA_GRID_SURFACE_LENGTHS 2
+
+
+
+
 void init_gridSurface(){
-	gridSurface = create_surface(GRID_WIDTH_ELEMENTS+EXTRA_GRID_SURFACE_LENGTHS*MAX_CELL_SIZE,GRID_HEIGHT_ELEMENTS+EXTRA_GRID_SURFACE_LENGTHS*MAX_CELL_SIZE);
+	gridSurface = create_surface(GRID_WIDTH_ELEMENTS,GRID_HEIGHT_ELEMENTS);
 }
 
 /// this will print to the screen each material in each cell.
@@ -16,6 +18,7 @@ void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
 	//this is the upper corner of where the screen starts displaying grid data.
 	int i_start = (int)( (player.x_pos) - GRID_WIDTH/2  );
 	int j_start = (int)( (player.y_pos) - GRID_HEIGHT/2 );
+	
 	// these are for indexing into the grid
 	int ig,jg;
 	//these are how far off the grid the player is.
@@ -23,16 +26,16 @@ void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
 	//float adjust_y = -(player.x_pos - ((int)player.x_pos) )*CELL_SIZE;
 	
 	// print out the grid
-	for(i = 0; i < GRID_WIDTH+EXTRA_GRID_SURFACE_LENGTHS; i++){
+	for(i = 0; i < GRID_WIDTH; i++){
 		// this is used to index into the grid
 		ig = i+i_start;
-		if(ig < 0) ig = 0; // if ig is less than the minimum bound, make it equal to the minimum array index value.
-		if(ig > GRID_WIDTH_ELEMENTS+2) break; // if ig is larger than the largest array index value, quit.
-        for(j = 0; j < GRID_HEIGHT+EXTRA_GRID_SURFACE_LENGTHS; j++){
+		if(ig < 0) continue; // if ig is less than the minimum bound, make it equal to the minimum array index value.
+		if(ig >= GRID_WIDTH_ELEMENTS) break; // if ig is larger than the largest array index value, quit.
+        for(j = 0; j < GRID_HEIGHT; j++){
         	// this is used to index into the grid
 			jg = j+j_start;
-			if(jg < 0) jg = 0; // if jg is less than the minimum bound, make it equal to the minimum bound
-			if(jg > GRID_HEIGHT_ELEMENTS+EXTRA_GRID_SURFACE_LENGTHS) break; // if jg is larger than the largest array index, quit.
+			if(jg < 0) continue; // if jg is less than the minimum bound, make it equal to the minimum bound
+			if(jg >= GRID_HEIGHT_ELEMENTS) break; // if jg is larger than the largest array index, quit.
 			
         	//only print the material if it is not air
 			if(grid[ig][jg].mat != m_air){
@@ -98,13 +101,20 @@ void print_debugging_information(int mousex, int mousey){
 	apply_surface(372, -7, textSurface, screen);						// apply text
 	SDL_FreeSurface(textSurface);
 	//----------------------------------------------------
-	// PRINT TICKS INFORMATION
+	// PRINT TICKS and FPS INFORMATION
 	//----------------------------------------------------
 	strcpy(textMessage, "Ticks=");						// "Ticks="
 	itoa(SDL_GetTicks(), textDummy, 10);				// generate string of the number of ticks
 	strcat(textMessage, textDummy);						// "Ticks=123456789"
 	
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
+	apply_surface(100, 13, textSurface, screen);						// apply text
+	SDL_FreeSurface(textSurface);
+	
+	strcpy(textMessage, "FPS=");									// "FPS="
+	itoa(FPS, textDummy, 10);										// generate string of the current FPS
+	strcat(textMessage, textDummy);									// "FPS=31"
+	textSurface = TTF_RenderText_Blended(font16,textMessage, white);// render text
 	apply_surface(3, 13, textSurface, screen);						// apply text
 	SDL_FreeSurface(textSurface);
 	//----------------------------------------------------

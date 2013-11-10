@@ -69,18 +69,13 @@ int main( int argc, char* args[] )
 	// these keep track of the WASD keys.
 	int keyw=0, keya=0, keys=0, keyd=0;
 	bool keyF3=true;
-	/*
-	//unsigned lastPanTime = 0;
-	bool alt = 0; // this keeps track of the state of the alt key
-	//these variables store the position of the user's cursor at the moment that the user decided to pan the screen
-	int mouse_x_when_pan=0;
-	int mouse_y_when_pan=0;
-	// these are for keeping track of the motion of the mouse when the user is panning. these keep the panning from being really jumpy.
-	// without them, there is a truncation error when adjusting the camera_x and camera_y materials and re-setting the mouse coordinates to its original state.
-	// these keep track of the truncation error and add it to the next operation so that the mouse motion feels fluid.
-	int remainder_panning_motion_x=0;
-	int remainder_panning_motion_y=0;
-	*/
+	
+	//these are used to calculating and keeping track of the FPS
+	int LastFPSUpdate = 0;
+	int ticksSinceLastFPSUpdate = 0;
+	int cumulativeFrames = 0;
+	int currentTicks = 0;
+	
 	//last minute verification that the initial start up values for the grid size and the camera positions are valid.
 	verify_grid_and_cell_size();
 	
@@ -246,14 +241,21 @@ int main( int argc, char* args[] )
 		
 		//grid[(int)player.x_pos][(int)player.y_pos].mat = m_test2; // this can produce segmentation fault errors without the proper checks and balances (which it currently does not have)
 		
-		//checks if the mouse is held or not
-        if(mouseStatusRight == 1 && mouseModifier == 0){
-			grid[x/CELL_SIZE+(int)player.x_pos-GRID_WIDTH/2][y/CELL_SIZE+(int)player.y_pos-GRID_HEIGHT/2].mat = m_earth;
+		//apply/remove material (test feature for debugging)
+		#if(1)
+		int xcell,ycell;
+		xcell = x/CELL_SIZE+(int)player.x_pos-GRID_WIDTH/2;
+		ycell = y/CELL_SIZE+(int)player.y_pos-GRID_HEIGHT/2;
+		if(within_grid_elements(xcell,ycell)){
+			//checks if the mouse is held or not
+			if(mouseStatusRight == 1 && mouseModifier == 0){
+				grid[xcell][ycell].mat = m_earth;
+			}
+			if(mouseStatusLeft == 1 && mouseModifier == 0){
+				grid[xcell][ycell].mat = m_air;
+			}
 		}
-		if(mouseStatusLeft == 1 && mouseModifier == 0){
-			grid[x/CELL_SIZE+(int)player.x_pos-GRID_WIDTH/2][y/CELL_SIZE+(int)player.y_pos-GRID_HEIGHT/2].mat = m_air;
-		}
-		
+		#endif
         
         //speed of gameplay
         countVar++;
@@ -308,10 +310,22 @@ int main( int argc, char* args[] )
         
         // print the debugging information to the screen.
         if(keyF3) print_debugging_information(x,y);
-		
         
         //updates the screen
         SDL_Flip( screen );
+        
+        //----------------------------------------------------
+		// FPS calculation and variable handling
+		//----------------------------------------------------
+        currentTicks = SDL_GetTicks();
+        // it is officially the next second
+        if(currentTicks >= ticksSinceLastFPSUpdate + 1000){
+			// calculate the FPS
+			FPS = cumulativeFrames;//(cumulativeFrames*1000 ) / (currentTicks-ticksSinceLastFPSUpdate);
+			cumulativeFrames=0;				// reset cumulative amount of frames
+			ticksSinceLastFPSUpdate = currentTicks;	// reset the last FPS update to the number of ticks now.
+        }
+        cumulativeFrames++;
 		
     }// end while(quit == false)
 

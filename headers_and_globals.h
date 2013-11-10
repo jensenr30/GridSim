@@ -42,6 +42,7 @@ int FPS = 0;
 // The surfaces that will be used
 SDL_Surface *screen = 		NULL;
 SDL_Surface *gridSurface =	NULL;
+SDL_Surface *skySurface =	NULL;
 SDL_Surface *text = 		NULL;
 SDL_Surface *icon = 		NULL;
 // The event structure that will be used

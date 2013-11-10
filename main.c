@@ -30,42 +30,17 @@ int main( int argc, char* args[] )
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
     
-    // initialize the surface that the grid data will be printed to.
-    init_gridSurface();
+    // create the surface that the grid data will be printed to.
+    gridSurface = create_surface(GRID_WIDTH_ELEMENTS,GRID_HEIGHT_ELEMENTS);
     
+    // these are used for displaying the grid and the sky
+    SDL_Rect screenRect, gridSurfaceRect;
     
-	/*
-	CELL_SIZE = 4;
-	int i;//
-	//putting test materials into grid
+    //create the skySurface
+    skySurface = create_surface(GRID_WIDTH_ELEMENTS,GRID_HEIGHT_ELEMENTS);
+    //generate sky gradient
+    generate_sky(skySurface, SCREEN_WIDTH, SCREEN_HEIGHT);
     
-    for(i=0; i<GRID_WIDTH; i++){
-		if(get_rand(1,4)==1)
-			grid[i+camera_x][GRID_HEIGHT-1-get_rand(7,15)+camera_y].mat = m_plant_root;
-		if(get_rand(1,10)==10)
-			grid[i+camera_x][camera_y+get_rand(20,35)].mat = m_spring;
-		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
-		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
-		grid[i+camera_x][camera_y+get_rand(30,34)+30].mat = m_earth;
-    }
-    */
-    sleepTime = 0;
-	//int i;//
-	//putting test materials into grid
-    
-    /*
-    for(i=7 ; i<GRID_WIDTH ; i+=15){
-		for(j=26 ; j<GRID_HEIGHT ; j+=20){
-			grid[i][j].mat = m_anti_scurge;
-		}
-    }
-    */
-    
-	//--------------------------------------
-	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
-	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
-	
-	
 	// these keep track of the WASD keys.
 	int keyw=0, keya=0, keys=0, keyd=0;
 	bool keyF3=true;
@@ -81,19 +56,14 @@ int main( int argc, char* args[] )
 	
 	//generate a world to begin the game
 	gen_world(w_normal,0);
-	int i,j;
-	for(i=0; i<GRID_WIDTH_ELEMENTS; i++){
-		for(j=720; j<GRID_HEIGHT_ELEMENTS; j++){
-			grid[i][j].mat = m_rock;
-		}
-	}
+	
 	CELL_SIZE = 8;
 	
 	// get default player data.
 	init_player_attributes(&player);
 	
 	player.x_pos = GRID_WIDTH_ELEMENTS/2;
-	player.y_pos = 715;
+	player.y_pos = 1080-500;
 	
 	
     //While the user hasn't quit
@@ -273,18 +243,29 @@ int main( int argc, char* args[] )
         /// GRID PRINTING STUFF
         /// ----------------------------------------------------------------
         
+        /*
         // apply initial black background
-		SDL_Rect screenRect, gridSurfaceRect;
 		screenRect.x = 0;
 		screenRect.y = 0;
 		screenRect.w = SCREEN_WIDTH+CELL_SIZE;
 		screenRect.h = SCREEN_HEIGHT+CELL_SIZE;
 		SDL_FillRect( gridSurface , &screenRect , 0x000000);
+		*/
+		//generate background
+		//generate_sky(screen, SCREEN_WIDTH, SCREEN_HEIGHT);
+		//apply background
+		apply_surface(0,0,skySurface,screen);
+		
+		
+		screenRect.x = 0;
+		screenRect.y = 0;
 		screenRect.w = SCREEN_WIDTH;
 		screenRect.h = SCREEN_HEIGHT;
 		
+		//gradient(screen, &screenRect, 0, 0, 100, 200, 0x2561a9, 0x6cb8f6, 0);
+		
 		// generate the grid image
-        generate_grid_surface(gridSurface);
+        generate_grid_surface(screen);
         
         
         //these are how far off the grid the player is.
@@ -294,9 +275,12 @@ int main( int argc, char* args[] )
         gridSurfaceRect.y = 0;//(int)adjust_y;//player.y_pos*CELL_SIZE;
         gridSurfaceRect.w = SCREEN_WIDTH;
         gridSurfaceRect.h = SCREEN_HEIGHT;
-        // apply grid image
-        SDL_BlitSurface(gridSurface, &gridSurfaceRect, screen, &screenRect);
         
+        
+        
+        // apply grid image
+        //SDL_BlitSurface(gridSurface, &gridSurfaceRect, screen, &screenRect);
+        //apply_surface(0,0, gridSurface, screen);
         
         
         //generate player rectangle
@@ -308,8 +292,13 @@ int main( int argc, char* args[] )
         // print the character
         SDL_FillRect(screen, &playerRect, player.color);
         
+        
+        
         // print the debugging information to the screen.
         if(keyF3) print_debugging_information(x,y);
+        
+        
+        
         
         //updates the screen
         SDL_Flip( screen );

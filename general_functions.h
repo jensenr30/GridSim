@@ -37,7 +37,9 @@ SDL_Surface *load_image( char* filename ){
 
 //this returns a pointer to an SDL_Surface
 SDL_Surface *create_surface(int width, int height){
-	return SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0x000000);
+	
+	return SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0x0);
+	
 }
 
 void apply_surface( int x, int y,  SDL_Surface* source, SDL_Surface* destination ){

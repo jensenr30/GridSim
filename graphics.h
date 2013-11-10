@@ -108,30 +108,16 @@ void print_debugging_information(int mousex, int mousey){
 	apply_surface(3, 13, textSurface, screen);						// apply text
 	SDL_FreeSurface(textSurface);
 	//----------------------------------------------------
-	// PRINT onTheGround
+	// PRINT onCollMat value of the player
 	//----------------------------------------------------
-	strcpy(textMessage,"onTheGround=");
-	if(player.onTheGround)
+	strcpy(textMessage,"onCollMat=");
+	if(player.onCollMat)
 		strcat(textMessage,"1");
 	else
 		strcat(textMessage,"0");
 	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
 	apply_surface(3, 33, textSurface, screen);						// apply text
 	SDL_FreeSurface(textSurface);
-	//----------------------------------------------------
-	// PRINT collision
-	//----------------------------------------------------
-	strcpy(textMessage,"collis=");
-	if(is_mat_in_rect(player.x_pos,player.y_pos,player.width, player.height))
-		strcat(textMessage,"1");
-	else
-		strcat(textMessage,"0");
-	textSurface = TTF_RenderText_Blended(font16,textMessage, white);	// render text
-	apply_surface(150, 33, textSurface, screen);						// apply text
-	SDL_FreeSurface(textSurface);
-	#if(0)
-	//printf("player.y_pos = %f\n",player.y_pos);
-	#endif
 }
 
 

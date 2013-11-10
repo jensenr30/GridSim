@@ -242,14 +242,18 @@ int main( int argc, char* args[] )
 		}
 		*/
 		
+		
 		//evaluate the player's movements.
 		evaluate_player_movement(&player, keyw, keya, keys, keyd);
 		
 		//grid[(int)player.x_pos][(int)player.y_pos].mat = m_test2; // this can produce segmentation fault errors without the proper checks and balances (which it currently does not have)
 		
 		//checks if the mouse is held or not
-        if(mouseStatusLeft == 1 && mouseModifier == 0){
+        if(mouseStatusRight == 1 && mouseModifier == 0){
 			grid[x/CELL_SIZE+(int)player.x_pos-GRID_WIDTH/2][y/CELL_SIZE+(int)player.y_pos-GRID_HEIGHT/2].mat = m_earth;
+		}
+		if(mouseStatusLeft == 1 && mouseModifier == 0){
+			grid[x/CELL_SIZE+(int)player.x_pos-GRID_WIDTH/2][y/CELL_SIZE+(int)player.y_pos-GRID_HEIGHT/2].mat = m_air;
 		}
 		
         
@@ -280,7 +284,7 @@ int main( int argc, char* args[] )
 		screenRect.h = SCREEN_HEIGHT;
 		
 		// generate the grid image
-        generate_grid_surface(gridSurface);
+        generate_grid_surface(gridSurface);wa
         
         
         //these are how far off the grid the player is.

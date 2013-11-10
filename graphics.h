@@ -47,7 +47,19 @@ void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
 #define grad_linear 0
 #define grad_radial 1
 
+
+///this function produces a gradient on datsurface.
+// the gradient will only be printed inside of the gradClip rectangle.
+// at point 1 (x1,y1) there will be color1.
+// at ponit 2 (x2,y2) there will be color2.
+///horizontal gradients (y1=y2) and verticle gradients (x1=x2) are very fast compared to gradients at different slopes (where neither x1=x2 or y1=y2)
+///if you are looking for speed, verticle/horizontal gradients are the way to go.
 void gradient(SDL_Surface *datsurface, SDL_Rect *gradClip, int x1, int y1, int x2, int y2, Uint32 color1, Uint32 color2, unsigned int gradientType){
+	
+	// there is no point in printing a gradient with only a single point
+	if(x1 == x2 && y1 == y2){
+		return;
+	}
 	
 	// this is the integer used for the color of (i,j) pixel in the gradient
 	long unsigned int color;
@@ -66,38 +78,84 @@ void gradient(SDL_Surface *datsurface, SDL_Rect *gradClip, int x1, int y1, int x
 	pixelRect.w = 1;
 	pixelRect.h = 1;
 	
-	// y = mx + b
-	// this if for the line connecting points (x1,y1) and (x2,y2)
-	// calculate the slope of the line. rise/run
-	float m_original = ((float)(y2-y1))/((float)(x2-x1));
 	
-	//this is for the lines perpendicular to the original line. it is -1/original_slope.
-	//this is the slope that will be used when calculating the color of each pixel
-	float m = -1.0f/m_original;
 	
-	float b1 = y1 - m*x1;		// rearranged form of  y = mx + b  to calculate the the y-intercept for b1 
-	float b2 = y2 - m*x2;		// similar shenanigans for b2
-	float bdiff = b2 - b1;		// calculate the difference in the y-intercept terms
-	float b;					// this is the intercept of the pixel at (i,j)
+	float m, b1,b2,diff,b,x,y;
 	
 	int i,j; // variables used to loop through the columns and row respectively.
-		for(i=gradClip->x; i<gradClip->x+gradClip->w; i++){		// loop through the columns of the gradient clip
+	
+	// if the gradient has no slope
+	if(x1 == x2){
+		diff = (y2-y1);
+		pixelRect.x = gradClip->x;
+		pixelRect.w = gradClip->w;
+		// we will print rectangles that are 1-pixel tall horizontal line segments
 		for(j=gradClip->y; j<gradClip->y+gradClip->h; j++){	// loop through the rows    of the gradient clip
-			pixelRect.x = i;
-			pixelRect.y = j;
-			b = (float)j - m*(float)i; // calculate y-intercept for this point (i,j)
-			if(b < b1) 			// the pixel is not between the two points
-				color = color1;	// choose color1
-			else if( b > b2) 	// the pixel is not between the two points
-				color = color2; // choose color2
+			y = (float)j;	// calculate y-intercept for this point (i,j)
+			if(y < y1) 					// the pixel is not between the two points
+				color = color1;			// choose color1
+			else if( y > y2) 			// the pixel is not between the two points
+				color = color2; 		// choose color2
 			else{
-				color = (int)((alp1*(b2-b) + alp2*(b-b1))/bdiff)*0x1000000;	// calculate alpha color component
-				color+= (int)((red1*(b2-b) + red2*(b-b1))/bdiff)*0x10000;	// calculate red   color component
-				color+= (int)((gre1*(b2-b) + gre2*(b-b1))/bdiff)*0x100;		// calculate green color component
-				color+= (int)((blu1*(b2-b) + blu2*(b-b1))/bdiff);			// calculate blue  color component
+				color = (int)((alp1*(y2-y) + alp2*(y-y1))/diff)*0x1000000;	// calculate alpha color component
+				color+= (int)((red1*(y2-y) + red2*(y-y1))/diff)*0x10000;	// calculate red   color component
+				color+= (int)((gre1*(y2-y) + gre2*(y-y1))/diff)*0x100;		// calculate green color component
+				color+= (int)((blu1*(y2-y) + blu2*(y-y1))/diff);			// calculate blue  color component
 			}
+			pixelRect.y = y;
 			SDL_FillRect(datsurface, &pixelRect, color);
-			
+		}
+	}
+	// if the gradient has infinite(very large slope
+	else if(y1 == y2){
+		// we will print rectangels that are 1-pixel wide verticle line segments
+		diff = (x2-x1);
+		pixelRect.y = gradClip->y;
+		pixelRect.h = gradClip->h;
+		// we will print rectangles that are 1-pixel tall horizontal line segments
+		for(i=gradClip->x; i<gradClip->x+gradClip->w; i++){	// loop through the rows    of the gradient clip
+			x = (float)i;	// calculate y-intercept for this point (i,j)
+			if(x < x1) 					// the pixel is not between the two points
+				color = color1;			// choose color1
+			else if( x > x2) 			// the pixel is not between the two points
+				color = color2; 		// choose color2
+			else{
+				color = (int)((alp1*(x2-x) + alp2*(x-x1))/diff)*0x1000000;	// calculate alpha color component
+				color+= (int)((red1*(x2-x) + red2*(x-x1))/diff)*0x10000;	// calculate red   color component
+				color+= (int)((gre1*(x2-x) + gre2*(x-x1))/diff)*0x100;		// calculate green color component
+				color+= (int)((blu1*(x2-x) + blu2*(x-x1))/diff);			// calculate blue  color component
+			}
+			pixelRect.x = x;
+			SDL_FillRect(datsurface, &pixelRect, color);
+		}
+	}
+	// if the slope is a non-zero finite value
+	else{
+		//this is for the lines perpendicular to the original line. it is -1/original_line_slope.
+		//this is the slope that will be used when calculating the color of each pixel
+		m = ((float)(x1-x2))/((float)(y2-y1));	// calculate slope of the line perpendicular to the gradient line
+		b1 = y1 - m*x1;							// rearranged form of  y = mx + b  to calculate the the y-intercept for b1 
+		b2 = y2 - m*x2;							// similar shenanigans for b2
+		diff = b2 - b1;						// calculate the difference in the y-intercept terms
+	
+		for(i=gradClip->x; i<gradClip->x+gradClip->w; i++){			// loop through the columns of the gradient clip
+			for(j=gradClip->y; j<gradClip->y+gradClip->h; j++){		// loop through the rows    of the gradient clip
+				pixelRect.x = i;
+				pixelRect.y = j;
+				b = (float)j - m*(float)i;	// calculate y-intercept for this point (i,j)
+				if(b < b1) 					// the pixel is not between the two points
+					color = color1;			// choose color1
+				else if( b > b2) 			// the pixel is not between the two points
+					color = color2; 		// choose color2
+				else{
+					color = (int)((alp1*(b2-b) + alp2*(b-b1))/diff)*0x1000000;	// calculate alpha color component
+					color+= (int)((red1*(b2-b) + red2*(b-b1))/diff)*0x10000;	// calculate red   color component
+					color+= (int)((gre1*(b2-b) + gre2*(b-b1))/diff)*0x100;		// calculate green color component
+					color+= (int)((blu1*(b2-b) + blu2*(b-b1))/diff);			// calculate blue  color component
+				}
+				SDL_FillRect(datsurface, &pixelRect, color);
+				
+			}
 		}
 	}
 }
@@ -112,7 +170,8 @@ void generate_sky(SDL_Surface *datsurface, int width, int height){
     screenRect.h = height;
     
     SDL_FillRect(datsurface, &screenRect, 0); // blank the sky
-    gradient(datsurface, &screenRect, 0, 0, 1, height, 0xff172092, 0xff6cb8f6, 0);
+    //create verticle gradient from top to bottom with sky type colors
+    gradient(datsurface, &screenRect, 0, 0, 0, height, 0xff172092, 0xff6cb8f6, 0);
 }
 
 

@@ -127,7 +127,7 @@ void gen_world(int worldType, long long  unsigned int worldFlag){
 		}
 	}
 	
-	int top_earth[GRID_WIDTH_ELEMENTS]; // this keeps track of the top layer of earth.
+	//int top_earth[GRID_WIDTH_ELEMENTS]; // this keeps track of the top layer of earth.
 	
 	int earth_average_above_rock = 4; // average of 4 blocks of dirt above rock.
 	

@@ -34,10 +34,11 @@ int main( int argc, char* args[] )
     gridSurface = create_surface(GRID_WIDTH_ELEMENTS,GRID_HEIGHT_ELEMENTS);
     
     // these are used for displaying the grid and the sky
-    SDL_Rect screenRect, gridSurfaceRect;
+    SDL_Rect screenRect;
     
     //create the skySurface
     skySurface = create_surface(GRID_WIDTH_ELEMENTS,GRID_HEIGHT_ELEMENTS);
+    
     //generate sky gradient
     generate_sky(skySurface, SCREEN_WIDTH, SCREEN_HEIGHT);
     
@@ -46,7 +47,6 @@ int main( int argc, char* args[] )
 	bool keyF3=true;
 	
 	//these are used to calculating and keeping track of the FPS
-	int LastFPSUpdate = 0;
 	int ticksSinceLastFPSUpdate = 0;
 	int cumulativeFrames = 0;
 	int currentTicks = 0;
@@ -134,8 +134,8 @@ int main( int argc, char* args[] )
 				SCREEN_WIDTH = event.resize.w;
 				SCREEN_HEIGHT = event.resize.h;
 				verify_grid_and_cell_size(); // make sure the window isn't too big for the cell size
-				
-				set_window_size(event.resize.w, event.resize.h);
+				set_window_size(event.resize.w, event.resize.h);		// set window to correct dimensions
+				generate_sky(skySurface, SCREEN_WIDTH, SCREEN_HEIGHT);	// render a new sky background
 			}
 			
             if( event.type == SDL_KEYDOWN ){		///keyboard event
@@ -243,44 +243,26 @@ int main( int argc, char* args[] )
         /// GRID PRINTING STUFF
         /// ----------------------------------------------------------------
         
-        /*
+        
         // apply initial black background
 		screenRect.x = 0;
 		screenRect.y = 0;
-		screenRect.w = SCREEN_WIDTH+CELL_SIZE;
-		screenRect.h = SCREEN_HEIGHT+CELL_SIZE;
-		SDL_FillRect( gridSurface , &screenRect , 0x000000);
-		*/
+		screenRect.w = SCREEN_WIDTH;
+		screenRect.h = SCREEN_HEIGHT;
+		SDL_FillRect( screen , &screenRect , 0x000000);
+		
 		//generate background
 		//generate_sky(screen, SCREEN_WIDTH, SCREEN_HEIGHT);
 		//apply background
 		apply_surface(0,0,skySurface,screen);
 		
-		
-		screenRect.x = 0;
-		screenRect.y = 0;
-		screenRect.w = SCREEN_WIDTH;
-		screenRect.h = SCREEN_HEIGHT;
-		
 		//gradient(screen, &screenRect, 0, 0, 100, 200, 0x2561a9, 0x6cb8f6, 0);
 		
 		// generate the grid image
-        generate_grid_surface(screen);
-        
-        
-        //these are how far off the grid the player is.
-		//float adjust_x = (player.x_pos - ((int)player.x_pos) )*CELL_SIZE/3;
-		//float adjust_y = (player.y_pos - ((int)player.y_pos) )*CELL_SIZE;
-        gridSurfaceRect.x = 0;//(int)adjust_x;//player.x_pos*CELL_SIZE;
-        gridSurfaceRect.y = 0;//(int)adjust_y;//player.y_pos*CELL_SIZE;
-        gridSurfaceRect.w = SCREEN_WIDTH;
-        gridSurfaceRect.h = SCREEN_HEIGHT;
-        
-        
-        
-        // apply grid image
-        //SDL_BlitSurface(gridSurface, &gridSurfaceRect, screen, &screenRect);
-        //apply_surface(0,0, gridSurface, screen);
+		SDL_FillRect( gridSurface , &screenRect , 0x000000);
+        generate_grid_surface(gridSurface);
+		// apply the grid surface to the screen
+        apply_surface(0,0, gridSurface, screen);
         
         
         //generate player rectangle
@@ -296,7 +278,6 @@ int main( int argc, char* args[] )
         
         // print the debugging information to the screen.
         if(keyF3) print_debugging_information(x,y);
-        
         
         
         

@@ -91,7 +91,7 @@ short matSatOrder[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 struct material {
 	
 	// the color of the material
-	unsigned int color;
+	Uint32 color;
 	
 	
 	
@@ -148,44 +148,44 @@ void init_material_attributes(void){
 	///DON'T YOU DARE CHANGE ANYTHING ABOUT AIR! you SACK of SHIT!
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_earth].name = "Earth";
-	mats[m_earth].color = 0x8b672d;
+	mats[m_earth].color = 0xff8b672d;
 	mats[m_earth].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_plant].name = "Plant";
-    mats[m_plant].color = 0x008951;//0x20e112;
+    mats[m_plant].color = 0xff008951;//0x20e112;
     mats[m_plant].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";
 	mats[m_water].gravity = -32;
-    mats[m_water].color = 0x52a9e0;
+    mats[m_water].color = 0xff52a9e0;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_fire].name = "Fire";
-    mats[m_fire].color = 0xd83313;
+    mats[m_fire].color = 0xffd83313;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_test].name = "test";
-	mats[m_test].color = 0xCCFF00;
+	mats[m_test].color = 0xffCCFF00;
 	mats[m_test].gravity = 1;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_test2].name = "test2";
-	mats[m_test2].color = 0x00FFCC;
+	mats[m_test2].color = 0xff00FFCC;
 	mats[m_test2].gravity = 2;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_rock].name = "Rock";
-	mats[m_rock].color = 0x5A5651;
+	mats[m_rock].color = 0xff5A5651;
 	mats[m_rock].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_rubble].name = "Rubble";
-	mats[m_rubble].color = 0x715A63;
+	mats[m_rubble].color = 0xff715A63;
 	mats[m_rubble].gravity = 3;
 	mats[m_rubble].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_log].name = "Log";
-	mats[m_log].color = 0x7b5126;
+	mats[m_log].color = 0xff7b5126;
 	mats[m_log].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_sand].name = "Sand";
 	mats[m_sand].gravity = -2;
-	mats[m_sand].color = 0xcfc1aa;
+	mats[m_sand].color = 0xffcfc1aa;
 	mats[m_sand].collision = true;
 //-------------------------------------------------------------------------------------------------------------------------------
 	

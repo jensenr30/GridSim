@@ -1,7 +1,6 @@
 
 
 
-
 /// this will print to the screen each material in each cell.
 void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
     
@@ -22,12 +21,12 @@ void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
 	//float adjust_y = -(player.x_pos - ((int)player.x_pos) )*CELL_SIZE;
 	
 	// print out the grid
-	for(i = 0; i < GRID_WIDTH; i++){
+	for(i = 0; i <= GRID_WIDTH; i++){
 		// this is used to index into the grid
 		ig = i+i_start;
 		if(ig < 0) continue; // if ig is less than the minimum bound, make it equal to the minimum array index value.
 		if(ig >= GRID_WIDTH_ELEMENTS) break; // if ig is larger than the largest array index value, quit.
-        for(j = 0; j < GRID_HEIGHT; j++){
+        for(j = 0; j <= GRID_HEIGHT; j++){
         	// this is used to index into the grid
 			jg = j+j_start;
 			if(jg < 0) continue; // if jg is less than the minimum bound, make it equal to the minimum bound
@@ -43,32 +42,24 @@ void generate_grid_surface(SDL_Surface *surfaceToPrintTo){
     }
 }
 
-void generate_sky(SDL_Surface *datsurface, int width, int height){
-	SDL_Rect screenRect;
-	screenRect.x = 0;
-    screenRect.y = 0;
-    screenRect.w = width;
-    screenRect.h = height;
-    gradient(datsurface, &screenRect, 0, 0, 1, height, 0x2561a9, 0x6cb8f6, 0);
-}
 
 
 #define grad_linear 0
 #define grad_radial 1
 
-void gradient(SDL_Surface *datsurface, SDL_Rect *gradClip, int x1, int y1, int x2, int y2, int color1, int color2, unsigned int gradientType){
+void gradient(SDL_Surface *datsurface, SDL_Rect *gradClip, int x1, int y1, int x2, int y2, Uint32 color1, Uint32 color2, unsigned int gradientType){
 	
 	// this is the integer used for the color of (i,j) pixel in the gradient
 	long unsigned int color;
-	unsigned int red1 = color1/0x10000;
+	// these are all one-time calculations. these values will be used in the loop.
+	unsigned int alp1 = color1/0x1000000;
+	unsigned int red1 = (color1/0x10000)%0x100;
 	unsigned int gre1 =(color1/0x100)%0x100;
 	unsigned int blu1 = color1%0x100;
-	unsigned int red2 = color2/0x10000;
+	unsigned int alp2 = color2/0x1000000;
+	unsigned int red2 = (color2/0x10000)%0x100;
 	unsigned int gre2 =(color2/0x100)%0x100;
 	unsigned int blu2 = color2%0x100;
-	unsigned int red;
-	unsigned int gre;
-	unsigned int blu;
 	
 	// this is for displaying the pixel at (i,j)
 	SDL_Rect pixelRect;
@@ -100,7 +91,8 @@ void gradient(SDL_Surface *datsurface, SDL_Rect *gradClip, int x1, int y1, int x
 			else if( b > b2) 	// the pixel is not between the two points
 				color = color2; // choose color2
 			else{
-				color = (int)((red1*(b2-b) + red2*(b-b1))/bdiff)*0x10000;	// calculate red   color component
+				color = (int)((alp1*(b2-b) + alp2*(b-b1))/bdiff)*0x1000000;	// calculate alpha color component
+				color+= (int)((red1*(b2-b) + red2*(b-b1))/bdiff)*0x10000;	// calculate red   color component
 				color+= (int)((gre1*(b2-b) + gre2*(b-b1))/bdiff)*0x100;		// calculate green color component
 				color+= (int)((blu1*(b2-b) + blu2*(b-b1))/bdiff);			// calculate blue  color component
 			}
@@ -110,6 +102,18 @@ void gradient(SDL_Surface *datsurface, SDL_Rect *gradClip, int x1, int y1, int x
 	}
 }
 
+
+void generate_sky(SDL_Surface *datsurface, int width, int height){
+	
+	SDL_Rect screenRect;
+	screenRect.x = 0;
+    screenRect.y = 0;
+    screenRect.w = width;
+    screenRect.h = height;
+    
+    SDL_FillRect(datsurface, &screenRect, 0); // blank the sky
+    gradient(datsurface, &screenRect, 0, 0, 1, height, 0xff172092, 0xff6cb8f6, 0);
+}
 
 
 void print_debugging_information(int mousex, int mousey){

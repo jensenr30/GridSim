@@ -1,3 +1,22 @@
+
+
+
+
+void clean_up();
+
+#define quit_surface_error 1
+
+void quit_game(Uint32 quitFlag, char *errmsg){
+	
+	if(quitFlag == quit_surface_error){
+		MessageBox(NULL,errmsg,"NULL surface error.", MB_OK);
+	}
+	
+	clean_up();
+	
+}
+
+
  
  void set_window_size(int w, int h){
 	screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_SWSURFACE | SDL_RESIZABLE );
@@ -38,8 +57,19 @@ SDL_Surface *load_image( char* filename ){
 //this returns a pointer to an SDL_Surface
 SDL_Surface *create_surface(int width, int height){
 	
-	return SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0x0);
+	// try to create surface
+	SDL_Surface *retSurf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0xff000000);
 	
+	// check to see if the surface creation went well
+	if(retSurf == NULL){
+		quit_game(quit_surface_error, "Could not create surface.");
+		return NULL;
+	}
+	
+	SDL_Surface *retSurfAlpha = SDL_DisplayFormatAlpha(retSurf);
+	// delete old surface
+	SDL_FreeSurface(retSurf);
+	return retSurfAlpha;
 }
 
 void apply_surface( int x, int y,  SDL_Surface* source, SDL_Surface* destination ){
@@ -113,15 +143,18 @@ int load_files(){
 }
 
 
+
 void clean_up(){
 	//free the image
 	//SDL_FreeSurface(image);
 	//SDL_FreeSurface(text);
 	SDL_FreeSurface(gridSurface);
+	SDL_FreeSurface(skySurface);
 	SDL_FreeSurface(screen);
 	
 	//Quit SDL
 	SDL_Quit();
+	TTF_Quit();
 }
 
 /// returns a random number from lowBound to highBound.

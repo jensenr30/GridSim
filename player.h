@@ -82,7 +82,7 @@ void evaluate_player_movement(struct playerData *datplayer, int keyup, int keyle
 	//----------------------------------------------------
 	// time stuff
 	//----------------------------------------------------
-	static ticksSinceMotion = 0;
+	static int ticksSinceMotion = 0;			// the number of milliseconds since the player last moved
 	static int previousTicks = 0;				// the previous cycle's ticks (milliseconds since SDL library initialized) default to 0
 	int currentTicks = SDL_GetTicks();			// the current cycle's ticks (milliseconds since SDL library initialized)
 	int millis = currentTicks - previousTicks;	// the difference in ticks (the time that has passed since the last cycle in milliseconds)

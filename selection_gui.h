@@ -13,140 +13,104 @@ SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 #define selectionBoxSize 3
 
 // main gui variables
-//these replaced the xPos, yPos, wPos, and hPos definitions
-#define GUI_X (SCREEN_WIDTH - 200)
+#define GUI_X SCREEN_WIDTH - 200
 #define GUI_Y 0
 #define GUI_W 200
 #define GUI_H SCREEN_HEIGHT
 
-// selection box positions
-// you have to keep these as number values
-short xSel = DEFAULT_SCREEN_WIDTH - XPosForGUISelectionStart - selectionBoxSize, ySel = YPosFromGUISide - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
-
-
-// this is where the gui is stored graphically to save processing power.
-SDL_Surface *tempGuiScreen;
-// this sets up the selection gui temp surface.
-bool init_tempGuiScreen(){
-	tempGuiScreen = create_surface(GUI_W,SCREEN_HEIGHT);
-	if(tempGuiScreen == NULL) return false;
-	else return true;
-}
-
+// selection box variables
+// these values need to be dynamic in order to work properly
+short SEL_X = DEFAULT_SCREEN_WIDTH - XPosForGUISelectionStart - selectionBoxSize,
+      SEL_Y = YPosFromGUISide - selectionBoxSize,
+      SEL_W = widthButton + selectionBoxSize * 2,
+      SEL_H = heightButton + selectionBoxSize * 2;
 
 // displays gui
 void selectionGUI(int x, int y, int mouse)
 {
-	//this is the height of the gui
-	int GUI_H = SCREEN_HEIGHT;
-	// this keeps track of whether or not you have printed the gui before or not.
-	static bool firstTimeThrough = true;
+    // variables to step through array
+	int i, j, k;
 	
-	// this variable stores the last screen height. It is used to tell if the screen height has changed.
-	static int storeScreenHeight = DEFAULT_SCREEN_HEIGHT;
-	if(SCREEN_HEIGHT != storeScreenHeight){
-		SDL_FreeSurface(tempGuiScreen);
-		init_tempGuiScreen();
-		firstTimeThrough = true;
-	}
-	
-	// only re-print the gui if the user has clicked inside it.
-	if((x>=GUI_X && x<=GUI_X+GUI_W && y>GUI_Y && y<GUI_Y+GUI_H && mouse)||firstTimeThrough){
-		//reset this, as it is no longer your first time through printing the selection gui.
-		if(firstTimeThrough) firstTimeThrough = false;
-		// variables to step through array
-		int i, j, k;
-		
-		// steps through the array and sets the icons of each material
-		// varaibles for keeping track of were to put the icons
+	// steps through the array and sets the icons of each material
+	// varaibles for keeping track of were to put the icons
     j = GUI_X + widthButton/2;
     k = YPosFromGUISide;
-		for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
-			if(j + widthButton < SCREEN_WIDTH){
-				// sets icons
-				matIcon[i].x = j;
-				matIcon[i].y = k;
-				// updates value for the next icon
-				j = j + (widthButton * rowSpacingMultiplier);
-			}
-			else{
-				// reduces i by 1 so that it doesn't skip a material
-				i--;
-				// resets j
-            j = GUI_X + widthButton/2;
-				// increases k for the next line
-				k = k + heightButton * columnSpacingMultiplier;
-			}
+    
+	for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
+		if(j + widthButton < SCREEN_WIDTH){
+			// sets icons
+			matIcon[i].x = j;
+			matIcon[i].y = k;
+			// updates value for the next icon
+			j = j + (widthButton * rowSpacingMultiplier);
 		}
-		
-		// define rectangles
-		SDL_Rect guiRectangle;
-		SDL_Rect selectionBox;
-		
-		// main window
-		guiRectangle.x = 0;
-		guiRectangle.y = 0;
-	guiRectangle.w = GUI_W;
-	guiRectangle.h = GUI_H;
-		SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , 0x181818);
-		
-		// box under text color
-		guiRectangle.x = 0;
-		guiRectangle.y = 0;
-		guiRectangle.w = 200;
-		guiRectangle.h = 50;
-		SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[currentMat].color);
-		
-		// decide what color the materials name will be: black or white based on the brightness of the color of the material.
-		SDL_Color matNameColor;
-		// this gets some kind of average brightness of the material color
-		unsigned short matBrightness = ( (mats[currentMat].color&0xFF0000)/0x10000 + (mats[currentMat].color&0xFF00)/0x100 + (mats[currentMat].color&0xFF) )/3;
-		// if the material is bright, make the text black.
-		if(matBrightness > 0x7F)
-			matNameColor.r = matNameColor.g = matNameColor.b = 0x00;
-		//if the material is dark, make the text white
-		else
-			matNameColor.r = matNameColor.g = matNameColor.b = 0xFF;
-		// prints names of material
-		text = TTF_RenderText_Blended( font, mats[currentMat].name , matNameColor );
-		// apply text to tempGuiScreen
-		apply_surface( 10, 4, text, /*screen*/tempGuiScreen );
-		SDL_FreeSurface( text );
-		
-		// selection box
-		selectionBox.x = xSel - GUI_X;
-		selectionBox.y = ySel - GUI_Y;
-		selectionBox.w = wSel;
-		selectionBox.h = hSel;
-		SDL_FillRect( /*screen*/tempGuiScreen , &selectionBox , 0xffffff);
-		
-		// prints a rectangle for each material icon
-		for( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
-			if(mats[i].name == NULL) {continue;}
-			guiRectangle.x = matIcon[i].x - GUI_X;
-			guiRectangle.y = matIcon[i].y - GUI_Y;
-			guiRectangle.w = widthButton;
-			guiRectangle.h = heightButton;
-			SDL_FillRect( /*screen*/tempGuiScreen , &guiRectangle , mats[i].color);
+		else{
+			// reduces i by 1 so that it doesn't skip a material
+			i--;
+			// resets j
+           j = GUI_X + widthButton/2;
+			// increases k for the next line
+			k = k + heightButton * columnSpacingMultiplier;
 		}
-		
-		// checks for mouse clicks over material icons
-		for ( i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++ ){
-
-			if( ( x > matIcon[i].x ) && ( x < matIcon[i].x + widthButton ) && ( y > matIcon[i].y ) && ( y < matIcon[i].y + heightButton ) )
-			{
-				if(mouse == 1)
-				{
-					if(mats[i].name == NULL) {continue;}
-					// changes material
-					currentMat = i;
-					// changes selection box to be under current material
-					xSel = matIcon[i].x - selectionBoxSize, ySel = matIcon[i].y - selectionBoxSize, wSel = widthButton + selectionBoxSize * 2, hSel = heightButton + selectionBoxSize * 2;
-				}
+	}
+	
+	// define rectangles
+	SDL_Rect guiRectangle;
+	SDL_Rect selectionBox;
+	
+	// main window
+	guiRectangle.x = GUI_X;
+	guiRectangle.y = GUI_Y;
+    guiRectangle.w = GUI_W;
+    guiRectangle.h = GUI_H;
+	SDL_FillRect(screen , &guiRectangle , 0x181818);
+	
+	// box under text color
+	guiRectangle.x = GUI_X;
+	guiRectangle.y = GUI_Y;
+	guiRectangle.w = 200;
+	guiRectangle.h = 50;
+	SDL_FillRect(screen , &guiRectangle , mats[currentMat].color);
+	
+	// prints names of material
+	text = TTF_RenderText_Blended(font, mats[currentMat].name , textColor);
+	// apply text to tempGuiScreen
+	apply_surface( 10 + GUI_X, 4 + GUI_Y, text, screen);
+	SDL_FreeSurface(text);
+	
+	// selection box
+	selectionBox.x = SEL_X;
+	selectionBox.y = SEL_Y;
+	selectionBox.w = SEL_W;
+	selectionBox.h = SEL_H;
+	SDL_FillRect( screen , &selectionBox , 0xffffff);
+	
+	// prints a rectangle for each material icon
+	for(i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++) {
+		if(mats[i].name == NULL) {continue;}
+		guiRectangle.x = matIcon[i].x;
+		guiRectangle.y = matIcon[i].y;
+		guiRectangle.w = widthButton;
+		guiRectangle.h = heightButton;
+		SDL_FillRect(screen , &guiRectangle , mats[i].color);
+	}
+	
+	// checks for mouse clicks over material icons
+	for (i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++) {
+			if((x > matIcon[i].x) && (x < matIcon[i].x + widthButton) && (y > matIcon[i].y) && (y < matIcon[i].y + heightButton)) {
+			if(mouse == 1) {
+				if(mats[i].name == NULL) {continue;}
+				// changes material
+				currentMat = i;
+				// changes selection box to be under current material
+				SEL_X = matIcon[i].x - selectionBoxSize;
+				SEL_Y = matIcon[i].y - selectionBoxSize;
+				SEL_W = widthButton + selectionBoxSize * 2;
+				SEL_H = heightButton + selectionBoxSize * 2;
 			}
 		}
 	}
-	apply_surface(GUI_X,GUI_Y, tempGuiScreen, screen);
+
 }
 
 #define MAX_BRUSHES 7
@@ -159,9 +123,9 @@ void selectionGUI(int x, int y, int mouse)
 int oldx = 0;
 int oldy = 0;
 int BrushSize = 1;
-                    int r = 10;
-                    double a, b;
-                    float pi = 3.1415;
+int r = 10;
+double a, b;
+float pi = 3.1415;
 
 //brushes structure
 struct Brushes
@@ -169,6 +133,7 @@ struct Brushes
     char *name;
     int x;
     int y;
+    
 }Brushes[MAX_BRUSHES];
 
 //brushs and speed control

@@ -30,12 +30,12 @@ void selectionGUI(int x, int y, int mouse)
 {
     // variables to step through array
 	int i, j, k;
-	
+
 	// steps through the array and sets the icons of each material
 	// varaibles for keeping track of were to put the icons
     j = GUI_X + widthButton/2;
     k = YPosFromGUISide;
-    
+
 	for(i = 1; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++){
 		if(j + widthButton < SCREEN_WIDTH){
 			// sets icons
@@ -53,38 +53,41 @@ void selectionGUI(int x, int y, int mouse)
 			k = k + heightButton * columnSpacingMultiplier;
 		}
 	}
-	
+
 	// define rectangles
 	SDL_Rect guiRectangle;
 	SDL_Rect selectionBox;
-	
+
 	// main window
 	guiRectangle.x = GUI_X;
 	guiRectangle.y = GUI_Y;
     guiRectangle.w = GUI_W;
     guiRectangle.h = GUI_H;
 	SDL_FillRect(screen , &guiRectangle , 0x181818);
-	
+
 	// box under text color
 	guiRectangle.x = GUI_X;
 	guiRectangle.y = GUI_Y;
 	guiRectangle.w = 200;
 	guiRectangle.h = 50;
 	SDL_FillRect(screen , &guiRectangle , mats[currentMat].color);
-	
-	// prints names of material
-	text = TTF_RenderText_Blended(font, mats[currentMat].name , textColor);
-	// apply text to tempGuiScreen
-	apply_surface( 10 + GUI_X, 4 + GUI_Y, text, screen);
-	SDL_FreeSurface(text);
-	
+
+	if(font != NULL) {
+        // prints names of material
+        text = TTF_RenderText_Blended(font, mats[currentMat].name , textColor);
+
+        // apply text to tempGuiScreen
+        apply_surface( 10 + GUI_X, 4 + GUI_Y, text, screen);
+        SDL_FreeSurface(text);
+	}
+
 	// selection box
 	selectionBox.x = SEL_X;
 	selectionBox.y = SEL_Y;
 	selectionBox.w = SEL_W;
 	selectionBox.h = SEL_H;
 	SDL_FillRect( screen , &selectionBox , 0xffffff);
-	
+
 	// prints a rectangle for each material icon
 	for(i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++) {
 		if(mats[i].name == NULL) {continue;}
@@ -94,7 +97,7 @@ void selectionGUI(int x, int y, int mouse)
 		guiRectangle.h = heightButton;
 		SDL_FillRect(screen , &guiRectangle , mats[i].color);
 	}
-	
+
 	// checks for mouse clicks over material icons
 	for (i = m_earth; i < MAX_NUMBER_OF_UNIQUE_MATERIALS; i++) {
 			if((x > matIcon[i].x) && (x < matIcon[i].x + widthButton) && (y > matIcon[i].y) && (y < matIcon[i].y + heightButton)) {
@@ -133,7 +136,7 @@ struct Brushes
     char *name;
     int x;
     int y;
-    
+
 }Brushes[MAX_BRUSHES];
 
 //brushs and speed control
@@ -170,12 +173,14 @@ void brushesGUI(int x, int y, int mouse)
     Brushes[5].name = "Vertical";
     Brushes[6].name = "Line Tool";
 
-    //prints text
-    text = TTF_RenderText_Blended( font, Brushes[mouseModifier].name , textColor );
+    if(font != NULL) {
+        //prints text
+        text = TTF_RenderText_Blended( font, Brushes[mouseModifier].name , textColor );
 
-    //apply text to screen
-    apply_surface( 10, 0, text, screen );
-    SDL_FreeSurface( text );
+        //apply text to screen
+        apply_surface( 10, 0, text, screen );
+        SDL_FreeSurface( text );
+    }
 
     //prints a rectangle for each material icon
     for( i = 0; i < MAX_BRUSHES; i++ ){
@@ -215,7 +220,7 @@ void brushesGUI(int x, int y, int mouse)
                         setcell(x+CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
                         setcell(x-CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
                         setcell(x+CELL_SIZE*i,y+CELL_SIZE*j,currentMat);
-                        setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat); 
+                        setcell(x-CELL_SIZE*i,y-CELL_SIZE*j,currentMat);
                     }
                 }
                 break;

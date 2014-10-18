@@ -3,38 +3,39 @@
 
 
 
-int main( int argc, char* args[] ) 
+int main( int argc, char* args[] )
 {
-	
+
 	//get a random seed.
 	srand(time(NULL));
-	
+
     //mouse variables and cell types
     int x, y, sleepTime = 0, countVar = 0;
-	
+
     //mouse is held variables
     int mouseStatusLeft = 0, mouseStatusRight = 0;
-	
+
 	//make sure the program waits for a quit
 	int quit = false;
-	
+
     //Initialize
     if( init() == false ) return 1;
-	
+
     //Load the files
     if( load_files() == false ) return 2;
-	
+
     //Update the screen
-    if( SDL_Flip( screen ) == -1 ) return 3;
-	
+    //if( SDL_Flip( screen ) == -1 ) return 3;
+    //if(SDL_RenderPresent( screen ) == -1 ) return 3;
+
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
-    
+
 	/*
 	CELL_SIZE = 4;
 	int i;//
 	//putting test materials into grid
-    
+
     for(i=0; i<GRID_WIDTH; i++){
 		if(get_rand(1,4)==1)
 			grid[i+camera_x][GRID_HEIGHT-1-get_rand(7,15)+camera_y].mat = m_plant_root;
@@ -49,7 +50,7 @@ int main( int argc, char* args[] )
     sleepTime = 0;
 	//int i;//
 	//putting test materials into grid
-    
+
     /*
     for(i=7 ; i<GRID_WIDTH ; i+=15){
 		for(j=26 ; j<GRID_HEIGHT ; j+=20){
@@ -57,12 +58,12 @@ int main( int argc, char* args[] )
 		}
     }
     */
-    
+
 	//--------------------------------------
 	//for(i=0 ; i<GRID_WIDTH*GRID_HEIGHT / 2 ; i++)
 	//	grid[get_rand(0,GRID_WIDTH-1)][get_rand(0,GRID_HEIGHT-1)].mat = m_plant;
-	
-	
+
+
 	//int keyw=0, keya=0, keys=0, keyd=0;
 	//unsigned lastPanTime = 0;
 	bool alt = 0; // this keeps track of the state of the alt key
@@ -74,24 +75,24 @@ int main( int argc, char* args[] )
 	// these keep track of the truncation error and add it to the next operation so that the mouse motion feels fluid.
 	int remainder_panning_motion_x=0;
 	int remainder_panning_motion_y=0;
-	
+
 	//last minute verification that the initial start up values for the grid size and the camera positions are valid.
 	verify_grid_and_cell_size();
 	verify_camera();
-	
+
     //While the user hasn't quit
     while(1){
-		
+
     	//While there's an event to handle
     	while( SDL_PollEvent( &event ) ){
-			
+
     		//If the user has Xed out the window
     		if( event.type == SDL_QUIT || quit == true ){
 				//Quit the program
 				clean_up();
 				return 0;
 			}
-			
+
             if( event.type == SDL_MOUSEBUTTONDOWN ){						/// mouse down
 				x = event.motion.x;
 				y = event.motion.y;
@@ -101,9 +102,11 @@ int main( int argc, char* args[] )
                 else if( event.button.button == SDL_BUTTON_RIGHT ){
                     mouseStatusRight = 1;
                 }
-                else if( event.button.button == SDL_BUTTON_WHEELUP )
+                else if( SDL_MOUSEWHEEL > 0 )
+                //else if( event.button.button == SDL_BUTTON_WHEELUP )
 					zoom_in(x,y);
-				else if( event.button.button == SDL_BUTTON_WHEELDOWN )
+				//else if( event.button.button == SDL_BUTTON_WHEELDOWN )
+				else if( SDL_MOUSEWHEEL < 0 )
 					zoom_out(x,y);
             }
             else if(event.type == SDL_MOUSEBUTTONUP){						/// mouse up
@@ -130,24 +133,29 @@ int main( int argc, char* args[] )
 					remainder_panning_motion_y = (y-mouse_y_when_pan+remainder_panning_motion_y) - (int)((y-mouse_y_when_pan+remainder_panning_motion_y)/CELL_SIZE)*CELL_SIZE;
 					// make sure the camera is not out of bounds.
 					verify_camera();
-					
+
 					//reset the user's curcor position to the original position the curcor was in when the user started panning the camera
-					SDL_WarpMouse(mouse_x_when_pan, mouse_y_when_pan);
+					//SDL_WarpMouse(mouse_x_when_pan, mouse_y_when_pan);
+					SDL_WarpMouseInWindow(screen, mouse_x_when_pan, mouse_y_when_pan);
 				}
             }
-            else if(event.type == SDL_VIDEORESIZE){							/// window resize
-				
-				float new_cell_size = CELL_SIZE * event.resize.h/((float)SCREEN_HEIGHT); // adjust the pixel size.
+            else if(event.type == SDL_WINDOWEVENT_RESIZED ){							/// window resize
+
+				//float new_cell_size = CELL_SIZE * event.resize.h/((float)SCREEN_HEIGHT); // adjust the pixel size.
+				float new_cell_size = CELL_SIZE * event.window.data1/((float)SCREEN_HEIGHT); // adjust the pixel size.
 				if(new_cell_size - ((int)new_cell_size) >= 0.5f) CELL_SIZE = new_cell_size + 1;
 				else CELL_SIZE = new_cell_size;
-				SCREEN_WIDTH = event.resize.w;
-				SCREEN_HEIGHT = event.resize.h;
+				//SCREEN_WIDTH = event.resize.w;
+				//SCREEN_HEIGHT = event.resize.h;
+				SCREEN_WIDTH = event.window.data1;
+				SCREEN_HEIGHT = event.window.data2;
 				verify_grid_and_cell_size(); // make sure the window isn't too big for the cell size
-				
-				set_window_size(event.resize.w, event.resize.h);
+
+				//set_window_size(event.resize.w, event.resize.h);
+				set_window_size(event.window.data1, event.window.data2);
 				verify_camera();
 			}
-			
+
             if( event.type == SDL_KEYDOWN ){								///keyboard event
                 switch( event.key.keysym.sym ){
 				case SDLK_UP: break; //change block type up
@@ -199,8 +207,8 @@ int main( int argc, char* args[] )
 				default: break;
 				}
 			}
-                
-		
+
+
     	} // end while(event)
 		//no more events to handle at the moment.
 		/*
@@ -222,42 +230,43 @@ int main( int argc, char* args[] )
 			if(y >= 50 && x < SCREEN_WIDTH - 200)
             setcell(x, y, currentMat);
             }
-		
+
         else if(mouseStatusRight == 1 && mouseModifier == 0){
             deletecell(x, y, currentMat);
         }
-        
+
         //speed of gameplay
         countVar++;
         if(sleepTime <= 0)
         {
             sleepTime = 0;
         }
-		
+
         //evealuate cells
         if(countVar >= sleepTime && paused != 1){
             evaluate_grid();
             countVar = 0;
         }
-		
+
         //updates screen with cells
         print_cells();
-		
+
         //displays selection gui
         selectionGUI(x, y, mouseStatusLeft);
-		
+
         //displays brushes and misc gui
         brushesGUI(x, y, mouseStatusLeft);
-        
+
         // If the user is not panning, then it is fine to show the cursor.
         if(!alt){
 			//displays cursor
 			cursorDisplay(x, y);
         }
-        
+
         //updates the screen
-        SDL_Flip( screen );
-		
+        //SDL_Flip( screen );
+        SDL_RenderPresent( screen );
+
     }// end while(quit == false)
 
 

@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "Windows.h"
-#include "SDL/SDL.h"
+//#include "Windows.h"
+#include "SDL2/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
 #include "time.h"

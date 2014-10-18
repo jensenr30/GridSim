@@ -1,8 +1,8 @@
 #include <stdio.h>
 //#include "Windows.h"
 #include "SDL2/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_ttf.h"
+#include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 #include "time.h"
 #include <math.h>
 
@@ -35,6 +35,8 @@ unsigned int SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT;
 //global variable that tells us if the game is paused or not
 int paused = 0;
 
+// this is the window that will be used 
+SDL_Window *window = NULL;
 // The surfaces that will be used
 SDL_Surface *screen = 	NULL;
 SDL_Surface *text = 	NULL;

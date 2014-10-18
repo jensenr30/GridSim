@@ -1,6 +1,6 @@
 
  void set_window_size(int w, int h){
-    SDL_Window *window = SDL_CreateWindow("GridSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow("GridSim", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL);
     screen = SDL_GetWindowSurface(window);
 	//screen = SDL_SetVideoMode( w, h, SCREEN_BPP, SDL_SWSURFACE | SDL_RESIZABLE );
 

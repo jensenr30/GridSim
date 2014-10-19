@@ -135,8 +135,7 @@ int main( int argc, char* args[] )
 					verify_camera();
 
 					//reset the user's curcor position to the original position the curcor was in when the user started panning the camera
-					//SDL_WarpMouse(mouse_x_when_pan, mouse_y_when_pan);
-					SDL_WarpMouseInWindow(screen, mouse_x_when_pan, mouse_y_when_pan);
+					SDL_WarpMouseInWindow(window, mouse_x_when_pan, mouse_y_when_pan);
 				}
             }
             else if(event.type == SDL_WINDOWEVENT_RESIZED ){							/// window resize

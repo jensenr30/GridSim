@@ -90,6 +90,8 @@ struct cellData grid[GRID_WIDTH_ELEMENTS][GRID_HEIGHT_ELEMENTS];
 #define m_test			23
 #define m_test2			24
 
+#define m_quicksand		25
+
 /// non-menu materials
 
 //tree stuff
@@ -472,7 +474,7 @@ void init_material_attributes(void){
 	mats[m_fire].affectMat[0].chance[5] = 100;
 	mats[m_fire].affectMat[0].chance[6] = 75;
 	mats[m_fire].affectMat[0].chance[7] = 100;
-	
+	//set_chance(mats[m_fire].affectMat[0].chance, 4000); 	// set fire to MAXIMUM OVERDRIVE!!
 	
 	/*
 	mats[m_fire].affectMat[0].matBefore = m_air;		/// fire makes smoke
@@ -533,6 +535,28 @@ void init_material_attributes(void){
 	mats[m_sand].name = "Sand";
 	mats[m_sand].gravity = -2;
 	mats[m_sand].color = 0xcfc1aa;
+	
+	unsigned int quickSandChance = 10000;
+	
+	mats[m_sand].affectMat[0].matBefore = m_water;		// when water is on top of sand, the sand turns into quicksand.
+	mats[m_sand].affectMat[0].matAfter  = m_air;
+	mats[m_sand].affectMat[0].chance[0] = quickSandChance;
+	mats[m_sand].affectMat[0].chance[1] = quickSandChance;
+	mats[m_sand].affectMat[0].chance[2] = quickSandChance;
+	mats[m_sand].affectMat[0].chance[3] = quickSandChance;
+	mats[m_sand].affectMat[0].chance[4] = quickSandChance;
+	mats[m_sand].affectMat[0].changeOrigMat = m_quicksand;
+	
+	mats[m_sand].affectMat[0].matBefore = m_water;		// when sand is on top of water, the water turns into quicksand.
+	mats[m_sand].affectMat[0].matAfter  = m_quicksand;
+	mats[m_sand].affectMat[0].chance[5] = quickSandChance;
+	mats[m_sand].affectMat[0].chance[6] = quickSandChance;
+	mats[m_sand].affectMat[0].chance[7] = quickSandChance;
+	mats[m_sand].affectMat[0].changeOrigMat = m_air;
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_quicksand].name = "Quicksand";
+	mats[m_quicksand].gravity = -5;
+	mats[m_quicksand].color = 0x9f917e;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_mud].name = "Mud";
 	mats[m_mud].gravity = -3;

@@ -2,6 +2,7 @@
 *.depend
 bin/Debug/GridSim.exe
 bin/Release/GridSim.exe
+bin/DebugLinux/DebugLinux
 *.o
 
 *stderr.txt

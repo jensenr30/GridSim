@@ -130,7 +130,10 @@ int r = 10;
 double a, b;
 float pi = 3.1415;
 
-//brushes structure
+// brushes structure
+// name is the name of the brush
+// x is the x position of the mouse
+// y is the y position of the mouse
 struct Brushes
 {
     char *name;
@@ -139,32 +142,32 @@ struct Brushes
 
 }Brushes[MAX_BRUSHES];
 
-//brushs and speed control
+// brushes and speed control
 void brushesGUI(int x, int y, int mouse)
 {
-    //variables to step through array
+    // variables to step through array
     int i, j;
 
-    //define rectangle for cursor
+    // define rectangle for cursor
     SDL_Rect brushesRectangle;
 
-    //default setting
+    // default setting
     j = xPosFromEdge + brushButtonWidth/2;
-    //steps through the array and fill it with data for each button
+    // steps through the array and fill it with data for each button
     for(i = 0; i < MAX_BRUSHES; i++){
         Brushes[i].x = j;
         Brushes[i].y = yPosFromEdge;
         j = j + (brushButtonWidth * brushSpacingMultiplier);
     }
 
-    //main window
+    // main window
 	brushesRectangle.x = 0;
 	brushesRectangle.y = 0;
 	brushesRectangle.w = GUI_X;
 	brushesRectangle.h = 50;
     SDL_FillRect( screen , &brushesRectangle , 0x181818);
 
-    //assigns text to brush names
+    // assigns text to brush names
     Brushes[0].name = "Standard";
     Brushes[1].name = "Basic";
     Brushes[2].name = "L Basic";
@@ -173,16 +176,16 @@ void brushesGUI(int x, int y, int mouse)
     Brushes[5].name = "Vertical";
     Brushes[6].name = "Line Tool";
 
+    // checks to make sure that the font exists
     if(font != NULL) {
         //prints text
         text = TTF_RenderText_Blended( font, Brushes[mouseModifier].name , textColor );
-
         //apply text to screen
         apply_surface( 10, 0, text, screen );
         SDL_FreeSurface( text );
     }
 
-    //prints a rectangle for each material icon
+    // prints a rectangle for each material icon
     for( i = 0; i < MAX_BRUSHES; i++ ){
         brushesRectangle.x = Brushes[i].x;
         brushesRectangle.y = Brushes[i].y;
@@ -191,7 +194,7 @@ void brushesGUI(int x, int y, int mouse)
         SDL_FillRect( screen , &brushesRectangle , 0xffffff);
     }
 
-    //checks for mouse clicks over brush icons
+    // checks for mouse clicks over brush icons
     for ( i = 0; i < MAX_BRUSHES; i++ ){
 
         if( ( x > Brushes[i].x ) && ( x < Brushes[i].x + brushButtonWidth ) && ( y > Brushes[i].y ) && ( y < Brushes[i].y + brushButtonHeight ) )
@@ -203,8 +206,7 @@ void brushesGUI(int x, int y, int mouse)
         }
     }
 
-    //brushes
-    //BRUSHES? WHAT THE FUCK ABOUT BRUSHES? xD
+    // brushes code begins here
     if(mouse == 1)
     {
         switch(mouseModifier){

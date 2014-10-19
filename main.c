@@ -102,13 +102,13 @@ int main( int argc, char* args[] )
                 else if( event.button.button == SDL_BUTTON_RIGHT ){
                     mouseStatusRight = 1;
                 }
-                else if( SDL_MOUSEWHEEL > 0 )
-                //else if( event.button.button == SDL_BUTTON_WHEELUP )
-					zoom_in(x,y);
-				//else if( event.button.button == SDL_BUTTON_WHEELDOWN )
-				else if( SDL_MOUSEWHEEL < 0 )
-					zoom_out(x,y);
             }
+            else if(event.type == SDL_MOUSEWHEEL){
+				if(event.wheel.y > 0)
+					zoom_in(x,y);
+				if(event.wheel.y < 0)
+					zoom_out(x,y);
+			}
             else if(event.type == SDL_MOUSEBUTTONUP){						/// mouse up
 				x = event.motion.x;
 				y = event.motion.y;

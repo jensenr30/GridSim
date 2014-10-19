@@ -77,9 +77,11 @@ struct cellData grid[GRID_WIDTH_ELEMENTS][GRID_HEIGHT_ELEMENTS];
 #define m_plant			9
 #define m_plant_root	10
 #define m_fire			11
-#define m_tree_base		12
+#define m_torch			12
 
-#define m_pipe			13
+#define m_tree_base		13
+#define m_pipe			14
+
 
 #define m_scurge		19
 #define m_anti_scurge	20
@@ -107,7 +109,7 @@ struct cellData grid[GRID_WIDTH_ELEMENTS][GRID_HEIGHT_ELEMENTS];
 // this has to be a complete list of all the saturatable materials in the game.
 // this is used by the grid evaluator to check and apply saturations of the cells in our grid.
 // these are the materials that will be checked for saturation
-/// IF YOU MAKE A MATERIAL THAT CAN BE SATURATED WITH SOMETHING, ADD THAT MATERIAL TO THIS LIST.
+/// this list is initialized in the init_material_attributes() function.
 short matSatOrder[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
 void set_chance(unsigned *, unsigned);
@@ -139,7 +141,7 @@ struct affectMaterial{
 	//default to m_dont_care
 	short satBefore;
 	
-	// this is material that the above material will turn into.
+	// this is material that the affected material will turn into.
 	// default to m_air
 	short matAfter;
 	// this is the type of saturation the material will have after the affectMat
@@ -186,13 +188,13 @@ struct saturationEffect{
 	// if satMem == false, the saturation will be in the material in our cell so long as the saturating material stays in proximity of our cell. 
 	/// IMPORTANT NOTE: If a satEffect absorbs the saturating material (see the absorb element of this structure), satMem will automatically be set to true.
 	bool satMem;
-
+	
 	// does the saturation material get absorbed (i.e. turn into air) when our material gets saturated by it? or is it not affected by saturating our material?
 	// 1 = gets absorbed
 	// 0 = doesn't get absorbed
 	/// if absorb is set to true, satMem will automatically be set to true.
 	unsigned short absorb;
-
+	
 	// chance of our material getting saturated by the surrounding material in these locations:
 	//		0 1 2
 	//		3 M 4
@@ -200,7 +202,7 @@ struct saturationEffect{
 	// chance of 0-100000. 0 = never 100000 = always
 	// default to each space around our material to have a 100% chance (chance[0 thru 7] = 100000)
 	unsigned chance[8];
-
+	
 	// the chance that our saturated material will decay into something else.
 	// from 0-100000
 	unsigned decayChance;
@@ -220,26 +222,26 @@ struct saturationEffect{
 struct material {
 	
 	// the color of the material
-	unsigned int color;
+	uint32_t color;
 	
 	// this is an array of affectMaterial structures.
 	//Each element of the structure array describes one type of interaction this material can have with materials in neighboring cells.
 	//start with affectMat[0] and put other effects into affectMat[1] and affectMat[2] and so on.
 	struct affectMaterial affectMat[MAX_NUMBER_OF_MATERIAL_INTERACTIONS];
-
+	
 	// this is an array (list) of things that can saturate this material and how it affects it.
 	// you must enter them in order starting at the 0th element. i.e. satEffect[0]. once the cell evalutator finds a default saturation effect, it breaks from the saturation effect checking loop.
 	// basically, if you want to make a saturation effect for a material, you have to put it in the satEffect[0] spot. if you want to make another, put it in the satEffect[1] spot. and so on and so forth.
 	// once the grid evaluator finds a saturation effect that is the default (does nothing)
 	struct saturationEffect satEffect[MAX_NUMBER_OF_SATURATIONS];
-
-	//value between 0 and 100000 describing the likelyhood of this material decaying on its own.
-	// 467 would mean there is a 0.467% chance of decay on each evaluation cycle.
-	unsigned decayChance;
 	
 	//this is the type of material that the current material may decay into.
 	short decayIntoMat;
-
+	
+	//value between 0 and 100000 describing the likelihood of this material decaying on its own.
+	// 467 would mean there is a 0.467% chance of decay on each evaluation cycle.
+	unsigned decayChance;
+	
 	// 0 = no gravity. any other value means the object is subject to gravity.
 	// POSITIVE numbers 1,2,3,... make the material need a steep slope to fall down.
 	// for instance, if the material has a gravity of 2, that means the material must have an empty space two cells below it and one cell to the right or the left of it.
@@ -257,10 +259,10 @@ struct material {
 	// therefore, a gravity of -4 is actually a slope of 4^(-1) = 1/4.
 	// isn't math fun?
 	char gravity;
-
+	
 	//material name
 	char *name;
-
+	
 } mats[MAX_NUMBER_OF_UNIQUE_MATERIALS]; // this mats array holds all the different types of materials.
 
 
@@ -272,7 +274,7 @@ struct material {
 ///if you want to make a material, but you don't want it to appear in the menu, give it a NULL for its mats[].name value.
 void set_default_material_attributes(){
 	int i,s,k,m;
-
+	
 	//DEFAULT MATERIAL VALUES:
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
         mats[i].name = NULL;
@@ -280,7 +282,7 @@ void set_default_material_attributes(){
 		mats[i].color = 0x000000;//default color is black
 		mats[i].decayChance = 0; // 0% chance to decay.
 		mats[i].decayIntoMat = m_air;	 // decay into air (this is irrelevant because there is a 0% decayChance anyway)
-
+	
 		 // for every saturation effect, set it to the default of not being able to be saturated by anything.
 		for(s=0 ; s<MAX_NUMBER_OF_SATURATIONS ; s++){
 			mats[i].satEffect[s].satMat = m_no_saturation; // by default, nothing can be saturated with anything.
@@ -295,7 +297,7 @@ void set_default_material_attributes(){
 				mats[i].satEffect[s].chance[k] = 0; // 0%
 			}
 		}
-
+	
 		// for every affect that our material can have on other materials, set it to default (default = air changes to air with a 0% chance. nothing happens.)
 		for(m=0 ; m<MAX_NUMBER_OF_MATERIAL_INTERACTIONS ; m++){
 			mats[i].affectMat[m].matBefore = m_dont_care;// affects everything
@@ -323,7 +325,7 @@ void init_material_attributes(void){
 	///DON'T YOU DARE CHANGE ANYTHING ABOUT AIR! you SACK of SHIT!
 //-------------------------------------------------------------------------------------------------------------------------------
 	/*
-	//mats[m_smoke].name = "Smoke";
+	mats[m_smoke].name = "Smoke";
 	mats[m_smoke].color = 0xa3a3a3;
 	
 	mats[m_smoke].affectMat[0].matBefore = m_air;  /// smoke wafts upwards
@@ -456,9 +458,22 @@ void init_material_attributes(void){
 	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_fire].name = "Fire"; 
+	mats[m_fire].color = 0xd83313;
 	mats[m_fire].decayIntoMat = m_air;
-    mats[m_fire].color = 0xd83313;
 	mats[m_fire].decayChance = 2500;
+	
+	mats[m_fire].affectMat[0].matBefore = m_air;		// fire creates more fire (flames) primarily above itself
+	mats[m_fire].affectMat[0].matAfter  = m_fire;
+	mats[m_fire].affectMat[0].chance[0] = 600;
+	mats[m_fire].affectMat[0].chance[1] = 1000;
+	mats[m_fire].affectMat[0].chance[2] = 600;
+	mats[m_fire].affectMat[0].chance[3] = 250;
+	mats[m_fire].affectMat[0].chance[4] = 250;
+	mats[m_fire].affectMat[0].chance[5] = 100;
+	mats[m_fire].affectMat[0].chance[6] = 75;
+	mats[m_fire].affectMat[0].chance[7] = 100;
+	
+	
 	/*
 	mats[m_fire].affectMat[0].matBefore = m_air;		/// fire makes smoke
 	mats[m_fire].affectMat[0].matAfter  = m_smoke;
@@ -466,6 +481,33 @@ void init_material_attributes(void){
 	mats[m_fire].affectMat[0].chance[1] = 1000;
 	mats[m_fire].affectMat[0].chance[2] =  100;
 	*/
+//-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_torch].name = "Torch";
+	mats[m_torch].color = 0x8b5800;
+	
+	mats[m_torch].satEffect[0].chance[0] = 5000;		// torches can be saturated with fire
+	mats[m_torch].satEffect[0].chance[1] = 33333;	
+	mats[m_torch].satEffect[0].chance[2] = 5000;	
+	mats[m_torch].satEffect[0].chance[3] = 7000;
+	mats[m_torch].satEffect[0].chance[4] = 7000;
+	mats[m_torch].satEffect[0].satMat = m_fire;
+	mats[m_torch].satEffect[0].satMem = 1;
+	
+	mats[m_torch].affectMat[0].satNeeded = m_fire;		// torches can create flames when they are lit (saturated with fire)
+	mats[m_torch].affectMat[0].matBefore = m_air;
+	mats[m_torch].affectMat[0].matAfter  = m_fire;
+	mats[m_torch].affectMat[0].chance[1] = 70000;
+	
+	mats[m_torch].affectMat[1].chance[1] = 5000;		// when water hits the top of a torch, it puts it out
+	mats[m_torch].affectMat[1].chance[3] = 5000;
+	mats[m_torch].affectMat[1].chance[4] = 5000;
+	mats[m_torch].affectMat[1].chance[6] = 1000;
+	mats[m_torch].affectMat[1].changeOrigSat = m_no_saturation;
+	mats[m_torch].affectMat[1].matBefore = m_water;
+	mats[m_torch].affectMat[1].matAfter = m_water;
+	mats[m_torch].affectMat[1].satNeeded = m_fire;
+	
+	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[m_test].color = 0xCCFF00;

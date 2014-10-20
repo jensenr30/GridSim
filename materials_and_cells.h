@@ -277,7 +277,7 @@ struct material {
 	// when there is a negative value, it is actually a -1 in the exponent of the number.
 	// therefore, a gravity of -4 is actually a slope of 4^(-1) = 1/4.
 	// isn't math fun?
-	signed char gravity;
+	signed short gravity;
 	
 	// this describes how much the material weighs.
 	// heavy fluids will sink below less heavy fluids
@@ -376,6 +376,9 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_earth].name = "Earth";
 	mats[m_earth].color = 0x8b672d;
+	mats[m_earth].gravity = 1;
+	mats[m_earth].weight = 120;
+	
 	
 	mats[m_earth].satEffect[0].satMat = m_water;    /// earth turns into mud when soaked
 	mats[m_earth].satEffect[0].absorb = 1;
@@ -456,7 +459,7 @@ void init_material_attributes(void){
 	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";
-	mats[m_water].gravity = -32;
+	mats[m_water].gravity = -200;
     mats[m_water].color = 0x52a9e0;
     mats[m_water].weight = 100;
     

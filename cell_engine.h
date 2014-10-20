@@ -34,13 +34,13 @@ void evaluate_grid(){
 	// used to temporarily store the gravity value of the cell's material
 	int cMat;
 	// used to temporarily store the gravity value of the cell material's gravity
-	char currentGrav;
+	short currentGrav;
 	// used to temporarily store the gravity value of the cell's saturation
 	int currentSat;
 	// used for indexing horizontally when a gravity material has to travel sideways (these are used in the gravity slope portions where the materials fall down slopes).
 	// jg is for steep slopes (positive gravity)
 	// ig is used for gentle slopes (negative gravity)
-	char jg, ig;
+	short jg, ig;
 	// the holdOff variables are used to police the movement of materials. without them, shit looks really weird.
 	// these variables keep track of how long ago materials were moved around and it tells the program how soon it can move materials in the same direction again.
 	short holdOffRight = 0;

@@ -58,6 +58,7 @@ struct cellData grid[GRID_WIDTH_ELEMENTS][GRID_HEIGHT_ELEMENTS];
 //negative values are not actual materials, but rather flags for conditions used in evaluating the grid.
 //for instance, you can use mats[5] to get gunpowder data, or you can use mats[m_gunpowder] to get gunpowder data.
 //this is just for ease of code writing.
+#define m_not_air			-5	// this is used when checking for affectMats and satEffects. This will describe all materials that are not air.
 #define m_any_of_my_sats	-4	// this is used when checking affectMat[].satNeeded to see if a material has ANY of its valid saturations. if it does have any, then evaluate_affectMaterial() will allow the affect to occur.
 #define m_dont_care			-3  // this is used to show that we don't care what the material is.
 #define m_no_saturation 	-2  // this is used to signify that a material in a cell has no saturation
@@ -86,6 +87,7 @@ struct cellData grid[GRID_WIDTH_ELEMENTS][GRID_HEIGHT_ELEMENTS];
 #define m_scurge		19
 #define m_anti_scurge	20
 #define m_bottom_feeder	21
+#define m_antimatter	22
 
 #define m_test			23
 #define m_test2			24
@@ -374,6 +376,20 @@ void init_material_attributes(void){
 	mats[m_smoke].decayIntoMat = m_water;
 	*/
 //-------------------------------------------------------------------------------------------------------------------------------
+	mats[m_antimatter].name = "Antimatter";
+	mats[m_antimatter].color = 0xffffff;
+	
+	mats[m_antimatter].affectMat[0].matBefore = m_not_air;
+	mats[m_antimatter].affectMat[0].matAfter = m_antimatter;
+	set_chance(mats[m_antimatter].affectMat[0].chance, 20000);
+	
+	mats[m_antimatter].satEffect[0].absorb = 0;						// antimatter dies in the presence of too much air (nothing, so-to-speak) So I guess I'm saying that air isn't matter. That isn't very scientifically literate of me.
+	mats[m_antimatter].satEffect[0].satMat = m_air;
+	mats[m_antimatter].satEffect[0].decayIntoMat = m_air;
+	mats[m_antimatter].satEffect[0].decayChance = 700;
+	mats[m_antimatter].satEffect[0].decaySatGTE = 3;
+	set_chance(mats[m_antimatter].satEffect[0].chance, 100000);
+//-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_earth].name = "Earth";
 	mats[m_earth].color = 0x8b672d;
 	mats[m_earth].gravity = 1;
@@ -506,7 +522,7 @@ void init_material_attributes(void){
 	mats[m_fire].color = 0xd83313;
 	mats[m_fire].decayIntoMat = m_air;
 	mats[m_fire].decayChance = 2500;
-	mats[m_fire].weight = 
+	mats[m_fire].weight = -1;
 	
 	mats[m_fire].affectMat[0].matBefore = m_air;		// fire creates more fire (flames) primarily above itself
 	mats[m_fire].affectMat[0].matAfter  = m_fire;

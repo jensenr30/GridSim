@@ -426,7 +426,7 @@ void evaluate_grid(){
 					if(newi < camera_x || newi >= GRID_WIDTH+camera_x || newj < camera_y || newj >= GRID_HEIGHT+camera_y) continue;
 				
 					// if the material near this cell is the right type to saturate it
-					if(grid[newi][newj].mat == mats[cMat].satEffect[satEffIndex].satMat){
+					if( (grid[newi][newj].mat == mats[cMat].satEffect[satEffIndex].satMat) || (grid[newi][newj].mat != m_air && mats[cMat].satEffect[satEffIndex].satMat == m_not_air) ){
 						
 						if(roll_ht(mats[cMat].satEffect[satEffIndex].chance[c])){ // determine if it will become saturated based on roll_ht function.
 							grid[i][j].satChange = mats[cMat].satEffect[satEffIndex].satMat;
@@ -457,7 +457,7 @@ void evaluate_grid(){
 				//store current material here for convenience
 				cMat = grid[i][j].mat;
 				for(satEffIndex=0 ; satEffIndex<MAX_NUMBER_OF_SATURATIONS ; satEffIndex++){
-					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i][j].sat){ // if this is the right saturation
+					if(mats[cMat].satEffect[satEffIndex].satMat == grid[i][j].sat || (mats[cMat].satEffect[satEffIndex].satMat == m_not_air && grid[i][j].sat != m_air) ){ // if this is the right saturation
 						//check for the right saturaion levels. if you don't have the right sat levels, just move on to the next satEffect. (continue)
 						if(grid[i][j].satLevel < mats[cMat].satEffect[satEffIndex].decaySatGTE || grid[i][j].satLevel > mats[cMat].satEffect[satEffIndex].decaySatLTE) continue;
 						
@@ -624,8 +624,8 @@ void evaluate_affectMaterial(unsigned short i, unsigned short j, struct affectMa
 			// if newi and newj are in UNACCEPTABLE places, continue to the next neighboring cell
 			if(newi < 0 || newi >= GRID_WIDTH_ELEMENTS || newj < 0 || newj >= GRID_HEIGHT_ELEMENTS) continue;
 		
-			// if there is a valid material or if you can use any material
-			if( affMat->matBefore == grid[newi][newj].mat || affMat->matBefore == m_dont_care){
+			// if there is a valid material, or if you can use any material, OR if you can use any material BUT air...
+			if( affMat->matBefore == grid[newi][newj].mat || affMat->matBefore == m_dont_care || (affMat->matBefore == m_not_air && grid[newi][newj].mat != m_air)){
 				// if there is a valid saturation or if you can use any saturation
 				if( affMat->satBefore == grid[newi][newj].sat || affMat->satBefore == m_dont_care){
 					// rolling

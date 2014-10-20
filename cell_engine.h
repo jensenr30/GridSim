@@ -71,6 +71,7 @@ void evaluate_grid(){
 	bool found_length_of_mat_left;
 	
 	
+	/// 1.1 GRAVITY AND SLOPES
 	
 	for(j=GRID_HEIGHT+camera_y-1; j>=camera_y; j--){ // cycle through the rows
 		// make sure the indexes are not out of bounds
@@ -102,6 +103,7 @@ void evaluate_grid(){
 				break;
 			}
 			
+			// if the current cell is air, just skip ahead to the next one.
 			if(grid[i][j].mat == m_air) continue;
 			// this resets the holdoff variables if there is a gap between the gravity material
 			// this polices the movement of material
@@ -300,8 +302,57 @@ void evaluate_grid(){
 		} // for i
 	} // for j
 	
-	reset_grid_changes();
 	
+	/// 2.2 WEIGHT EVALUATION
+	
+	// these are used to temporarily store data about cells.
+	short tempMat, tempSat;
+	char tempSatLevel;
+	
+	for(i=camera_x ; i<GRID_WIDTH+camera_x && i<GRID_WIDTH_ELEMENTS ; i++){
+		//for(j=camera_y ; j<GRID_HEIGHT+camera_y && j<GRID_HEIGHT_ELEMENTS; j++){
+		
+		// set j to the proper index
+		j = camera_y + GRID_HEIGHT - 1;
+		// if j is at or below the lowest cell of the global grid,
+		if(j> GRID_HEIGHT_ELEMENTS-1){
+			// set j to be 1 cell up from the bottom of the global grid
+			j = GRID_HEIGHT_ELEMENTS-1;
+		}
+		for(; j>=camera_y+1 && j>=1; j--){
+		
+			
+			// we don't need to concern ourselves with air.
+			if(grid[i][j].mat == m_air) continue;
+			// if the material is not affected by gravity, we need not concern ourselves with it.
+			if(!mats[grid[i][j].mat].gravity) continue;
+			
+			// if the material above the current one weighs more, then switch the positions of the two materials.
+			if(mats[grid[i][j].mat].weight < mats[grid[i][j-1].mat].weight){
+				
+				// temporarily store the current cell's data
+				tempMat = grid[i][j].mat;
+				tempSat = grid[i][j].sat;
+				tempSatLevel = grid[i][j].satLevel;
+				
+				// move the above cell's data into the current cell
+				grid[i][j].mat = grid[i][j-1].mat;
+				grid[i][j].sat = grid[i][j-1].sat;
+				grid[i][j].satLevel = grid[i][j-1].satLevel;
+				
+				// copy temporary stored data from original state of current cell into above cell
+				grid[i][j-1].mat = tempMat;
+				grid[i][j-1].sat = tempSat;
+				grid[i][j-1].satLevel = tempSatLevel;
+				
+				j--;
+			}
+			
+			
+		}
+	}
+	
+	reset_grid_changes();
 	
 	///variables used in 2. APPLY SATURATION
 	// cMat		  :	the current material that we are trying to see if it gets saturated.

@@ -41,7 +41,7 @@ short numberOfSatableMats;
 
 struct cellData{
 	short mat; // the material in a cell. 	// default to m_air
-	short sat; // the saturaiton of a cell. // default to m_no_saturation
+	short sat; // the saturation of a cell. // default to m_no_saturation
 	char satLevel;  // the saturation level of a cell. i.e. how saturated is it? (integer range 1-8) default to 1
 	
 	short matChange; // does the material need to change?
@@ -106,7 +106,21 @@ struct cellData grid[GRID_WIDTH_ELEMENTS][GRID_HEIGHT_ELEMENTS];
 
 #define m_dead_scurge	98
 
+// This provides a valid material that has no name (name = NULL).
+// this is useful for... something or other.
+// I think this makes it easier to randomize the grid with materials.
+// so, not CRUCIAL, but, useful. It will remain for now.
 #define m_valid_but_null_material (MAX_NUMBER_OF_UNIQUE_MATERIALS-1)
+
+
+/// material phase definitions
+
+// solids
+#define phase_solid		0
+// fluids
+#define phase_fluid		1
+
+
 
 // this has to be a complete list of all the saturatable materials in the game.
 // this is used by the grid evaluator to check and apply saturations of the cells in our grid.
@@ -223,6 +237,9 @@ struct saturationEffect{
 ///this is the data structure for materials:
 struct material {
 	
+	//material name
+	char *name;
+	
 	// the color of the material
 	uint32_t color;
 	
@@ -260,10 +277,22 @@ struct material {
 	// when there is a negative value, it is actually a -1 in the exponent of the number.
 	// therefore, a gravity of -4 is actually a slope of 4^(-1) = 1/4.
 	// isn't math fun?
-	char gravity;
+	signed char gravity;
 	
-	//material name
-	char *name;
+	// this describes how much the material weighs.
+	// heavy fluids will sink below less heavy fluids
+	// air has zero weight.
+	// currently, the units of weight are meaningless.
+	//They only have meaning relative to the weights of other materials.
+	// currently, as a standard, water has a weight of 100.
+	//That should give a decent baseline of relativity for other materials.
+	int weight;
+	
+	// two possible material phases: phase_solid, phase_fluid.
+	// heavy fluids fall down through light fluids.
+	// heavy solids fall down through light fluids.
+	// heavy fluids DO NOT fall down through light solids.
+	char phase;
 	
 } mats[MAX_NUMBER_OF_UNIQUE_MATERIALS]; // this mats array holds all the different types of materials.
 
@@ -280,9 +309,11 @@ void set_default_material_attributes(){
 	//DEFAULT MATERIAL VALUES:
 	for(i=0 ; i<MAX_NUMBER_OF_UNIQUE_MATERIALS ; i++){
         mats[i].name = NULL;
-		mats[i].gravity = 0; // is not affected by gravity
-		mats[i].color = 0x000000;//default color is black
-		mats[i].decayChance = 0; // 0% chance to decay.
+		mats[i].gravity = 0;			// is not affected by gravity
+		mats[i].weight = 0;				// by default everything has 0 weight (air is said to have zero weight).
+		mats[i].phase = phase_fluid;	// by default, materials are fluids.
+		mats[i].color = 0x000000;		//default color is black
+		mats[i].decayChance = 0;		// 0% chance to decay.
 		mats[i].decayIntoMat = m_air;	 // decay into air (this is irrelevant because there is a 0% decayChance anyway)
 	
 		 // for every saturation effect, set it to the default of not being able to be saturated by anything.
@@ -427,6 +458,7 @@ void init_material_attributes(void){
 	mats[m_water].name = "Water";
 	mats[m_water].gravity = -32;
     mats[m_water].color = 0x52a9e0;
+    mats[m_water].weight = 100;
     
     mats[m_water].affectMat[0].matBefore = m_fire;		/// water puts out fire
     mats[m_water].affectMat[0].matAfter  = m_air;
@@ -514,10 +546,12 @@ void init_material_attributes(void){
 	mats[m_test].name = "test"; // the material that jensen tests evaluate_grid() with
 	mats[m_test].color = 0xCCFF00;
 	mats[m_test].gravity = 1;
+	mats[m_test].weight = 50;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_test2].name = "test2"; // the material that jensen tests evaluate_grid() with
 	mats[m_test2].color = 0x00FFCC;
 	mats[m_test2].gravity = 2;
+	mats[m_test2].weight = 200;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_rock].name = "Rock";
 	mats[m_rock].color = 0x5A5651;

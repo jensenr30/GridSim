@@ -455,7 +455,15 @@ void init_material_attributes(void){
     mats[m_plant].affectMat[4].satBefore = m_no_saturation;
     mats[m_plant].affectMat[4].satAfter  = m_water;
     mats[m_plant].affectMat[4].changesPerEval = 1;
-    set_chance( mats[m_plant].affectMat[4].chance, 6000);
+    //set_chance( mats[m_plant].affectMat[4].chance, 6000);
+    mats[m_plant].affectMat[4].chance[0] = 6000;
+    mats[m_plant].affectMat[4].chance[1] = 8000;
+    mats[m_plant].affectMat[4].chance[2] = 6000;
+    mats[m_plant].affectMat[4].chance[3] = 1000;
+    mats[m_plant].affectMat[4].chance[4] = 1000;
+    mats[m_plant].affectMat[4].chance[5] = 300;
+    mats[m_plant].affectMat[4].chance[6] = 50;
+    mats[m_plant].affectMat[4].chance[7] = 300;
 	
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_water].name = "Water";
@@ -472,7 +480,7 @@ void init_material_attributes(void){
 	
 	mats[m_spring].affectMat[0].matBefore = m_air;  	/// spring generates in open cells
 	mats[m_spring].affectMat[0].matAfter = m_water;
-	set_chance(mats[m_spring].affectMat[0].chance, 800);
+	set_chance(mats[m_spring].affectMat[0].chance, 100);
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_pipe].name = "Pipe";
 	mats[m_pipe].color = /*0x778866; */ 0xbe7e22;
@@ -498,6 +506,7 @@ void init_material_attributes(void){
 	mats[m_fire].color = 0xd83313;
 	mats[m_fire].decayIntoMat = m_air;
 	mats[m_fire].decayChance = 2500;
+	mats[m_fire].weight = 
 	
 	mats[m_fire].affectMat[0].matBefore = m_air;		// fire creates more fire (flames) primarily above itself
 	mats[m_fire].affectMat[0].matAfter  = m_fire;
@@ -572,7 +581,7 @@ void init_material_attributes(void){
 	mats[m_sand].name = "Sand";
 	mats[m_sand].gravity = -2;
 	mats[m_sand].color = 0xcfc1aa;
-	
+	mats[m_sand].weight = 140;
 	unsigned int quickSandChance = 10000;
 	
 	mats[m_sand].affectMat[0].matBefore = m_water;		// when water is on top of sand, the sand turns into quicksand.
@@ -593,10 +602,12 @@ void init_material_attributes(void){
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_quicksand].name = "Quicksand";
 	mats[m_quicksand].gravity = -5;
+	mats[m_quicksand].weight = mats[m_water].weight + mats[m_sand].weight;
 	mats[m_quicksand].color = 0x9f917e;
 //-------------------------------------------------------------------------------------------------------------------------------
 	mats[m_mud].name = "Mud";
 	mats[m_mud].gravity = -3;
+	mats[m_mud].weight = mats[m_water].weight + mats[m_earth].weight;
 	mats[m_mud].color = 0x644310;
 	mats[m_mud].satEffect[0].absorb = 1;
 	mats[m_mud].satEffect[0].satMat = m_water;

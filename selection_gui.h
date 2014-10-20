@@ -125,6 +125,7 @@ void selectionGUI(int x, int y, int mouse)
 
 int oldx = 0;
 int oldy = 0;
+short clicked = 0;
 int BrushSize = 1;
 int r = 10;
 double a, b;
@@ -405,15 +406,35 @@ void brushesGUI(int x, int y, int mouse)
                 */
             //line tool
             case 6:
-                /*
-                if(x == 1){
-                    setcell(x, y, currentMat);
+                if(clicked == 0) {
+                    oldx = x;
+                    oldy = y;
+                    clicked++;
+                } else {
+                    int modx = x/oldy, mody = y/oldy;
+                    if(oldx > x && oldy > y) {
+                        for(i = x, j = y; (i >= oldx) && (j >= oldy); i -= modx, j -= mody) {
+                            setcell(i, j, currentMat);
+                        }
+                        clicked = 0;
+                    } else if(oldx < x && oldy > y) {
+                        for(i = oldx, j = y; (i >= x) && (j >= oldy); i += modx, j -= mody) {
+                            setcell(i, j, currentMat);
+                        }
+                        clicked = 0;
+                    } else if(oldx > x && oldy < y) {
+                        for(i = x, j = oldy; (i <= oldx) && (j <= y); i -= modx, j += mody) {
+                            setcell(i, j, currentMat);
+                        }
+                        clicked = 0;
+                    } else if(oldx <= x && oldy <= y) {
+                        for(i = oldx, j = oldy; (i <= x) && (j <= y); i += modx, j += mody) {
+                            setcell(i, j, currentMat);
+                        }
+                        clicked = 0;
+                    }
                 }
-                oldx = x;
-                oldy = y;
-                setcell((oldx + x),(oldy + y),currentMat);
                 break;
-                */
             default:
                 setcell(x,y,currentMat);
                 break;
@@ -497,22 +518,31 @@ void brushesGUI(int x, int y, int mouse)
 
 void cursorDisplay(x, y)
 {
-        //cursor rectangle
+        // cursor rectangle
         SDL_Rect cursorRectangle;
         cursorRectangle.x = 0;
         cursorRectangle.y = 0;
         cursorRectangle.w = CELL_SIZE;
         cursorRectangle.h = CELL_SIZE;
 
-        //print recagle for base cursor
+        // rectangle used for printing lines
+        int i, j;
+        SDL_Rect lineRectangle[1000];
+        for(i = 0; i< 1000; i++) {
+            lineRectangle[i].x = 0;
+            lineRectangle[i].y = 0;
+            lineRectangle[i].w = CELL_SIZE;
+            lineRectangle[i].h = CELL_SIZE;
+        }
+
+        // print rectangle for base cursor
         cursorRectangle.x = x - CELL_SIZE/2;
         cursorRectangle.y = y - CELL_SIZE/2;
         cursorRectangle.w = cursorRectangle.h = CELL_SIZE;
         SDL_FillRect( screen , &cursorRectangle , mats[currentMat].color);
 
-        //updates cursor to what it the cursor is about to print
-
-        //basic brush
+        // updates cursor to what it the cursor is about to print
+        // basic brush
         if(mouseModifier == 1)
         {
             //top
@@ -581,5 +611,39 @@ void cursorDisplay(x, y)
             cursorRectangle.w = CELL_SIZE*3;
             cursorRectangle.h = CELL_SIZE*3;
             SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+        }
+        // line tool
+        if(mouseModifier == 6) {
+            int i, j;
+            int modx = x/oldy, mody = y/oldy;
+            if(oldx > x && oldy > y) {
+                for(i = x, j = y; (i >= oldx) && (j >= oldy); i -= modx, j -= mody) {
+                    lineRectangle[i].x = i;
+                    lineRectangle[i].y = j;
+                    SDL_FillRect(screen, &lineRectangle[i], mats[currentMat].color);
+                }
+                SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            } else if(oldx < x && oldy > y) {
+                for(i = oldx, j = y; (i >= x) && (j >= oldy); i += modx, j -= mody) {
+                    lineRectangle[i].x = i;
+                    lineRectangle[i].y = j;
+                    SDL_FillRect(screen, &lineRectangle[i], mats[currentMat].color);
+                }
+                SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            } else if(oldx > x && oldy < y) {
+                for(i = x, j = oldy; (i <= oldx) && (j <= y); i -= modx, j += mody) {
+                    lineRectangle[i].x = i;
+                    lineRectangle[i].y = j;
+                    SDL_FillRect(screen, &lineRectangle[i], mats[currentMat].color);
+                }
+                SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            } else if(oldx <= x && oldy <= y) {
+                for(i = x, j = y; (i >= oldx) && (j >= oldy); i -= modx, j -= mody) {
+                    lineRectangle[i].x = i;
+                    lineRectangle[i].y = j;
+                    SDL_FillRect(screen, &lineRectangle[i], mats[currentMat].color);
+                }
+                SDL_FillRect( screen, &cursorRectangle, mats[currentMat].color);
+            }
         }
 }

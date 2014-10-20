@@ -3,6 +3,7 @@
 bin/Debug/GridSim.exe
 bin/Release/GridSim.exe
 bin/DebugLinux/DebugLinux
+bin/CrossWindows32/
 *.o
 
 *stderr.txt

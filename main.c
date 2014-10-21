@@ -261,7 +261,9 @@ int main( int argc, char* args[] )
 			//displays cursor
 			cursorDisplay(x, y);
         }
-
+		
+		//draw_line(screen, 300, 300, x, y, 1, mats[currentMat].color);		// test the line drawing function
+        
         //updates the screen
         //SDL_Flip( screen );
         //SDL_RenderPresent( screen );

@@ -72,8 +72,20 @@ void draw_line(SDL_Surface *theSurface, int x1, int y1, int x2, int y2, int thic
 			return;
 		}
 		//this handles the special case the the line is a verticle line (slope infinity)
-		// this swaps the x and y values so that the function draws a line with a finite slope (zero)
-		draw_line(theSurface,y1,x1,y2,x2,thickness,lineColor);
+		int i;
+		// make sure y2 is bigger
+		if(y1 > y2){
+			i = y1;
+			y1 = y2;
+			y2 = i;
+		}
+		// draw straight vertical line
+		myPixel.x = x1;
+		myPixel.y = y1;
+		myPixel.w = 1;
+		myPixel.h = y2-y1;
+		SDL_FillRect(theSurface, &myPixel, lineColor);
+		
 		return;
 	}
 	

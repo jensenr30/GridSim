@@ -18,6 +18,7 @@ int main( int argc, char* args[] )
 	//make sure the program waits for a quit
 	int quit = false;
 
+
     //Initialize
     if( init() == false ) return 1;
 
@@ -30,7 +31,7 @@ int main( int argc, char* args[] )
 
     //initialize the cell stuff. This gets the cell system up and running. This also sets all cells to m_air and all the saturation to m_no_saturaion
     init_cell_stuff();
-	
+
 	/*
 	CELL_SIZE = 4;
 	int i;//

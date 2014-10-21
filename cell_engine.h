@@ -70,6 +70,9 @@ void evaluate_grid(){
 	bool found_length_of_mat_right;
 	bool found_length_of_mat_left;
 	
+	// these are used to temporarily store data about cells.
+	short tempMat, tempSat;
+	char tempSatLevel;
 	
 	/// 1.1 GRAVITY AND SLOPES
 	
@@ -127,20 +130,28 @@ void evaluate_grid(){
 			// if gravity affects this material
 			if(currentGrav){
 				
-				/// material falls out of the bottom of the screen
-				if(j >= GRID_HEIGHT+camera_y-1){
-					grid[i][j].mat = m_air;
-					grid[i][j].sat = m_no_saturation; // remove saturaiton of material once it falls out of the screen.
+				/// materials DON'T fall out of the bottom of the screen
+				if(j > GRID_HEIGHT+camera_y - 2){
+					continue;
+					//grid[i][j].mat = m_air;
+					//grid[i][j].sat = m_no_saturation; // remove saturaiton of material once it falls out of the screen.
 				}
 				/// material falls a single cell
-				else if(grid[i][j+1].mat == m_air){
+				else if(mats[grid[i][j].mat].weight > mats[grid[i][j+1].mat].weight && (mats[grid[i][j+1].mat].gravity || grid[i][j+1].mat == m_air) ){
+					// store the below cell's mat and sat
+					tempMat = grid[i][j+1].mat;
+					tempSat = grid[i][j+1].sat;
+					// transfer below cell's mat and sat to the current cell
 					grid[i][j+1].mat = cMat;
-					grid[i][j].mat = m_air;
-					//transfer saturation
 					grid[i][j+1].sat = currentSat;
-					grid[i][j].sat = m_no_saturation;
+					// save current cell's original contents with the lower cell's original content.
+					grid[i][j].mat = tempMat;
+					grid[i][j].sat = tempSat;
+					
+					// what is this for? I think I remember deleting it and it broke everything.
 					holdOffLeft = 2; // is this really necessary? jesus. why is this necessary...?
 				}
+				
 				
 				
 				/// THE MATERIAL CANNOT FALL DIRECTLY DOWN. IT HAS TO FALL DOWN A SLOPE.
@@ -184,6 +195,7 @@ void evaluate_grid(){
 							}
 						}
 					} // if( gravity is positive) steep slope
+					
 					
 					
 					else{ /// NEW GRADUAL-GRADED AND TUNNELING GRAVITY.
@@ -247,16 +259,16 @@ void evaluate_grid(){
 							//break if all of these values have been found
 							if( (cells_right_to_obstruction_sloping != -currentGrav+1) && (cells_left_to_obstruction_sloping != -currentGrav+1) && (cells_right_to_obstruction != -currentGrav+1) && (cells_left_to_obstruction != -currentGrav+1) && cells_right_to_air && cells_left_to_air && length_of_mat_right<0 && length_of_mat_left<0 ) break;
 						}//end for looping through the horizontal elements around the material
-						/*
-						#if ( DEBUG_GRIDSIM )
-							printf("\ncells_right_to_obstruction = %d\n", cells_right_to_obstruction);
-							printf("cells_left_to_obstruction = %d\n", cells_left_to_obstruction);
-							printf("cells_right_to_air = %d\n", cells_right_to_air);
-							printf("cells_left_to_air = %d\n", cells_left_to_air);
-							printf("length_of_mat_right = %d\n", length_of_mat_right);
-							printf("length_of_mat_left = %d\n\n", length_of_mat_left);
-						#endif
-						*/
+						
+						//#if ( DEBUG_GRIDSIM )
+						//	printf("\ncells_right_to_obstruction = %d\n", cells_right_to_obstruction);
+						//	printf("cells_left_to_obstruction = %d\n", cells_left_to_obstruction);
+						//	printf("cells_right_to_air = %d\n", cells_right_to_air);
+						//	printf("cells_left_to_air = %d\n", cells_left_to_air);
+						//	printf("length_of_mat_right = %d\n", length_of_mat_right);
+						//	printf("length_of_mat_left = %d\n\n", length_of_mat_left);
+						//#endif
+						
 						// can the material tunnel to the right?
 						if(length_of_mat_right >= 0 && cells_right_to_air - length_of_mat_right == 1 && cells_right_to_obstruction <= cells_right_to_air) moveRight = true;
 						// can the material tunnel to the left?
@@ -297,18 +309,20 @@ void evaluate_grid(){
 							holdOffLeft = -currentGrav;
 						}
 					} // tunneling and gradual grade slope
+					
+					
+					
 				} // if( the material cannot fall straight down )
+				
+				
+				
 			} // if( gravity )
 		} // for i
 	} // for j
 	
 	
+	/*
 	/// 2.2 WEIGHT EVALUATION
-	
-	// these are used to temporarily store data about cells.
-	short tempMat, tempSat;
-	char tempSatLevel;
-	
 	for(i=camera_x ; i<GRID_WIDTH+camera_x && i<GRID_WIDTH_ELEMENTS ; i++){
 		//for(j=camera_y ; j<GRID_HEIGHT+camera_y && j<GRID_HEIGHT_ELEMENTS; j++){
 		
@@ -351,6 +365,7 @@ void evaluate_grid(){
 			
 		}
 	}
+	*/
 	
 	reset_grid_changes();
 	

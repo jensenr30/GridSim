@@ -43,8 +43,8 @@
 		
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	/// OLD GRAVITY
-	/*
+/// OLD GRAVITY
+/*
 	/// 1. GRAVITY - this is where the gravity gets CHECKED and APPLIED.
 	for(j=GRID_HEIGHT-1 ; j>=0 ; j--){
 		for(i=0 ; i<GRID_WIDTH ; i++){
@@ -85,8 +85,171 @@
 			} // if gravity
 		} // for columns
 	} // for rows
-	*/
+*/
+	
+/// LESS OLD GRAVITY
 
+/*
+	/// THE MATERIAL CANNOT FALL DIRECTLY DOWN. IT HAS TO FALL DOWN A SLOPE.
+	else{
+		
+		// the minimum slope that the material can fall down is a 1/1 or steeper
+		if(currentGrav > 0){
+			if(grid[i+1][j].mat == m_air || grid[i-1][j].mat == m_air){
+				// initially set them both to 1. the for() loop will weed out the one(s) that won't work.
+				if(grid[i+1][j].mat == m_air) moveRight = 1;
+				else moveRight = 0;
+				if(grid[i-1][j].mat == m_air) moveLeft  = 1;
+				else moveLeft = 0;
+				// figure out
+				for(jg=1; jg<=currentGrav; jg++){
+					// if there is an obstruction in the path of the material falling down the slope, then set one of them to zero and break;
+					if(grid[i-1][j+jg].mat != m_air) moveLeft = 0;
+					if(grid[i+1][j+jg].mat != m_air) moveRight= 0;
+				}
+				// this selects either the right or the left direction
+				if(moveLeft && moveRight){
+					if(get_rand(0,1)) moveLeft = 0;
+					else moveRight = 0;
+				}
+				if(moveLeft){
+					grid[i][j].mat = m_air; // remove the material
+					
+					if(i!=0){
+						grid[i-1][j+currentGrav].mat = cMat; // place the new material only if it is in a valid place
+						grid[i-1][j+currentGrav].sat = currentSat;
+					}
+					grid[i][j].sat = m_no_saturation; // remove saturation
+				}
+				else if(moveRight){
+					grid[i][j].mat = m_air; // remove the material
+					if(i<GRID_WIDTH-1){
+						grid[i+1][j+currentGrav].mat = cMat; // place new material only if it is in a valid place
+						grid[i+1][j+currentGrav].sat = currentSat;
+					}
+					grid[i][j].sat = m_no_saturation;
+				}
+			}
+		} // if( gravity is positive) steep slope
+		
+		
+		
+		else{ /// NEW GRADUAL-GRADED AND TUNNELING GRAVITY.
+			
+			// gravity is when the material falls down a slope
+			// tunneling is defined as the material getting to a new place through material of its kind.
+			
+			//this treats other cells with the same material as obstruction
+			cells_right_to_obstruction = -currentGrav+1;
+			cells_left_to_obstruction = -currentGrav+1;
+			//this includes materials of the same kind in the definition of 
+			cells_right_to_obstruction_sloping = -currentGrav+1;
+			cells_left_to_obstruction_sloping = -currentGrav+1;
+			
+			cells_right_to_air = 0;
+			cells_left_to_air = 0;
+			// if the material underneath the cell we are evaluating is the same as the material in the cell we are evaluating,
+			// then the length of mat is 0 to start. otherwise the length of the material is invalid and is set to -1.
+			if(grid[i][j+1].mat == cMat){
+				length_of_mat_right = 0;
+				length_of_mat_left =  0;
+				found_length_of_mat_right = false;
+				found_length_of_mat_left = false;
+			}
+			else{
+				length_of_mat_right = -1;
+				length_of_mat_left = -1;
+				found_length_of_mat_right = true;
+				found_length_of_mat_left = true;
+			}
+			
+			
+			moveRight = false;
+			moveLeft = false;
+		
+			// generate the figures we need to evaluate gravity.
+			for(ig=1; ig<=-currentGrav; ig++){
+				
+				// get how far it is to the nearest obstruction to the right. only set this if it has not been set before.
+				//this set is for tunneling
+				if( (cells_right_to_obstruction==-currentGrav+1) && grid[i+ig][j].mat != m_air && grid[i+ig][j].mat != cMat) cells_right_to_obstruction = ig;
+				// get how far it is to the nearest obstruction to the  left. only set this if it has not been set before.
+				if( (cells_left_to_obstruction==-currentGrav+1)  && grid[i-ig][j].mat != m_air && grid[i-ig][j].mat != cMat )  cells_left_to_obstruction = ig;
+				
+				// get how far it is to the nearest obstruction to the right. only set this if it has not been set before.
+				// this set is for gravity slope testing.
+				if( (cells_right_to_obstruction_sloping==-currentGrav+1) && grid[i+ig][j].mat != m_air) cells_right_to_obstruction_sloping = ig;
+				// get how far it is to the nearest obstruction to the  left. only set this if it has not been set before.
+				if( (cells_left_to_obstruction_sloping==-currentGrav+1)  && grid[i-ig][j].mat != m_air) cells_left_to_obstruction_sloping = ig;
+				
+				// get how far it is to the nearest air cell to the right. only set this if it has not been set before.
+				if( !cells_right_to_air && grid[i+ig][j+1].mat == m_air ) cells_right_to_air = ig;
+				// get how far it is to the nearest air cell to the  left. only set this if it has not been set before.
+				if( !cells_left_to_air  && grid[i-ig][j+1].mat == m_air )  cells_left_to_air = ig;
+				
+				// get how far it is to the nearest non-cMat cell to the right. only set this if it has not been set before.
+				if( !found_length_of_mat_right && grid[i+ig][j+1].mat != cMat ) { length_of_mat_right = ig-1; found_length_of_mat_right = true; }
+				// get how far it is to the nearest non-cMat cell to the  left. only set this if it has not been set before.
+				if( !found_length_of_mat_left  && grid[i-ig][j+1].mat != cMat )  { length_of_mat_left = ig-1; found_length_of_mat_left = true; }
+				
+				//break if all of these values have been found
+				if( (cells_right_to_obstruction_sloping != -currentGrav+1) && (cells_left_to_obstruction_sloping != -currentGrav+1) && (cells_right_to_obstruction != -currentGrav+1) && (cells_left_to_obstruction != -currentGrav+1) && cells_right_to_air && cells_left_to_air && length_of_mat_right<0 && length_of_mat_left<0 ) break;
+			}//end for looping through the horizontal elements around the material
+			
+			//#if ( DEBUG_GRIDSIM )
+			//	printf("\ncells_right_to_obstruction = %d\n", cells_right_to_obstruction);
+			//	printf("cells_left_to_obstruction = %d\n", cells_left_to_obstruction);
+			//	printf("cells_right_to_air = %d\n", cells_right_to_air);
+			//	printf("cells_left_to_air = %d\n", cells_left_to_air);
+			//	printf("length_of_mat_right = %d\n", length_of_mat_right);
+			//	printf("length_of_mat_left = %d\n\n", length_of_mat_left);
+			//#endif
+			
+			// can the material tunnel to the right?
+			if(length_of_mat_right >= 0 && cells_right_to_air - length_of_mat_right == 1 && cells_right_to_obstruction <= cells_right_to_air) moveRight = true;
+			// can the material tunnel to the left?
+			if(length_of_mat_left  >= 0 &&  cells_left_to_air -  length_of_mat_left == 1 &&  cells_left_to_obstruction <= cells_left_to_air) moveLeft = true;
+			// can the material fall down the slope to the right?
+			if(cells_right_to_air && cells_right_to_obstruction_sloping > cells_right_to_air) moveRight = true;
+			// can the material fall down the slope to the left?
+			if(cells_left_to_air && cells_left_to_obstruction_sloping > cells_left_to_air) moveLeft = true;
+			
+			
+			// if both directions of motion are valid. this will ensure that either moveRight or moveLeft will be 1. NOT both.
+			if(moveLeft && moveRight){
+				// preform a random weighted coin flip to see which the water goes off.
+				if( get_rand(1,cells_left_to_air+cells_right_to_air) > cells_left_to_air)
+					moveRight = 0;
+				else
+					moveLeft  = 0;
+			}
+			
+			// the material goes to the right
+			if(moveRight && !holdOffRight){
+				// put current cell data into new cell
+				grid[i+cells_right_to_air][j+1].mat = cMat;
+				grid[i+cells_right_to_air][j+1].sat = currentSat;
+				// erase current cell data
+				grid[i][j].mat = m_air;
+				grid[i][j].sat = m_no_saturation;
+				holdOffRight = -currentGrav;
+			}
+			// the material goes to the left.
+			if(moveLeft && !holdOffLeft){
+				// put current cell data into new cell
+				grid[i-cells_left_to_air][j+1].mat = cMat;
+				grid[i-cells_left_to_air][j+1].sat = currentSat;
+				// erase current cell data
+				grid[i][j].mat = m_air;
+				grid[i][j].sat = m_no_saturation;
+				holdOffLeft = -currentGrav;
+			}
+		} // tunneling and gradual grade slope
+		
+		
+		
+	} // if( the material cannot fall straight down )
+*/
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /// FIRST ATTEMPT AT TUNNELING MATERIALS

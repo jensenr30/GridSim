@@ -154,3 +154,13 @@ int roll_ht(int chance){
 	if(chance > get_rand(0,99999)) return 1; // return 1 if the number the user gave you is greater than a random number between 0 and 99999.
 	return 0; // otherwise, return 0
 }
+
+
+// this function is called from Java after getting the appropriate
+// window size to set the size of the window correctly
+#ifdef ANDROID_DEVELOPMENT
+JNIEXPORT void JNICALL Java_org_libsdl_app_SDLActivity_setPhoneWindowSize(JNIEnv * env, jobject jobj, int width, int height) {
+    SCREEN_WIDTH = width;
+    SCREEN_HEIGHT = height;
+}
+#endif

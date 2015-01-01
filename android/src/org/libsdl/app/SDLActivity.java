@@ -43,7 +43,7 @@ public class SDLActivity extends Activity {
     
     // Audio
     protected static AudioTrack mAudioTrack;
-
+    
     // Load the .so
     static {
         System.loadLibrary("SDL2");
@@ -75,6 +75,9 @@ public class SDLActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v("SDL", "onCreate():" + mSingleton);
+        //mDisplay = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        //SDLActivity.setPhoneWindowSize(mDisplay.getWidth(), mDisplay.getHeight());
+        //test();
         super.onCreate(savedInstanceState);
         
         SDLActivity.initialize();
@@ -296,6 +299,8 @@ public class SDLActivity extends Activity {
                                                int is_accelerometer, int nbuttons, 
                                                int naxes, int nhats, int nballs);
     public static native int nativeRemoveJoystick(int device_id);
+    
+    public native static void setPhoneWindowSize(int width, int height);
 
     public static void flipBuffers() {
         SDLActivity.nativeFlipBuffers();
@@ -527,7 +532,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     // Keep track of the surface size to normalize touch events
     protected static float mWidth, mHeight;
-
+    
     // Startup    
     public SDLSurface(Context context) {
         super(context);
@@ -541,6 +546,8 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         mDisplay = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+        
+        SDLActivity.setPhoneWindowSize(mDisplay.getWidth(), mDisplay.getHeight());
         
         if(Build.VERSION.SDK_INT >= 12) {
             setOnGenericMotionListener(new SDLGenericMotionListener_API12());

@@ -4,26 +4,33 @@
 SDL_Rect matIcon[MAX_NUMBER_OF_UNIQUE_MATERIALS];
 
 // main button controls
-#define XPosForGUISelectionStart 190
-#define YPosFromGUISide 80
-#define widthButton 20
-#define heightButton 20
+#define YPosFromGUISide (SCREEN_WIDTH * 0.09)
+#define widthButton (SCREEN_WIDTH - (SCREEN_WIDTH * 0.977))
+#define heightButton (SCREEN_WIDTH - (SCREEN_WIDTH * 0.977))
 #define rowSpacingMultiplier 1.45
 #define columnSpacingMultiplier 1.618
 #define selectionBoxSize 3
 
 // main gui variables
-#define GUI_X SCREEN_WIDTH - 200
+#define GUI_X (SCREEN_WIDTH - (SCREEN_WIDTH * 0.22))
 #define GUI_Y 0
-#define GUI_W 200
+#define GUI_W (SCREEN_WIDTH * 0.22)
 #define GUI_H SCREEN_HEIGHT
 
+
+
 // selection box variables
-// these values need to be dynamic in order to work properly
-short SEL_X = DEFAULT_SCREEN_WIDTH - XPosForGUISelectionStart - selectionBoxSize,
-      SEL_Y = YPosFromGUISide - selectionBoxSize,
-      SEL_W = widthButton + selectionBoxSize * 2,
-      SEL_H = heightButton + selectionBoxSize * 2;
+// variables for changing the default location of the selection box
+short SEL_X, SEL_Y, SEL_W, SEL_H;
+
+// sets up the default position of the selection box so that
+// is under the first element
+void setupDefaultSelectionButtonLocation() {
+    SEL_X = SCREEN_WIDTH - (SCREEN_WIDTH * 0.208) - selectionBoxSize;
+    SEL_Y = (SCREEN_WIDTH * 0.09) - selectionBoxSize;
+    SEL_W = widthButton + selectionBoxSize * 2;
+    SEL_H = heightButton + selectionBoxSize * 2;
+}
 
 // displays gui
 void selectionGUI(int x, int y, int mouse)
@@ -118,8 +125,8 @@ void selectionGUI(int x, int y, int mouse)
 
 #define MAX_BRUSHES 7
 #define brushSpacingMultiplier 2
-#define brushButtonWidth 20
-#define brushButtonHeight 20
+#define brushButtonWidth (SCREEN_WIDTH - (SCREEN_WIDTH * 0.977))
+#define brushButtonHeight (SCREEN_WIDTH - (SCREEN_WIDTH * 0.977))
 #define xPosFromEdge 180
 #define yPosFromEdge 15
 

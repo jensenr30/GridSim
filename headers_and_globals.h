@@ -6,6 +6,11 @@
 #include "time.h"
 #include <math.h>
 
+#define ANDROID_DEVELOPMENT 1 // this is the variable for if we are developing for android or not
+#ifdef ANDROID_DEVELOPMENT
+#include <jni.h>
+#endif
+
 //definitions
 #define MAX_COUNT  150
 #define false 0 // c++ adaption
@@ -35,7 +40,7 @@ unsigned int SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT;
 //global variable that tells us if the game is paused or not
 int paused = 0;
 
-// this is the window that will be used 
+// this is the window that will be used
 SDL_Window *window = NULL;
 // The surfaces that will be used
 SDL_Surface *screen = 	NULL;

@@ -618,6 +618,24 @@ void cursorDisplay(x, y)
         }
         // line tool
         if(mouseModifier == 6) {
+            int i = 0, j = 0;
+            if(x - oldx == 0 || y - oldy == 0)
+                return;
+            if(x > oldx && y > oldy || y > oldy) {
+                for(j = oldy; j <= y; j++) {
+                    i = x + (((x - oldx)/(y - oldy)) * (j - y));
+                    lineRectangle[j].x = i;
+                    lineRectangle[j].y = j;
+                    SDL_FillRect(screen, &lineRectangle[j], mats[currentMat].color);
+                }
+            } else {
+                for(j = oldy; j >= y; j--) {
+                    i = x + (((x - oldx)/(y - oldy)) * (j - y));
+                    lineRectangle[j].x = i;
+                    lineRectangle[j].y = j;
+                    SDL_FillRect(screen, &lineRectangle[j], mats[currentMat].color);
+                }
+            }
             //int i = 0, j = 0;
             //int modx = x/oldy, mody = y/oldy;
             /*
@@ -641,11 +659,12 @@ void cursorDisplay(x, y)
                 //j = oldy + mody * (i - oldx) / modx;
             }
             */
+            /*
             int i, j;
             int modx = x / oldx, mody = y / oldy;
             if(oldx >= x && oldy >= y) {
-                modx = x < 0 ? oldx / x : 1;
-                mody = y < 0 ? oldy / y : 1;
+                modx = x > 0 ? oldx / x : 1;
+                mody = y > 0 ? oldy / y : 1;
                 //for(i = x, j = y; (i >= oldx) && (j >= oldy); i -= modx, j -= mody) {
                 for(i = oldx, j = oldy; (i > x) && (j > y); i -= modx, j -= mody) {
                     lineRectangle[i].x = i;
@@ -653,7 +672,7 @@ void cursorDisplay(x, y)
                     SDL_FillRect(screen, &lineRectangle[i], mats[currentMat].color);
                 }
             } else if(oldx <= x && oldy >= y) {
-                mody = y < 0 ? oldy / y : 1;
+                mody = y > 0 ? oldy / y : 1;
                 //for(i = oldx, j = y; (i >= x) && (j >= oldy); i += modx, j -= mody) {
                 for(i = oldx, j = oldy; (i <= x) && (j >= y); i += modx, j -= mody) {
                     lineRectangle[i].x = i;
@@ -661,7 +680,7 @@ void cursorDisplay(x, y)
                     SDL_FillRect(screen, &lineRectangle[i], mats[currentMat].color);
                 }
             } else if(oldx >= x && oldy <= y) {
-                modx = x < 0 ? oldx / x : 1;
+                modx = x > 0 ? oldx / x : 1;
                 //for(i = x, j = oldy; (i <= oldx) && (j <= y); i -= modx, j += mody) {
                 for(i = oldx, j = oldy; (i >= x) && (j <= y); i -= modx, j += mody) {
                     lineRectangle[i].x = i;
@@ -675,6 +694,6 @@ void cursorDisplay(x, y)
                     lineRectangle[i].y = j;
                     SDL_FillRect(screen, &lineRectangle[i], mats[currentMat].color);
                 }
-            }
+            }*/
         }
 }
